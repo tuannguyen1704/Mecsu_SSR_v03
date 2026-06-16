@@ -1,26 +1,138 @@
+@import url("https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@300;400;500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+@theme {
+  --font-sans: "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Be Vietnam Pro", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+
+  --color-brand-primary: #FFC72C;
+  --color-brand-secondary: #003B73;
+  --color-brand-accent: #0056A8;
+  --color-navy: #163F78;
+  --color-navy-light: #1a4a8a;
+  --color-navy-dark: #0f2d5c;
+  --color-premium-bg: #FFFFFF;
+  --color-premium-surface: #FFFFFF;
+  --color-premium-hover: #F1F5F9;
+  --color-premium-border: #E2E8F0;
+  --color-text-main: #0F172A;
+  --color-text-navy: #003B73;
+  --color-text-dim: #64748B;
+
+  --ease-premium: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+@layer base {
+  html {
+    scrollbar-gutter: stable;
+  }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+  body {
+    @apply bg-premium-bg text-text-main antialiased font-sans transition-colors duration-500;
+    width: 100%;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+
+  body.modal-open {
+    overflow: hidden !important;
+    height: 100% !important;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-display tracking-tight font-semibold;
+  }
+
+  ::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+  }
+
+  ::-webkit-scrollbar-track {
+    @apply bg-transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    @apply bg-brand-secondary/20 rounded-full transition-colors;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-brand-primary/40;
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+@layer utilities {
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .premium-shadow {
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03), 0 4px 12px rgba(0, 0, 0, 0.04);
+  }
+
+  .custom-scrollbar-thin::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  .custom-scrollbar-thin::-webkit-scrollbar-thumb {
+    @apply bg-gray-200 rounded-full;
+  }
+
+  .no-caret,
+  .no-caret * {
+    caret-color: transparent !important;
+  }
+
+  .no-caret:focus,
+  .no-caret:focus * {
+    outline: none !important;
+  }
+
+  .subcategory-card:focus-visible,
+  .subcategory-card:focus-visible * {
+    outline: none !important;
+    box-shadow: none !important;
+    border: none !important;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-in {
+  animation: slideIn 0.35s cubic-bezier(0.21, 1.02, 0.73, 1) both;
 }

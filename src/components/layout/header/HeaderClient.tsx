@@ -1,0 +1,287 @@
+"use client";
+
+import { useEffect, useState } from "react";
+import { CheckCircle2, ChevronDown, Factory, Menu } from "lucide-react";
+import { motion } from "motion/react";
+import Image from "next/image";
+import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
+import {
+  AuthModal,
+  getCurrentUser,
+  logout,
+  type MockAuthUser,
+} from "@/features/auth";
+import type { HeaderCategory } from "@/features/categories/data/header-categories";
+import { useCart } from "@/features/cart";
+import type { Product } from "@/features/products/types/product";
+import HeaderAccountMenu from "./HeaderAccountMenu";
+import HeaderCartButton from "./HeaderCartButton";
+import HeaderCategoryMenu from "./HeaderCategoryMenu";
+import HeaderSearch from "./HeaderSearch";
+import MobileHeader from "./MobileHeader";
+
+interface HeaderClientProps {
+  categories: HeaderCategory[];
+  locations: string[];
+  products: Product[];
+}
+
+const mockNotifications = [
+  {
+    id: "2",
+    type: "shipping" as const,
+    message:
+      "Đơn hàng 01175S2509001043 vừa được giao thành công. Cảm ơn bạn đã đặt hàng tại Mecsu.",
+    time: "2 tháng trước",
+    read: true,
+    icon: "success",
+  },
+];
+
+export default function HeaderClient({
+  categories,
+  locations,
+  products,
+}: HeaderClientProps) {
+  const pathname = usePathname();
+  const router = useRouter();
+  const isHomePage = pathname === "/";
+  const pathSegments = pathname.split("/").filter(Boolean);
+  const isSubcategoryPage =
+    pathSegments[0] === "danh-muc" && pathSegments.length >= 3;
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+  const [mockUser, setMockUser] = useState<MockAuthUser | null>(null);
+  const [isScrolled, setIsScrolled] = useState(false);
+  const [isHomepageSearchSticky, setIsHomepageSearchSticky] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(
+    locations[0] ?? "TP. Hồ Chí Minh",
+  );
+  const { totalItems, subtotal } = useCart();
+  const isMockLoggedIn = Boolean(mockUser);
+
+  useEffect(() => {
+    const timeoutId = window.setTimeout(() => {
+      setMockUser(getCurrentUser());
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
+  }, []);
+
+  const isAccountPage = pathname.startsWith("/tai-khoan");
+
+  useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    if (!isHomePage) {
+      return;
+    }
+
+    const searchElement = document.querySelector("[data-home-hero-search]");
+
+    if (!searchElement) {
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setIsHomepageSearchSticky(!entries[0]?.isIntersecting);
+      },
+      { threshold: 0, rootMargin: "-80px 0px 0px 0px" },
+    );
+
+    observer.observe(searchElement);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [isHomePage]);
+
+  useEffect(() => {
+    document.body.style.overflow =
+      isCategoryOpen || isMobileOpen ? "hidden" : "unset";
+    return () => {
+      document.body.style.overflow = "unset";
+    };
+  }, [isCategoryOpen, isMobileOpen]);
+
+  const headerPosition = isAccountPage ? "relative" : isSubcategoryPage ? "relative" : "sticky top-0";
+
+  return (
+    <header
+      className={`z-[300] flex w-full flex-col ${headerPosition}`}
+    >
+      <div
+        className={`border-b border-slate-200 transition-all duration-300 ${
+          isScrolled ? "bg-white/95 shadow-sm backdrop-blur-md" : "bg-white"
+        }`}
+      >
+        <div className="mx-auto flex h-20 max-w-[1600px] items-center gap-12 px-6 lg:px-12">
+          <Link href="/" className="flex shrink-0 items-center">
+            <Image
+              src="/mecsu-sologan.png"
+              alt="MECSU Logo"
+              width={178}
+              height={64}
+              priority
+              className="h-16 w-auto object-contain"
+            />
+          </Link>
+
+          <button
+            onClick={() => setIsCategoryOpen((open) => !open)}
+            className="group relative hidden h-12 shrink-0 items-center gap-4 overflow-hidden rounded-md bg-[#163F78] px-6 text-[13px] font-bold tracking-widest text-white shadow-md transition-all hover:brightness-110 lg:flex"
+          >
+            <div className="absolute inset-0 bg-white/5 opacity-0 transition-opacity group-hover:opacity-100" />
+            <Menu
+              size={20}
+              className="text-brand-primary transition-transform duration-500 group-hover:rotate-180"
+            />
+            Danh mục
+            <ChevronDown
+              size={16}
+              className={`transition-transform duration-300 ${isCategoryOpen ? "rotate-180" : ""}`}
+            />
+          </button>
+
+          <div className="hidden flex-1 items-center xl:flex">
+            {isHomePage ? (
+              <>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className={
+                    isHomepageSearchSticky ? "w-full" : "hidden w-full"
+                  }
+                >
+                  <HeaderSearch products={products} />
+                </motion.div>
+                <div className={isHomepageSearchSticky ? "hidden" : "block"}>
+                  <TrustBadges />
+                </div>
+              </>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="w-full"
+              >
+                <HeaderSearch products={products} />
+              </motion.div>
+            )}
+          </div>
+
+          <div className="hidden flex-1 items-center lg:flex xl:hidden">
+            <TrustBadges />
+          </div>
+
+          <nav className="ml-auto hidden items-center gap-10 md:flex">
+            <HeaderAccountMenu
+              isOpen={isProfileOpen}
+              isLoggedIn={isMockLoggedIn}
+              notifications={mockNotifications}
+              accountLabel={mockUser?.fullName ?? "Tài khoản"}
+              onCategoryClose={() => setIsCategoryOpen(false)}
+              onLoginModalChange={setIsLoginModalOpen}
+              onLogout={async () => {
+                await logout();
+                setIsProfileOpen(false);
+                setMockUser(null);
+                router.push("/");
+              }}
+              onOpenChange={setIsProfileOpen}
+            />
+            <HeaderCartButton cartCount={totalItems} cartTotal={subtotal} />
+          </nav>
+
+          <MobileHeader
+            categories={categories}
+            cartCount={totalItems}
+            isOpen={isMobileOpen}
+            products={products}
+            onAccountClick={() => {
+              if (isMockLoggedIn) {
+                setIsProfileOpen((open) => !open);
+                return;
+              }
+              setIsLoginModalOpen(true);
+            }}
+            onOpenChange={setIsMobileOpen}
+          />
+        </div>
+      </div>
+
+      <HeaderCategoryMenu
+        categories={categories}
+        isOpen={isCategoryOpen}
+        locations={locations}
+        selectedLocation={selectedLocation}
+        onClose={() => setIsCategoryOpen(false)}
+        onLocationChange={setSelectedLocation}
+      />
+      <AuthModal
+        isOpen={isLoginModalOpen}
+        onClose={() => setIsLoginModalOpen(false)}
+        onSuccess={(user) => {
+          setMockUser(user);
+          setIsProfileOpen(false);
+        }}
+      />
+    </header>
+  );
+}
+
+function TrustBadges() {
+  return (
+    <div className="flex items-center gap-10 border-l border-slate-200 pl-10">
+      <TrustBadge icon="iso" title="Chuẩn ISO/DIN" subtitle="100% Chính hãng" />
+      <TrustBadge
+        icon="factory"
+        title="Sẵn kho cực lớn"
+        subtitle="Giao hỏa tốc 2h"
+      />
+    </div>
+  );
+}
+
+function TrustBadge({
+  icon,
+  title,
+  subtitle,
+}: {
+  icon: "iso" | "factory";
+  title: string;
+  subtitle: string;
+}) {
+  return (
+    <div className="flex items-center gap-3">
+      <div
+        className={`flex h-9 w-9 items-center justify-center rounded-full ${
+          icon === "iso" ? "bg-blue-50" : "bg-amber-50"
+        }`}
+      >
+        {icon === "iso" ? (
+          <CheckCircle2 size={18} className="text-[#24465B]" />
+        ) : (
+          <Factory size={18} className="text-brand-primary" />
+        )}
+      </div>
+      <div className="flex flex-col">
+        <span className="text-[11px] font-bold tracking-tight text-slate-800">
+          {title}
+        </span>
+        <span className="text-[10px] font-medium tracking-widest text-slate-400">
+          {subtitle}
+        </span>
+      </div>
+    </div>
+  );
+}
