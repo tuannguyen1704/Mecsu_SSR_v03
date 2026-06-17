@@ -1,5 +1,21 @@
 import type { Product } from "../types/product";
 
+export type SearchSuggestionItem = Pick<
+  Product,
+  | "id"
+  | "name"
+  | "slug"
+  | "sku"
+  | "category"
+  | "categorySlug"
+  | "brand"
+  | "price"
+  | "originalPrice"
+  | "discount"
+  | "image"
+  | "tags"
+>;
+
 export function normalizeVietnamese(value: string): string {
   return value
     .toLowerCase()
@@ -14,7 +30,10 @@ function containsKeyword(text: string | undefined, keyword: string): boolean {
   return normalizeVietnamese(text).includes(normalizeVietnamese(keyword));
 }
 
-export function searchProducts(products: Product[], keyword: string): Product[] {
+export function searchProducts<T extends SearchSuggestionItem>(
+  products: T[],
+  keyword: string,
+): T[] {
   if (!keyword.trim()) return [];
 
   return products.filter((product) => {
@@ -27,7 +46,10 @@ export function searchProducts(products: Product[], keyword: string): Product[] 
   });
 }
 
-export function calculateSearchRelevance(product: Product, keyword: string): number {
+export function calculateSearchRelevance(
+  product: SearchSuggestionItem,
+  keyword: string,
+): number {
   const normalizedKeyword = normalizeVietnamese(keyword);
   const normalizedName = normalizeVietnamese(product.name);
   let score = 0;
@@ -51,16 +73,19 @@ export function calculateSearchRelevance(product: Product, keyword: string): num
   return score;
 }
 
-export function sortBySearchRelevance(products: Product[], keyword: string): Product[] {
+export function sortBySearchRelevance<T extends SearchSuggestionItem>(
+  products: T[],
+  keyword: string,
+): T[] {
   return [...products].sort(
     (a, b) => calculateSearchRelevance(b, keyword) - calculateSearchRelevance(a, keyword),
   );
 }
 
 export function getSearchSuggestions(
-  products: Product[],
+  products: SearchSuggestionItem[],
   keyword: string,
   limit = 6,
-): Product[] {
+): SearchSuggestionItem[] {
   return searchProducts(products, keyword).slice(0, limit);
 }

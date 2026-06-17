@@ -1,11 +1,18 @@
 "use client";
 
 import { motion } from "motion/react";
+import type { SearchSuggestionItem } from "@/features/products/services/search-products";
 import type { HomeHeroData } from "../types/home";
 import { HeroSearchBox } from "./HeroSearchBox";
 import { HeroStats } from "./HeroStats";
 
-export function HomeHeroClient({ hero }: { hero: HomeHeroData }) {
+export function HomeHeroClient({
+  hero,
+  suggestions,
+}: {
+  hero: HomeHeroData;
+  suggestions: SearchSuggestionItem[];
+}) {
   return (
     <motion.div
       initial={false}
@@ -20,7 +27,10 @@ export function HomeHeroClient({ hero }: { hero: HomeHeroData }) {
       </p>
 
       <div className="mx-auto w-full max-w-3xl" data-home-hero-search>
-        <HeroSearchBox placeholder={hero.searchPlaceholder} />
+        <HeroSearchBox
+          placeholder={hero.searchPlaceholder}
+          suggestions={suggestions}
+        />
       </div>
 
       <HeroStats stats={hero.stats} />

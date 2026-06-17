@@ -5,8 +5,6 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  Calendar,
-  Check,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
@@ -28,8 +26,11 @@ import {
   removeItem,
   removeMultipleItems,
 } from "../services/wishlist-storage";
-import type { WishlistItem, WishlistStockStatus } from "../types/wishlist";
-import { wishlistItemToProduct } from "./WishlistProductCard";
+import type { WishlistItem } from "../types/wishlist";
+import {
+  WishlistProductCard,
+  wishlistItemToProduct,
+} from "./WishlistProductCard";
 
 type FilterChip = "all" | "in_stock" | "out_of_stock" | "has_discount";
 type SortOption = "newest" | "oldest" | "name_asc" | "name_desc";
@@ -54,34 +55,6 @@ const sortOptions: { value: SortOption; label: string }[] = [
   { value: "name_desc", label: "Tên Z-A" },
 ];
 
-const stockConfig: Record<
-  WishlistStockStatus,
-  { label: string; bg: string; color: string; dot: string }
-> = {
-  in_stock: {
-    label: "Còn hàng",
-    bg: "bg-emerald-50",
-    color: "text-emerald-700",
-    dot: "bg-emerald-500",
-  },
-  out_of_stock: {
-    label: "Hết hàng",
-    bg: "bg-red-50",
-    color: "text-red-600",
-    dot: "bg-red-400",
-  },
-  limited: {
-    label: "Sắp hết",
-    bg: "bg-amber-50",
-    color: "text-amber-700",
-    dot: "bg-amber-400",
-  },
-};
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("vi-VN").format(price);
-}
-
 function StatCard({
   icon,
   value,
@@ -105,169 +78,6 @@ function StatCard({
         <div className={cn("rounded-lg p-2.5", bgColor)}>{icon}</div>
       </div>
     </div>
-  );
-}
-
-function WishlistListCard({
-  item,
-  isSelected,
-  multiSelectMode,
-  onSelect,
-  onRemove,
-  onAddToCart,
-  onRequestQuote,
-}: {
-  item: WishlistItem;
-  isSelected: boolean;
-  multiSelectMode: boolean;
-  onSelect: (id: string) => void;
-  onRemove: (productId: string) => void;
-  onAddToCart: (item: WishlistItem) => void;
-  onRequestQuote: (item: WishlistItem) => void;
-}) {
-  const stock = stockConfig[item.stockStatus] || stockConfig.in_stock;
-  const isOutOfStock = item.stockStatus === "out_of_stock";
-
-  return (
-    <article
-      className={cn(
-        "rounded-2xl border bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg",
-        isSelected
-          ? "border-[#173E75] ring-1 ring-[#173E75]/20"
-          : "border-[#E5EAF2]",
-      )}
-    >
-      <div className="grid grid-cols-1 gap-4 lg:grid-cols-[auto_1fr_auto] lg:gap-5">
-        <div className="flex items-start pt-1">
-          <button
-            type="button"
-            onClick={() => onSelect(item.productId)}
-            aria-label="Chọn sản phẩm"
-            className={cn(
-              "flex h-5 w-5 items-center justify-center rounded border-2 transition-all",
-              multiSelectMode
-                ? isSelected
-                  ? "border-[#173E75] bg-[#173E75]"
-                  : "border-gray-300 hover:border-[#173E75]"
-                : "pointer-events-none opacity-0",
-            )}
-          >
-            {isSelected ? <Check size={12} className="text-white" /> : null}
-          </button>
-        </div>
-
-        <div className="flex gap-4">
-          <Link
-            href={`/san-pham/${item.slug}`}
-            className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-100 bg-slate-50 lg:h-28 lg:w-28"
-          >
-            {item.image ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={item.image}
-                alt={item.name}
-                className="h-full w-full object-contain"
-              />
-            ) : (
-              <Package size={32} className="text-slate-300" />
-            )}
-          </Link>
-
-          <div className="min-w-0 flex-1 space-y-2">
-            <Link
-              href={`/san-pham/${item.slug}`}
-              className="line-clamp-2 text-sm leading-snug font-semibold text-slate-900 transition-colors hover:text-[#173E75]"
-            >
-              {item.name}
-            </Link>
-            <div className="space-y-1 text-xs text-slate-500">
-              <p>
-                SKU: <span className="font-medium text-slate-700">{item.sku}</span>
-              </p>
-              <p>
-                Nhà sản xuất:{" "}
-                <span className="font-medium text-slate-700">{item.brand}</span>
-              </p>
-              <p className="flex items-center gap-1">
-                <Calendar size={11} />
-                Đã lưu: {item.savedDate || "Đang cập nhật"}
-              </p>
-              <span
-                className={cn(
-                  "inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium",
-                  stock.bg,
-                  stock.color,
-                )}
-              >
-                <span className={cn("h-1.5 w-1.5 rounded-full", stock.dot)} />
-                {stock.label}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex items-start justify-between gap-3 lg:min-w-[180px] lg:flex-col lg:items-end lg:justify-start">
-          <div className="text-right lg:w-full">
-            {item.originalPrice && item.originalPrice > item.price ? (
-              <>
-                <p className="text-xs text-slate-400 line-through">
-                  {formatPrice(item.originalPrice)}đ
-                </p>
-                <p className="text-base font-bold text-[#173E75]">
-                  {formatPrice(item.price)}đ
-                </p>
-                <span className="mt-0.5 inline-block rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600">
-                  -{item.discount}%
-                </span>
-              </>
-            ) : (
-              <p className="text-xs text-slate-500">
-                Giá:{" "}
-                <span className="font-semibold text-slate-700">
-                  {item.price > 0 ? `${formatPrice(item.price)}đ` : "Liên hệ"}
-                </span>
-              </p>
-            )}
-          </div>
-
-          <div className="flex w-full items-center gap-2 lg:w-auto lg:flex-col">
-            <button
-              type="button"
-              onClick={() => onAddToCart(item)}
-              disabled={isOutOfStock}
-              className={cn(
-                "flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full px-4 text-xs font-semibold transition-colors lg:w-[185px]",
-                isOutOfStock
-                  ? "cursor-not-allowed bg-gray-100 text-gray-400"
-                  : "bg-[#173E75] text-white hover:bg-[#1a4a8a]",
-              )}
-            >
-              <ShoppingCart size={14} />
-              {isOutOfStock ? "Hết hàng" : "Thêm vào giỏ"}
-            </button>
-            <button
-              type="button"
-              onClick={() => onRequestQuote(item)}
-              className="flex h-8 flex-1 items-center justify-center gap-1.5 rounded-full border border-[#173E75] px-4 text-xs font-semibold text-[#173E75] transition-colors hover:bg-blue-50 lg:w-[185px]"
-            >
-              <FileText size={14} />
-              Yêu cầu báo giá
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-3 flex justify-end border-t border-slate-100 pt-3">
-        <button
-          type="button"
-          onClick={() => onRemove(item.productId)}
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs text-slate-400 transition-colors hover:bg-red-50 hover:text-red-500"
-        >
-          <Trash2 size={14} />
-          Xóa
-        </button>
-      </div>
-    </article>
   );
 }
 
@@ -623,9 +433,9 @@ export function WishlistGridClient() {
 
       {filteredItems.length > 0 ? (
         <>
-          <div className="space-y-3">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
             {paginatedItems.map((item) => (
-              <WishlistListCard
+              <WishlistProductCard
                 key={item.id}
                 item={item}
                 isSelected={selectedIds.has(item.productId)}

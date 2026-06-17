@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { motion } from "motion/react";
 import type { HomePromotion } from "../data/home-promotions";
 
@@ -24,11 +25,16 @@ export function PromotionCard({ promotion, index }: PromotionCardProps) {
         className="group relative flex h-[240px] cursor-pointer flex-col justify-between overflow-hidden rounded-md p-6 transition-all duration-500 lg:h-[260px]"
       >
         <div className="absolute inset-0">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={promotion.image}
             alt={promotion.title}
-            className="h-full w-full rounded-t-md object-cover transition-transform duration-1000 group-hover:scale-110"
+            fill
+            sizes={
+              index === 0
+                ? "(min-width: 1024px) 50vw, 100vw"
+                : "(min-width: 1024px) 25vw, 100vw"
+            }
+            className="rounded-t-md object-cover transition-transform duration-1000 group-hover:scale-110"
           />
           <div className="absolute inset-0 bg-black/40 transition-colors duration-500 group-hover:bg-black/30" />
         </div>

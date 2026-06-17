@@ -3,7 +3,6 @@ import {
   getProductDescription,
   getProductImages,
   getProductShortDescription,
-  getRelatedProducts,
 } from "../../services/product-service";
 import { CompatibleProducts } from "./CompatibleProducts";
 import { CustomerReviews } from "./CustomerReviews";
@@ -18,21 +17,16 @@ import { ProductTechSpecs } from "./ProductTechSpecs";
 
 interface ProductDetailShellProps {
   product: Product;
-  allProducts: Product[];
+  compatibleProducts: Product[];
 }
 
-export function ProductDetailShell({ product, allProducts }: ProductDetailShellProps) {
+export function ProductDetailShell({
+  product,
+  compatibleProducts,
+}: ProductDetailShellProps) {
   const shortDescription = getProductShortDescription(product);
   const description = getProductDescription(product);
   const images = getProductImages(product);
-  const relatedProducts = getRelatedProducts(product, 10);
-  const compatibleProducts =
-    relatedProducts.length >= 8
-      ? relatedProducts
-      : [
-          ...relatedProducts,
-          ...allProducts.filter((candidate) => candidate.id !== product.id),
-        ].slice(0, 10);
 
   return (
     <main className="min-h-screen bg-white pb-20">

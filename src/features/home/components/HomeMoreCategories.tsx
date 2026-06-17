@@ -8,12 +8,30 @@ import { MoreCategoryItem } from "./MoreCategoryItem";
 export function HomeMoreCategories() {
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-  const scrollLeft = () => {
-    scrollContainerRef.current?.scrollBy({ left: -800, behavior: "smooth" });
-  };
+  const scrollCategories = (direction: "left" | "right") => {
+    const container = scrollContainerRef.current;
 
-  const scrollRight = () => {
-    scrollContainerRef.current?.scrollBy({ left: 800, behavior: "smooth" });
+    if (!container) {
+      return;
+    }
+
+    const maxScrollLeft = container.scrollWidth - container.clientWidth;
+    const scrollDistance = Math.round(container.clientWidth * 0.72);
+
+    if (direction === "left" && container.scrollLeft <= 1) {
+      container.scrollTo({ left: maxScrollLeft, behavior: "smooth" });
+      return;
+    }
+
+    if (direction === "right" && container.scrollLeft >= maxScrollLeft - 1) {
+      container.scrollTo({ left: 0, behavior: "smooth" });
+      return;
+    }
+
+    container.scrollBy({
+      left: direction === "left" ? -scrollDistance : scrollDistance,
+      behavior: "smooth",
+    });
   };
 
   return (
@@ -24,14 +42,14 @@ export function HomeMoreCategories() {
 
       <div className="group relative">
         <button
-          onClick={scrollLeft}
+          onClick={() => scrollCategories("left")}
           className="absolute top-1/2 -left-4 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-600 opacity-0 shadow-sm transition-colors hover:bg-slate-50 group-hover:opacity-100 disabled:opacity-0"
           aria-label="Scroll categories left"
         >
           <ChevronLeft size={24} />
         </button>
         <button
-          onClick={scrollRight}
+          onClick={() => scrollCategories("right")}
           className="absolute top-1/2 -right-4 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-600 opacity-0 shadow-sm transition-colors hover:bg-slate-50 group-hover:opacity-100 disabled:opacity-0"
           aria-label="Scroll categories right"
         >
@@ -40,8 +58,13 @@ export function HomeMoreCategories() {
 
         <div
           ref={scrollContainerRef}
-          className="no-scrollbar flex gap-4 overflow-x-auto px-2 py-4"
-          style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          className="no-scrollbar flex scroll-smooth gap-4 overflow-x-auto py-4"
+          style={{
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+            paddingLeft: "max(0.5rem, calc((100% - 1388px) / 2))",
+            paddingRight: "max(0.5rem, calc((100% - 1388px) / 2))",
+          }}
         >
           {HOME_MORE_CATEGORIES.map((item) => (
             <MoreCategoryItem key={item.id} item={item} />

@@ -7,6 +7,13 @@ import type { Product } from "@/features/products/types/product";
 import { ProductFilterSidebar } from "@/features/products/components/ProductFilterSidebar";
 import { ProductGrid } from "@/features/products/components/ProductGrid";
 import { ProductPagination } from "@/features/products/components/ProductPagination";
+import {
+  CATEGORY_LISTING_ITEMS_PER_PAGE,
+  getBrandFilters,
+  getFilteredProducts,
+  getPaginatedProducts,
+  getTotalProductPages,
+} from "../services/category-listing";
 import { CategorySortBar } from "./CategorySortBar";
 
 interface CategoryListingClientProps {
@@ -14,8 +21,6 @@ interface CategoryListingClientProps {
   products: Product[];
   productCountLabel?: string;
 }
-
-const ITEMS_PER_PAGE = 12;
 
 export function CategoryListingClient({
   title,
@@ -29,56 +34,27 @@ export function CategoryListingClient({
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const productListRef = useRef<HTMLDivElement>(null);
 
-  const brandFilters = useMemo(() => {
-    const counts = new Map<string, number>();
+  const brandFilters = useMemo(() => getBrandFilters(products), [products]);
 
-    products.forEach((product) => {
-      counts.set(product.brand, (counts.get(product.brand) || 0) + 1);
-    });
+  const filteredProducts = useMemo(
+    () =>
+      getFilteredProducts({
+        products,
+        selectedAvailability,
+        selectedBrands,
+        sortValue,
+      }),
+    [products, selectedAvailability, selectedBrands, sortValue],
+  );
 
-    return Array.from(counts.entries()).map(([brand, count]) => ({
-      id: brand,
-      label: brand,
-      count,
-    }));
-  }, [products]);
-
-  const filteredProducts = useMemo(() => {
-    let nextProducts = [...products];
-
-    if (selectedBrands.length > 0) {
-      nextProducts = nextProducts.filter((product) =>
-        selectedBrands.includes(product.brand),
-      );
-    }
-
-    if (selectedAvailability.includes("in_stock")) {
-      nextProducts = nextProducts.filter((product) => product.stock > 0);
-    }
-
-    if (selectedAvailability.includes("preorder")) {
-      nextProducts = nextProducts.filter((product) => product.stock <= 0);
-    }
-
-    if (sortValue === "price-asc") {
-      nextProducts.sort((a, b) => a.price - b.price);
-    } else if (sortValue === "price-desc") {
-      nextProducts.sort((a, b) => b.price - a.price);
-    } else if (sortValue === "newest") {
-      nextProducts.reverse();
-    } else if (sortValue === "best-selling") {
-      nextProducts.sort((a, b) => (b.rating || 0) - (a.rating || 0));
-    } else if (sortValue === "stock") {
-      nextProducts.sort((a, b) => b.stock - a.stock);
-    }
-
-    return nextProducts;
-  }, [products, selectedAvailability, selectedBrands, sortValue]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / ITEMS_PER_PAGE));
-  const paginatedProducts = filteredProducts.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE,
+  const totalPages = getTotalProductPages(
+    filteredProducts,
+    CATEGORY_LISTING_ITEMS_PER_PAGE,
+  );
+  const paginatedProducts = getPaginatedProducts(
+    filteredProducts,
+    currentPage,
+    CATEGORY_LISTING_ITEMS_PER_PAGE,
   );
 
   const handlePageChange = (page: number) => {

@@ -1,5 +1,42 @@
-import { blogArticles } from "../data/blog-articles";
-import type { BlogArticle, BlogContentBlock, BlogTocItem } from "../types/blog";
+import {
+  blogArticles,
+  blogCategories,
+  featuredBlogArticle,
+} from "../data/blog-articles";
+import type {
+  BlogArticle,
+  BlogCategory,
+  BlogContentBlock,
+  BlogTocItem,
+} from "../types/blog";
+
+export interface BlogListingData {
+  articles: BlogArticle[];
+  categories: BlogCategory[];
+  featuredArticle: BlogArticle;
+}
+
+export interface BlogDetailData {
+  article: BlogArticle;
+}
+
+const blogAdapter = {
+  async listArticles(): Promise<BlogArticle[]> {
+    return blogArticles;
+  },
+  async listCategories(): Promise<BlogCategory[]> {
+    return blogCategories;
+  },
+  async getFeaturedArticle(): Promise<BlogArticle> {
+    return featuredBlogArticle;
+  },
+  async getArticleBySlug(slug: string): Promise<BlogArticle | undefined> {
+    return getBlogArticleBySlug(slug);
+  },
+  async getStaticParams(): Promise<{ slug: string }[]> {
+    return getBlogStaticParams();
+  },
+};
 
 function slugifyHeading(value: string) {
   return value
@@ -163,5 +200,53 @@ export function getRelatedBlogArticles(article: BlogArticle, limit = 3) {
   );
 
   return [...sameCategory, ...fallback].slice(0, limit);
+}
+
+export async function listBlogArticles(): Promise<BlogArticle[]> {
+  return blogAdapter.listArticles();
+}
+
+export async function listBlogCategories(): Promise<BlogCategory[]> {
+  return blogAdapter.listCategories();
+}
+
+export async function getFeaturedBlogArticle(): Promise<BlogArticle> {
+  return blogAdapter.getFeaturedArticle();
+}
+
+export async function getBlogArticle(
+  slug: string,
+): Promise<BlogArticle | undefined> {
+  return blogAdapter.getArticleBySlug(slug);
+}
+
+export async function getBlogRouteParams(): Promise<{ slug: string }[]> {
+  return blogAdapter.getStaticParams();
+}
+
+export async function getBlogListingData(): Promise<BlogListingData> {
+  const [articles, categories, featuredArticle] = await Promise.all([
+    listBlogArticles(),
+    listBlogCategories(),
+    getFeaturedBlogArticle(),
+  ]);
+
+  return {
+    articles,
+    categories,
+    featuredArticle,
+  };
+}
+
+export async function getBlogDetailData(
+  slug: string,
+): Promise<BlogDetailData | undefined> {
+  const article = await getBlogArticle(slug);
+
+  if (!article) {
+    return undefined;
+  }
+
+  return { article };
 }
 

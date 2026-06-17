@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { ChevronDown, Minus, Plus, ShoppingCart, Star } from "lucide-react";
 import { useCart } from "@/features/cart";
 import { notifyCartItemAdded } from "@/features/cart/services/cart-feedback";
-import { getSeededPlaceholder } from "@/lib/image-placeholders";
+import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import type { Product } from "../../types/product";
 import { ProductRatingPopover } from "./ProductRatingPopover";
 
@@ -24,7 +24,7 @@ export function ProductPurchasePanel({
   const { addItem } = useCart();
   const isOutOfStock = product.stock <= 0;
   const productImage =
-    product.image || product.images?.[0] || getSeededPlaceholder(product.id);
+    product.image || product.images?.[0] || getSeededCategoryImage(product.id);
 
   useEffect(() => {
     if (!isRatingPopoverOpen) {

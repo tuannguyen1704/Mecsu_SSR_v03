@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BlogDetailPageShell } from "@/features/blog";
 import {
-  getBlogArticleBySlug,
-  getBlogStaticParams,
+  getBlogArticle,
+  getBlogDetailData,
+  getBlogRouteParams,
 } from "@/features/blog/services/blog-service";
 
 interface BlogDetailRouteProps {
@@ -12,15 +13,15 @@ interface BlogDetailRouteProps {
   }>;
 }
 
-export function generateStaticParams() {
-  return getBlogStaticParams();
+export async function generateStaticParams() {
+  return getBlogRouteParams();
 }
 
 export async function generateMetadata({
   params,
 }: BlogDetailRouteProps): Promise<Metadata> {
   const { slug } = await params;
-  const article = getBlogArticleBySlug(slug);
+  const article = await getBlogArticle(slug);
 
   if (!article) {
     notFound();
@@ -34,11 +35,11 @@ export async function generateMetadata({
 
 export default async function BlogDetailPage({ params }: BlogDetailRouteProps) {
   const { slug } = await params;
-  const article = getBlogArticleBySlug(slug);
+  const blogDetailData = await getBlogDetailData(slug);
 
-  if (!article) {
+  if (!blogDetailData) {
     notFound();
   }
 
-  return <BlogDetailPageShell article={article} />;
+  return <BlogDetailPageShell article={blogDetailData.article} />;
 }

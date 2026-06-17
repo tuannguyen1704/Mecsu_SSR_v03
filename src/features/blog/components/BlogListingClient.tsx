@@ -5,9 +5,13 @@ import { Search, X } from "lucide-react";
 import { BlogArticleCard } from "./BlogArticleCard";
 import { BlogNewsletterCta } from "./BlogNewsletterCta";
 import type { BlogArticle, BlogCategory } from "../types/blog";
-
-const ARTICLES_PER_PAGE = 6;
-type CategoryFilter = "Tất cả" | BlogCategory;
+import {
+  BLOG_ARTICLES_PER_PAGE,
+  type BlogCategoryFilter,
+  getFilteredBlogArticles,
+  getPaginatedBlogArticles,
+  getTotalBlogPages,
+} from "../services/blog-listing";
 
 interface BlogListingClientProps {
   articles: BlogArticle[];
@@ -15,31 +19,31 @@ interface BlogListingClientProps {
 }
 
 export function BlogListingClient({ articles, categories }: BlogListingClientProps) {
-  const [activeCategory, setActiveCategory] = useState<CategoryFilter>("Tất cả");
+  const [activeCategory, setActiveCategory] = useState<BlogCategoryFilter>("Tất cả");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
 
-  const filteredArticles = useMemo(() => {
-    const normalizedSearch = searchTerm.trim().toLowerCase();
-
-    return articles.filter((article) => {
-      const matchesCategory = activeCategory === "Tất cả" || article.category === activeCategory;
-      const matchesSearch =
-        !normalizedSearch ||
-        article.title.toLowerCase().includes(normalizedSearch) ||
-        article.excerpt.toLowerCase().includes(normalizedSearch);
-
-      return matchesCategory && matchesSearch;
-    });
-  }, [activeCategory, articles, searchTerm]);
-
-  const totalPages = Math.max(1, Math.ceil(filteredArticles.length / ARTICLES_PER_PAGE));
-  const visibleArticles = filteredArticles.slice(
-    (currentPage - 1) * ARTICLES_PER_PAGE,
-    currentPage * ARTICLES_PER_PAGE,
+  const filteredArticles = useMemo(
+    () =>
+      getFilteredBlogArticles({
+        activeCategory,
+        articles,
+        searchTerm,
+      }),
+    [activeCategory, articles, searchTerm],
   );
 
-  const updateCategory = (category: CategoryFilter) => {
+  const totalPages = getTotalBlogPages(
+    filteredArticles,
+    BLOG_ARTICLES_PER_PAGE,
+  );
+  const visibleArticles = getPaginatedBlogArticles(
+    filteredArticles,
+    currentPage,
+    BLOG_ARTICLES_PER_PAGE,
+  );
+
+  const updateCategory = (category: BlogCategoryFilter) => {
     setActiveCategory(category);
     setCurrentPage(1);
   };
@@ -92,7 +96,7 @@ export function BlogListingClient({ articles, categories }: BlogListingClientPro
                 <button
                   key={category}
                   type="button"
-                  onClick={() => updateCategory(category as CategoryFilter)}
+                  onClick={() => updateCategory(category as BlogCategoryFilter)}
                   className={`h-10 whitespace-nowrap rounded-lg border px-5 text-[13px] font-semibold transition-all ${
                     isActive
                       ? "border-[#163F78] bg-[#163F78] text-white shadow-[0_0_0_3px_rgba(156,185,229,0.55)]"

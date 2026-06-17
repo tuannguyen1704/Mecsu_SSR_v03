@@ -4,19 +4,18 @@ import { useCallback, useRef, useState } from "react";
 import { Package, Search, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
-import { PRODUCTS } from "@/features/products/data/products";
 import { getSearchSuggestions } from "@/features/products/services/search-products";
-import type { Product } from "@/features/products/types/product";
+import type { SearchSuggestionItem } from "@/features/products/services/search-products";
 import { useDebounce } from "@/hooks/useDebounce";
 
 interface HeaderSearchProps {
-  products?: Product[];
+  suggestions?: SearchSuggestionItem[];
   className?: string;
   placeholder?: string;
 }
 
 export default function HeaderSearch({
-  products = PRODUCTS,
+  suggestions = [],
   className = "",
   placeholder = "Tìm kiếm sản phẩm...",
 }: HeaderSearchProps) {
@@ -25,7 +24,11 @@ export default function HeaderSearch({
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const debouncedSearchValue = useDebounce(searchValue, 300);
-  const suggestions = getSearchSuggestions(products, debouncedSearchValue, 6);
+  const searchSuggestions = getSearchSuggestions(
+    suggestions,
+    debouncedSearchValue,
+    6,
+  );
   const shouldShowDropdown = isFocused && searchValue.trim().length > 0;
 
   const submitSearch = useCallback(
@@ -101,9 +104,9 @@ export default function HeaderSearch({
             transition={{ duration: 0.15 }}
             className="absolute left-0 right-0 top-full z-[1000] mt-2 overflow-hidden rounded-md border border-slate-200 bg-white shadow-2xl"
           >
-            {suggestions.length > 0 ? (
+            {searchSuggestions.length > 0 ? (
               <div className="max-h-[400px] overflow-y-auto">
-                {suggestions.map((product) => (
+                {searchSuggestions.map((product) => (
                   <button
                     key={product.id}
                     onClick={() => {
@@ -153,7 +156,7 @@ export default function HeaderSearch({
               </div>
             )}
 
-            {suggestions.length > 0 && (
+            {searchSuggestions.length > 0 && (
               <div className="border-t border-slate-200 bg-slate-50/50 p-3">
                 <button
                   onClick={() => submitSearch(searchValue)}

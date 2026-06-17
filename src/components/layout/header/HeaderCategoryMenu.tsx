@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import {
   ArrowUpCircle,
   Blocks,
@@ -22,7 +23,7 @@ import {
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import type { HeaderCategory } from "@/features/categories/data/header-categories";
-import { getSeededPlaceholder } from "@/lib/image-placeholders";
+import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import { generateCategoryUrl, toSlug } from "@/lib/routing";
 
 const ICON_MAP = {
@@ -125,12 +126,13 @@ export default function HeaderCategoryMenu({
                         }}
                         className="group flex items-start gap-3 text-left"
                       >
-                        <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded border border-slate-200 bg-white p-0 transition-all group-hover:border-brand-primary group-hover:shadow-lg group-hover:shadow-blue-500/10">
-                          {/* eslint-disable-next-line @next/next/no-img-element */}
-                          <img
-                            src={getSeededPlaceholder(subcategory)}
+                        <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded border border-slate-200 bg-white p-0 transition-all group-hover:border-brand-primary group-hover:shadow-lg group-hover:shadow-blue-500/10">
+                          <Image
+                            src={getSeededCategoryImage(subcategory)}
                             alt={subcategory}
-                            className="h-full w-full object-cover transition-transform group-hover:scale-110"
+                            fill
+                            sizes="56px"
+                            className="object-cover transition-transform group-hover:scale-110"
                           />
                         </div>
                         <div className="flex flex-col gap-0.5">

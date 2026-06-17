@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { CheckCircle2, Lock, X } from "lucide-react";
 import { getSeededPlaceholder } from "@/lib/image-placeholders";
 import {
@@ -61,12 +62,13 @@ export function AddToCartPopup() {
       </div>
 
       <div className="mt-4 flex gap-3.5">
-        <div className="flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-sm border border-slate-200 bg-white p-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+        <div className="relative flex h-[72px] w-[72px] shrink-0 items-center justify-center rounded-sm border border-slate-200 bg-white p-2">
+          <Image
             src={productImage}
             alt={item.productName}
-            className="h-full w-full object-contain"
+            fill
+            sizes="72px"
+            className="object-contain p-2"
           />
         </div>
         <div className="min-w-0 flex-1 pt-0.5">

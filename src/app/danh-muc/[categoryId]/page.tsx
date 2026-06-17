@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { CategoryPageShell } from "@/features/categories/components/CategoryPageShell";
 import {
-  getAllCategories,
-  getCategoryByIdOrSlug,
+  getCategory,
+  getCategoryRouteParams,
 } from "@/features/categories/services/category-service";
 
 interface CategoryRouteProps {
@@ -12,17 +12,15 @@ interface CategoryRouteProps {
   }>;
 }
 
-export function generateStaticParams() {
-  return getAllCategories().map((category) => ({
-    categoryId: category.slug,
-  }));
+export async function generateStaticParams() {
+  return getCategoryRouteParams();
 }
 
 export async function generateMetadata({
   params,
 }: CategoryRouteProps): Promise<Metadata> {
   const { categoryId } = await params;
-  const category = getCategoryByIdOrSlug(categoryId);
+  const category = await getCategory(categoryId);
 
   if (!category) {
     return {
@@ -38,7 +36,7 @@ export async function generateMetadata({
 
 export default async function CategoryPage({ params }: CategoryRouteProps) {
   const { categoryId } = await params;
-  const category = getCategoryByIdOrSlug(categoryId);
+  const category = await getCategory(categoryId);
 
   if (!category) {
     notFound();

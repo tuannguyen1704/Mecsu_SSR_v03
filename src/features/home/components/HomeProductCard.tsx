@@ -2,10 +2,11 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Heart } from "lucide-react";
 import { useCart } from "@/features/cart";
 import { notifyCartItemAdded } from "@/features/cart/services/cart-feedback";
-import { getSeededPlaceholder } from "@/lib/image-placeholders";
+import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import type { Product } from "@/features/products/types/product";
 
 type HomeProductCardProps = {
@@ -21,7 +22,7 @@ export function HomeProductCard({
   const [added, setAdded] = useState(false);
   const { addItem } = useCart();
   const productHref = `/san-pham/${product.slug || product.id}`;
-  const productImage = getSeededPlaceholder(product.name || product.id);
+  const productImage = product.image || getSeededCategoryImage(product.name || product.id);
   const currentPrice = useMemo(
     () => product.price * (1 - discountPercent / 100),
     [discountPercent, product.price],
@@ -41,13 +42,14 @@ export function HomeProductCard({
         </button>
         <Link
           href={productHref}
-          className="flex h-[130px] cursor-pointer items-center justify-center pt-3"
+          className="relative flex h-[130px] cursor-pointer items-center justify-center pt-3"
         >
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+          <Image
             src={productImage}
             alt={product.name}
-            className="max-h-full max-w-full object-contain"
+            fill
+            sizes="200px"
+            className="object-contain pt-3"
           />
         </Link>
       </div>

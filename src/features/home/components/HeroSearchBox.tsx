@@ -1,27 +1,32 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { Package, Search, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useDebounce } from "@/hooks/useDebounce";
-import { getSeededPlaceholder } from "@/lib/image-placeholders";
-import { PRODUCTS } from "@/features/products/data/products";
+import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import { getSearchSuggestions } from "@/features/products/services/search-products";
-import type { Product } from "@/features/products/types/product";
+import type { SearchSuggestionItem } from "@/features/products/services/search-products";
 
 type HeroSearchBoxProps = {
   placeholder: string;
+  suggestions: SearchSuggestionItem[];
 };
 
-export function HeroSearchBox({ placeholder }: HeroSearchBoxProps) {
+export function HeroSearchBox({ placeholder, suggestions }: HeroSearchBoxProps) {
   const router = useRouter();
   const [searchValue, setSearchValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const debouncedSearchValue = useDebounce(searchValue, 300);
-  const suggestions = getSearchSuggestions(PRODUCTS, debouncedSearchValue, 6);
+  const searchSuggestions = getSearchSuggestions(
+    suggestions,
+    debouncedSearchValue,
+    6,
+  );
   const shouldShowDropdown = isFocused && searchValue.trim().length > 0;
 
   const handleSearch = useCallback(
@@ -38,7 +43,7 @@ export function HeroSearchBox({ placeholder }: HeroSearchBoxProps) {
     handleSearch(searchValue);
   }, [handleSearch, searchValue]);
 
-  const handleSuggestionSelect = (product: Product) => {
+  const handleSuggestionSelect = (product: SearchSuggestionItem) => {
     setSearchValue(product.name);
     setIsFocused(false);
   };
@@ -124,20 +129,21 @@ export function HeroSearchBox({ placeholder }: HeroSearchBoxProps) {
             transition={{ duration: 0.15 }}
             className="absolute top-full right-0 left-0 z-[1000] mt-2 overflow-hidden rounded-md border border-slate-200 bg-white text-left shadow-2xl"
           >
-            {suggestions.length > 0 ? (
+            {searchSuggestions.length > 0 ? (
               <div className="max-h-[400px] overflow-y-auto">
-                {suggestions.map((product) => (
+                {searchSuggestions.map((product) => (
                   <button
                     key={product.id}
                     onClick={() => handleSuggestionSelect(product)}
                     className="group flex w-full items-center gap-4 border-b border-slate-100 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-slate-50"
                   >
-                    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white p-1 transition-colors duration-200 group-hover:bg-slate-50">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={getSeededPlaceholder(product.id)}
+                    <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white p-1 transition-colors duration-200 group-hover:bg-slate-50">
+                      <Image
+                        src={product.image || getSeededCategoryImage(product.id)}
                         alt={product.name}
-                        className="h-full w-full object-contain mix-blend-multiply"
+                        fill
+                        sizes="56px"
+                        className="object-contain p-1 mix-blend-multiply"
                       />
                     </div>
                     <div className="min-w-0 flex-1">
@@ -182,7 +188,7 @@ export function HeroSearchBox({ placeholder }: HeroSearchBoxProps) {
               </div>
             )}
 
-            {suggestions.length > 0 ? (
+            {searchSuggestions.length > 0 ? (
               <div className="border-t border-slate-200 bg-slate-50/50 p-3">
                 <button
                   onClick={() => handleSearch(searchValue)}

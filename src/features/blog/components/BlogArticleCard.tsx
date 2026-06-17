@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, Clock, User } from "lucide-react";
 import type { BlogArticle } from "../types/blog";
 
@@ -13,11 +14,12 @@ export function BlogArticleCard({ article }: BlogArticleCardProps) {
       className="group relative flex h-full flex-col overflow-hidden rounded-lg border border-slate-200 bg-white transition-all duration-300 hover:border-[#C9D7EA] hover:shadow-xl hover:shadow-slate-200/70"
     >
       <div className="absolute right-0 bottom-0 left-0 z-10 h-[3px] origin-left scale-x-0 bg-[#FFC928] transition-transform duration-300 group-hover:scale-x-100" />
-      <div className="h-56 overflow-hidden bg-slate-100">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+      <div className="relative h-56 overflow-hidden bg-slate-100">
+        <Image
           src={article.coverImage}
           alt={article.title}
+          fill
+          sizes="(min-width: 1280px) 33vw, (min-width: 768px) 50vw, 100vw"
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
       </div>

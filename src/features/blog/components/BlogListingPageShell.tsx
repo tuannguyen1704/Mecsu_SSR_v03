@@ -1,9 +1,20 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, BookOpen, CalendarDays, Clock, Layers } from "lucide-react";
-import { blogArticles, blogCategories, featuredBlogArticle } from "../data/blog-articles";
+import type { BlogArticle, BlogCategory } from "../types/blog";
 import { BlogListingClient } from "./BlogListingClient";
 
-export function BlogListingPageShell() {
+interface BlogListingPageShellProps {
+  articles: BlogArticle[];
+  categories: BlogCategory[];
+  featuredArticle: BlogArticle;
+}
+
+export function BlogListingPageShell({
+  articles,
+  categories,
+  featuredArticle,
+}: BlogListingPageShellProps) {
   return (
     <main className="min-h-screen bg-slate-50">
       <section className="border-b border-slate-100 bg-white">
@@ -20,21 +31,22 @@ export function BlogListingPageShell() {
               </p>
               <div className="mt-6 flex flex-wrap gap-3">
                 <div className="rounded-xl border border-[#D8E1EE] bg-slate-50 px-4 py-3">
-                  <p className="text-2xl font-bold text-[#163F78]">{blogArticles.length}</p>
+                  <p className="text-2xl font-bold text-[#163F78]">{articles.length}</p>
                   <p className="text-xs font-semibold text-slate-500">Tổng bài viết</p>
                 </div>
                 <div className="rounded-xl border border-[#D8E1EE] bg-slate-50 px-4 py-3">
-                  <p className="text-2xl font-bold text-[#163F78]">{blogCategories.length}</p>
+                  <p className="text-2xl font-bold text-[#163F78]">{categories.length}</p>
                   <p className="text-xs font-semibold text-slate-500">Danh mục</p>
                 </div>
               </div>
             </div>
-            <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-100">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <div className="relative h-[260px] overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 lg:h-[320px]">
+              <Image
                 src="https://images.unsplash.com/photo-1586528116311-ad8ed7c159bf?auto=format&fit=crop&w=1100&q=80"
                 alt="Resource Hub"
-                className="h-[260px] w-full object-cover lg:h-[320px]"
+                fill
+                sizes="(min-width: 1024px) 340px, 100vw"
+                className="object-cover"
               />
             </div>
           </div>
@@ -50,14 +62,15 @@ export function BlogListingPageShell() {
             </div>
           </div>
           <Link
-            href={`/blog/${featuredBlogArticle.slug}`}
+            href={`/blog/${featuredArticle.slug}`}
             className="group grid overflow-hidden rounded-[14px] border border-[#E5E7EB] bg-white transition-all duration-300 hover:shadow-xl lg:grid-cols-[minmax(0,1.25fr)_minmax(0,1fr)]"
           >
             <div className="relative min-h-[260px] overflow-hidden bg-slate-100 lg:min-h-[360px]">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={featuredBlogArticle.coverImage}
-                alt={featuredBlogArticle.title}
+              <Image
+                src={featuredArticle.coverImage}
+                alt={featuredArticle.title}
+                fill
+                sizes="(min-width: 1024px) 58vw, 100vw"
                 className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent" />
@@ -67,26 +80,26 @@ export function BlogListingPageShell() {
             </div>
             <div className="flex flex-col justify-center p-6 lg:p-8">
               <span className="text-[12px] font-bold tracking-wide text-[#163F78] uppercase">
-                {featuredBlogArticle.category}
+                {featuredArticle.category}
               </span>
               <h3 className="mt-3 text-2xl font-bold leading-tight text-slate-900 transition-colors group-hover:text-[#163F78] lg:text-3xl">
-                {featuredBlogArticle.title}
+                {featuredArticle.title}
               </h3>
               <p className="mt-4 text-sm leading-7 text-slate-600 lg:text-base">
-                {featuredBlogArticle.excerpt}
+                {featuredArticle.excerpt}
               </p>
               <div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-slate-500">
                 <span className="inline-flex items-center gap-1.5">
                   <CalendarDays size={16} />
-                  {featuredBlogArticle.publishedDate}
+                  {featuredArticle.publishedDate}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Clock size={16} />
-                  {featuredBlogArticle.readingTime}
+                  {featuredArticle.readingTime}
                 </span>
                 <span className="inline-flex items-center gap-1.5">
                   <Layers size={16} />
-                  {featuredBlogArticle.author}
+                  {featuredArticle.author}
                 </span>
               </div>
               <div className="mt-7 inline-flex items-center gap-2 text-sm font-bold text-[#163F78]">
@@ -98,7 +111,7 @@ export function BlogListingPageShell() {
         </div>
       </section>
 
-      <BlogListingClient articles={blogArticles} categories={blogCategories} />
+      <BlogListingClient articles={articles} categories={categories} />
     </main>
   );
 }

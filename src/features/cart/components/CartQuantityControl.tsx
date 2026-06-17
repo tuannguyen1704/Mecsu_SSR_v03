@@ -17,7 +17,11 @@ export function CartQuantityControl({
   const [draftQuantity, setDraftQuantity] = useState(String(quantity));
 
   useEffect(() => {
-    setDraftQuantity(String(quantity));
+    const timeoutId = window.setTimeout(() => {
+      setDraftQuantity(String(quantity));
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, [quantity]);
 
   const clampQuantity = (value: number) => {

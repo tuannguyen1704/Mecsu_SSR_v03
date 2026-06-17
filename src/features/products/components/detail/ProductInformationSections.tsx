@@ -2,8 +2,9 @@
 
 import { useState } from "react";
 import type { ReactNode } from "react";
+import Image from "next/image";
 import { ChevronUp } from "lucide-react";
-import { getSeededPlaceholder } from "@/lib/image-placeholders";
+import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import type { Product } from "../../types/product";
 import { getDerivedSpecs } from "./ProductTechSpecs";
 
@@ -36,13 +37,14 @@ export function ProductInformationSections({
             {realImages.map((image, index) => (
               <div
                 key={`${image}-${index}`}
-                className="aspect-square overflow-hidden rounded-sm border border-slate-100 bg-slate-50"
+                className="relative aspect-square overflow-hidden rounded-sm border border-slate-100 bg-slate-50"
               >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+                <Image
                   src={image}
                   alt={`${product.name} thực tế ${index + 1}`}
-                  className="h-full w-full object-cover transition-transform duration-500 hover:scale-105"
+                  fill
+                  sizes="(min-width: 768px) 25vw, 50vw"
+                  className="object-cover transition-transform duration-500 hover:scale-105"
                 />
               </div>
             ))}
@@ -158,7 +160,7 @@ function getRealImages(product: Product, images: string[]) {
   const candidates = [...images, product.image].filter(Boolean) as string[];
 
   while (candidates.length < 4) {
-    candidates.push(getSeededPlaceholder(`${product.id}-real-${candidates.length}`));
+    candidates.push(getSeededCategoryImage(`${product.id}-real-${candidates.length}`));
   }
 
   return candidates.slice(0, 4);

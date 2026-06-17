@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { PRODUCTS } from "@/features/products/data/products";
 import { ProductDetailShell } from "@/features/products/components/detail/ProductDetailShell";
 import {
-  getProductByIdOrSlug,
+  getProduct,
+  getProductPageData,
+  getProductRouteParams,
   getProductShortDescription,
-  getProductStaticParams,
 } from "@/features/products/services/product-service";
 
 interface ProductDetailPageProps {
@@ -14,15 +14,15 @@ interface ProductDetailPageProps {
   }>;
 }
 
-export function generateStaticParams() {
-  return getProductStaticParams();
+export async function generateStaticParams() {
+  return getProductRouteParams();
 }
 
 export async function generateMetadata({
   params,
 }: ProductDetailPageProps): Promise<Metadata> {
   const { productId } = await params;
-  const product = getProductByIdOrSlug(productId);
+  const product = await getProduct(productId);
 
   if (!product) {
     notFound();
@@ -36,11 +36,16 @@ export async function generateMetadata({
 
 export default async function ProductDetailPage({ params }: ProductDetailPageProps) {
   const { productId } = await params;
-  const product = getProductByIdOrSlug(productId);
+  const productPageData = await getProductPageData(productId);
 
-  if (!product) {
+  if (!productPageData) {
     notFound();
   }
 
-  return <ProductDetailShell product={product} allProducts={PRODUCTS} />;
+  return (
+    <ProductDetailShell
+      product={productPageData.product}
+      compatibleProducts={productPageData.compatibleProducts}
+    />
+  );
 }

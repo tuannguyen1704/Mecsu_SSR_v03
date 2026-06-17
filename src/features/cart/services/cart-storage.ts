@@ -155,6 +155,10 @@ export function getTotalItems(items: CartItem[]) {
   return items.reduce((total, item) => total + item.quantity, 0);
 }
 
+export function getTotalProducts(items: CartItem[]) {
+  return items.length;
+}
+
 export function getSubtotal(items: CartItem[]) {
   return items.reduce((total, item) => total + item.price * item.quantity, 0);
 }

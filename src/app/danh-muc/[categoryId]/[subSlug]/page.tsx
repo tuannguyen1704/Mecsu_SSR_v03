@@ -2,12 +2,11 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { SubcategoryPageShell } from "@/features/categories/components/SubcategoryPageShell";
 import {
-  getAllCategories,
-  getCategoryByIdOrSlug,
-  getCategorySubcategories,
-  getSubcategoryBySlug,
+  getCategory,
+  getSubcategory,
+  getSubcategoryRouteParams,
 } from "@/features/categories/services/category-service";
-import { getProductsForSubcategory } from "@/features/products/services/product-service";
+import { listProductsForSubcategory } from "@/features/products/services/product-service";
 
 interface SubcategoryRouteProps {
   params: Promise<{
@@ -16,20 +15,15 @@ interface SubcategoryRouteProps {
   }>;
 }
 
-export function generateStaticParams() {
-  return getAllCategories().flatMap((category) =>
-    getCategorySubcategories(category).map((subcategory) => ({
-      categoryId: category.slug,
-      subSlug: subcategory.slug,
-    })),
-  );
+export async function generateStaticParams() {
+  return getSubcategoryRouteParams();
 }
 
 export async function generateMetadata({
   params,
 }: SubcategoryRouteProps): Promise<Metadata> {
   const { categoryId, subSlug } = await params;
-  const category = getCategoryByIdOrSlug(categoryId);
+  const category = await getCategory(categoryId);
 
   if (!category) {
     return {
@@ -37,7 +31,7 @@ export async function generateMetadata({
     };
   }
 
-  const subcategory = getSubcategoryBySlug(category, subSlug);
+  const subcategory = await getSubcategory(category, subSlug);
 
   if (!subcategory) {
     return {
@@ -53,19 +47,19 @@ export async function generateMetadata({
 
 export default async function SubcategoryPage({ params }: SubcategoryRouteProps) {
   const { categoryId, subSlug } = await params;
-  const category = getCategoryByIdOrSlug(categoryId);
+  const category = await getCategory(categoryId);
 
   if (!category) {
     notFound();
   }
 
-  const subcategory = getSubcategoryBySlug(category, subSlug);
+  const subcategory = await getSubcategory(category, subSlug);
 
   if (!subcategory) {
     notFound();
   }
 
-  const products = getProductsForSubcategory(category, subcategory);
+  const products = await listProductsForSubcategory(category, subcategory);
 
   return (
     <SubcategoryPageShell

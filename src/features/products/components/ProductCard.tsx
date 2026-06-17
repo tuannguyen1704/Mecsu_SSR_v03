@@ -1,49 +1,29 @@
-"use client";
-
-import { useState } from "react";
 import Link from "next/link";
-import { Heart, Star } from "lucide-react";
-import { getSeededPlaceholder } from "@/lib/image-placeholders";
-import { useCart } from "@/features/cart";
-import { notifyCartItemAdded } from "@/features/cart/services/cart-feedback";
+import Image from "next/image";
+import { Star } from "lucide-react";
+import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import type { Product } from "../types/product";
 import { getProductHref } from "../services/product-service";
-import { StockReminderModal } from "./StockReminderModal";
+import { ProductCardActions } from "./ProductCardActions";
 
 interface ProductCardProps {
   product: Product;
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-  const [isWishlisted, setIsWishlisted] = useState(false);
-  const [wasAdded, setWasAdded] = useState(false);
-  const [isReminderOpen, setIsReminderOpen] = useState(false);
-  const [reminderSession, setReminderSession] = useState(0);
   const isOutOfStock = product.stock <= 0;
-  const { addItem } = useCart();
-  const productImage = product.image || getSeededPlaceholder(product.id);
+  const productImage = product.image || getSeededCategoryImage(product.id);
 
   return (
     <div className="group relative flex cursor-pointer flex-col rounded-sm border border-transparent bg-white p-4 transition-shadow hover:border-slate-300">
-      <button
-        type="button"
-        onClick={() => setIsWishlisted((current) => !current)}
-        className="absolute top-4 right-4 z-10 text-slate-400 transition-colors hover:text-red-500"
-        aria-label="Toggle wishlist"
-      >
-        <Heart
-          size={18}
-          className={isWishlisted ? "fill-red-500 text-red-500" : ""}
-        />
-      </button>
-
       <Link href={getProductHref(product)} className="flex flex-1 flex-col">
-        <div className="mb-6 flex aspect-square items-center justify-center p-2">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
+        <div className="relative mb-6 flex aspect-square items-center justify-center p-2">
+          <Image
             src={productImage}
             alt={product.name}
-            className="h-full w-full object-contain mix-blend-multiply transition-transform duration-500 group-hover:scale-110"
+            fill
+            sizes="(min-width: 1280px) 25vw, (min-width: 768px) 33vw, 50vw"
+            className="object-contain p-2 mix-blend-multiply transition-transform duration-500 group-hover:scale-110"
           />
         </div>
 
@@ -93,42 +73,10 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
       </Link>
 
-      <button
-        type="button"
-        onClick={() => {
-          if (isOutOfStock) {
-            setReminderSession((current) => current + 1);
-            setIsReminderOpen(true);
-            return;
-          }
-
-          addItem(product, 1);
-          notifyCartItemAdded({
-            productImage,
-            productName: product.name,
-            quantity: 1,
-          });
-          setWasAdded(true);
-          window.setTimeout(() => setWasAdded(false), 1200);
-        }}
-        className={`mt-3 w-full rounded-sm border py-2.5 text-sm font-bold tracking-tight uppercase transition-all ${
-          isOutOfStock
-            ? "border-slate-800 bg-white text-slate-800 hover:bg-slate-800 hover:text-white"
-            : "border-brand-primary bg-brand-primary text-brand-secondary hover:bg-brand-primary/90"
-        }`}
-      >
-        {isOutOfStock
-          ? "Nhắc tôi sau"
-          : wasAdded
-            ? "Đã thêm vào giỏ hàng"
-            : "Thêm giỏ hàng"}
-      </button>
-
-      <StockReminderModal
-        key={`${product.id}-${reminderSession}`}
-        isOpen={isReminderOpen}
+      <ProductCardActions
+        isOutOfStock={isOutOfStock}
         product={product}
-        onClose={() => setIsReminderOpen(false)}
+        productImage={productImage}
       />
     </div>
   );

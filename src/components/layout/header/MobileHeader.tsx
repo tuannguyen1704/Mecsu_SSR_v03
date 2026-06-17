@@ -5,14 +5,14 @@ import { AnimatePresence, motion } from "motion/react";
 import Image from "next/image";
 import Link from "next/link";
 import type { HeaderCategory } from "@/features/categories/data/header-categories";
-import type { Product } from "@/features/products/types/product";
+import type { SearchSuggestionItem } from "@/features/products/services/search-products";
 import HeaderSearch from "./HeaderSearch";
 
 interface MobileHeaderProps {
   isOpen: boolean;
   categories: HeaderCategory[];
   cartCount: number;
-  products: Product[];
+  suggestions: SearchSuggestionItem[];
   onAccountClick: () => void;
   onOpenChange: (open: boolean) => void;
 }
@@ -21,7 +21,7 @@ export default function MobileHeader({
   isOpen,
   categories,
   cartCount,
-  products,
+  suggestions,
   onAccountClick,
   onOpenChange,
 }: MobileHeaderProps) {
@@ -92,7 +92,7 @@ export default function MobileHeader({
               </div>
 
               <div className="border-b border-slate-100 p-5">
-                <HeaderSearch products={products} />
+                <HeaderSearch suggestions={suggestions} />
               </div>
 
               <div className="no-scrollbar flex-1 overflow-y-auto bg-slate-50 py-4">

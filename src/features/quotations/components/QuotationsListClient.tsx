@@ -3,13 +3,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
-  Calendar,
   ChevronDown,
   ChevronLeft,
   ChevronRight,
   Plus,
   Search,
 } from "lucide-react";
+import {
+  DateRangePicker,
+  type DateRangeValue,
+} from "@/components/shared/DateRangePicker";
 import { Toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import { mockQuotations } from "../data/quotations";
@@ -47,18 +50,41 @@ function parseVietnameseDate(dateValue: string) {
   return new Date(year, month - 1, day).getTime();
 }
 
-function matchesDateFilter(quotation: Quotation, dateFilter: string) {
-  if (!dateFilter) return true;
-  const [year, month, day] = dateFilter.split("-");
-  return quotation.requestDate === `${day}/${month}/${year}`;
+function matchesDateRange(quotation: Quotation, dateRange: DateRangeValue) {
+  if (!dateRange.from && !dateRange.to) return true;
+
+  const requestTime = parseVietnameseDate(quotation.requestDate);
+  if (!requestTime) return false;
+
+  const fromTime = dateRange.from
+    ? new Date(
+        dateRange.from.getFullYear(),
+        dateRange.from.getMonth(),
+        dateRange.from.getDate(),
+      ).getTime()
+    : Number.NEGATIVE_INFINITY;
+  const toTime = dateRange.to
+    ? new Date(
+        dateRange.to.getFullYear(),
+        dateRange.to.getMonth(),
+        dateRange.to.getDate(),
+      ).getTime()
+    : Number.POSITIVE_INFINITY;
+
+  return requestTime >= fromTime && requestTime <= toTime;
 }
+
+const emptyDateRange: DateRangeValue = { from: null, to: null };
 
 export function QuotationsListClient() {
   const router = useRouter();
   const [quotations, setQuotations] = useState<Quotation[]>(mockQuotations);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
-  const [dateFilter, setDateFilter] = useState("");
+  const [pendingDateRange, setPendingDateRange] =
+    useState<DateRangeValue>(emptyDateRange);
+  const [appliedDateRange, setAppliedDateRange] =
+    useState<DateRangeValue>(emptyDateRange);
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -94,7 +120,11 @@ export function QuotationsListClient() {
       const matchesStatus =
         statusFilter === "all" || quotation.status === statusFilter;
 
-      return matchesQuery && matchesStatus && matchesDateFilter(quotation, dateFilter);
+      return (
+        matchesQuery &&
+        matchesStatus &&
+        matchesDateRange(quotation, appliedDateRange)
+      );
     });
 
     return result.sort((a, b) => {
@@ -102,7 +132,7 @@ export function QuotationsListClient() {
       const dateB = parseVietnameseDate(b.requestDate);
       return sortBy === "newest" ? dateB - dateA : dateA - dateB;
     });
-  }, [dateFilter, quotations, searchQuery, sortBy, statusFilter]);
+  }, [appliedDateRange, quotations, searchQuery, sortBy, statusFilter]);
 
   const totalPages = Math.max(1, Math.ceil(filteredQuotations.length / itemsPerPage));
   const paginatedQuotations = filteredQuotations.slice(
@@ -193,21 +223,14 @@ export function QuotationsListClient() {
             </select>
           </SelectWrap>
 
-          <div className="relative">
-            <Calendar
-              size={16}
-              className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-            <input
-              type="date"
-              value={dateFilter}
-              onChange={(event) => {
-                setDateFilter(event.target.value);
-                resetPage();
-              }}
-              className="w-full cursor-pointer rounded-xl border border-[#E5EAF2] bg-slate-50 py-2.5 pl-10 pr-4 text-sm transition-all focus:border-[#3D82C4] focus:outline-none focus:ring-2 focus:ring-[#3D82C4]/20"
-            />
-          </div>
+          <DateRangePicker
+            value={pendingDateRange}
+            onChange={setPendingDateRange}
+            onApply={(range) => {
+              setAppliedDateRange(range);
+              resetPage();
+            }}
+          />
 
           <SelectWrap>
             <select

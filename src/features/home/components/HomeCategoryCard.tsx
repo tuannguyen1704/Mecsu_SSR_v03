@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowUpCircle,
   Blocks,
@@ -15,7 +16,7 @@ import {
   Zap,
 } from "lucide-react";
 import type { HeaderCategory } from "@/features/categories/data/header-categories";
-import { getSeededPlaceholder } from "@/lib/image-placeholders";
+import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import { generateCategoryUrl, toSlug } from "@/lib/routing";
 
 const iconMap = {
@@ -61,12 +62,13 @@ export function HomeCategoryCard({ category }: { category: HeaderCategory }) {
                 href={`${categoryUrl}/${toSlug(subcategory)}`}
                 className="flex w-full items-center gap-4 text-left"
               >
-                <div className="flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded border border-slate-100 bg-slate-50 transition-all duration-200 group-hover:bg-slate-100">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={getSeededPlaceholder(subcategory)}
+                <div className="relative flex h-8 w-8 shrink-0 items-center justify-center overflow-hidden rounded border border-slate-100 bg-slate-50 transition-all duration-200 group-hover:bg-slate-100">
+                  <Image
+                    src={getSeededCategoryImage(subcategory)}
                     alt={subcategory}
-                    className="h-full w-full object-cover"
+                    fill
+                    sizes="32px"
+                    className="object-cover"
                   />
                 </div>
                 <span className="text-[15px] leading-snug font-medium text-slate-700 transition-all duration-200 group-hover:font-bold group-hover:text-slate-900">

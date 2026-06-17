@@ -1,5 +1,5 @@
 import { HEADER_CATEGORIES, HEADER_LOCATIONS } from "@/features/categories/data/header-categories";
-import { PRODUCTS } from "@/features/products/data/products";
+import { getHeaderSearchSuggestions } from "@/features/products/services/product-service";
 import HeaderClient from "./HeaderClient";
 
 export default function Header() {
@@ -7,7 +7,7 @@ export default function Header() {
     <HeaderClient
       categories={HEADER_CATEGORIES}
       locations={HEADER_LOCATIONS}
-      products={PRODUCTS}
+      suggestions={getHeaderSearchSuggestions()}
     />
   );
 }

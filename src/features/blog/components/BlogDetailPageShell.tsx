@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowLeft, CalendarDays, Clock, User } from "lucide-react";
 import type { BlogArticle } from "../types/blog";
 import {
@@ -81,12 +82,13 @@ export function BlogDetailPageShell({ article }: BlogDetailPageShellProps) {
 
       <section className="bg-white pb-10">
         <div className="mx-auto max-w-[1180px] px-4 sm:px-6 lg:px-8">
-          <div className="overflow-hidden rounded-[24px] border-8 border-white shadow-[0_30px_80px_rgba(15,23,42,0.12)]">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
+          <div className="relative h-[280px] overflow-hidden rounded-[24px] border-8 border-white shadow-[0_30px_80px_rgba(15,23,42,0.12)] md:h-[420px] lg:h-[500px]">
+            <Image
               src={article.coverImage}
               alt={article.title}
-              className="h-[280px] w-full object-cover md:h-[420px] lg:h-[500px]"
+              fill
+              sizes="(min-width: 1024px) 1180px, 100vw"
+              className="object-cover"
             />
           </div>
         </div>

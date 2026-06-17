@@ -26,8 +26,12 @@ export function PersonalInfoEditModal({
 
   useEffect(() => {
     if (isOpen) {
-      setFormData(data);
-      setErrors({});
+      const timeoutId = window.setTimeout(() => {
+        setFormData(data);
+        setErrors({});
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
     }
   }, [data, isOpen]);
 

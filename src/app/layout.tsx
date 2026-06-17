@@ -1,16 +1,21 @@
 import type { Metadata } from "next";
 import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
-import { AddToCartPopup } from "@/features/cart";
+import { LazyAddToCartPopup } from "@/features/cart/components/LazyAddToCartPopup";
 import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "MECsu Next Migration",
-    template: "%s | MECsu",
+    default: "MECSU Next Migration",
+    template: "%s ",
   },
   description:
     "Standalone Next.js App Router migration workspace for the MECsu B2B storefront.",
+  icons: {
+    icon: "/mecsu_logo.png",
+    shortcut: "/mecsu_logo.png",
+    apple: "/mecsu_logo.png",
+  },
 };
 
 export default function RootLayout({
@@ -23,7 +28,7 @@ export default function RootLayout({
       <body className="flex min-h-full flex-col">
         <Header />
         {children}
-        <AddToCartPopup />
+        <LazyAddToCartPopup />
         <Footer />
       </body>
     </html>

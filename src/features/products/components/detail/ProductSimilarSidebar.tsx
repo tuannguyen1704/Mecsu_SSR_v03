@@ -1,6 +1,7 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Plus } from "lucide-react";
-import { getSeededPlaceholder } from "@/lib/image-placeholders";
+import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import type { Product } from "../../types/product";
 import { getProductHref, getProductCategoryTrail } from "../../services/product-service";
 
@@ -34,11 +35,12 @@ export function ProductSimilarSidebar({
             className="group flex w-full gap-4 text-left transition-all hover:translate-x-1"
           >
             <div className="relative h-20 w-20 shrink-0 overflow-hidden rounded bg-[#f8f8f8] p-1">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={relatedProduct.image || getSeededPlaceholder(relatedProduct.id)}
+              <Image
+                src={relatedProduct.image || getSeededCategoryImage(relatedProduct.id)}
                 alt={relatedProduct.name}
-                className="h-full w-full object-contain transition-transform group-hover:scale-110"
+                fill
+                sizes="80px"
+                className="object-contain p-1 transition-transform group-hover:scale-110"
               />
               <div className="absolute inset-0 flex items-center justify-center opacity-0 transition-opacity group-hover:opacity-100">
                 <div className="rounded-full border border-yellow-500 bg-[#FFD814] p-1.5 shadow-lg">

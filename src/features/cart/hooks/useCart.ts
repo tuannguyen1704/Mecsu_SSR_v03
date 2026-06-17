@@ -8,6 +8,7 @@ import {
   decreaseQuantity,
   getSubtotal,
   getTotalItems,
+  getTotalProducts,
   increaseQuantity,
   loadCart,
   removeItem,
@@ -25,6 +26,7 @@ export function useCart() {
   return {
     items,
     totalItems: getTotalItems(items),
+    totalProducts: getTotalProducts(items),
     subtotal: getSubtotal(items),
     addItem: (product: Product, quantity = 1) => addItem(product, quantity),
     removeItem,

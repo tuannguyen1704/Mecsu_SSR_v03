@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Share2 } from "lucide-react";
-import { getSeededPlaceholder } from "@/lib/image-placeholders";
+import { getSeededCategoryImage } from "@/lib/image-placeholders";
 
 interface ProductGalleryProps {
   images: string[];
@@ -11,18 +12,19 @@ interface ProductGalleryProps {
 }
 
 export function ProductGallery({ images, productName, productId }: ProductGalleryProps) {
-  const galleryImages = images.length > 0 ? images : [getSeededPlaceholder(productId)];
+  const galleryImages = images.length > 0 ? images : [getSeededCategoryImage(productId)];
   const [activeImage, setActiveImage] = useState(0);
   const currentImage = galleryImages[activeImage] || galleryImages[0];
 
   return (
     <div className="flex h-fit flex-col gap-4 font-sans">
       <div className="group relative flex aspect-square items-center justify-center overflow-hidden rounded-sm border border-slate-100 bg-white p-4">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+        <Image
           src={currentImage}
           alt={productName}
-          className="max-h-full max-w-full cursor-zoom-in object-contain"
+          fill
+          sizes="(min-width: 1024px) 33vw, 100vw"
+          className="cursor-zoom-in object-contain p-4"
         />
 
         <div className="absolute top-0 right-0">
@@ -54,8 +56,15 @@ export function ProductGallery({ images, productName, productId }: ProductGaller
             }`}
             aria-label={`Xem ảnh ${index + 1}`}
           >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={image} alt="" className="max-h-full max-w-full object-contain" />
+            <span className="relative h-full w-full">
+              <Image
+                src={image}
+                alt=""
+                fill
+                sizes="80px"
+                className="object-contain"
+              />
+            </span>
           </button>
         ))}
       </div>

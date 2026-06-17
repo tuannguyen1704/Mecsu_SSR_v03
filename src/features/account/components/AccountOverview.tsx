@@ -18,7 +18,6 @@ import {
   Truck,
 } from "lucide-react";
 import { useCart } from "@/features/cart";
-import { mockAccountUser } from "../data/account-mock-data";
 import {
   accountOrderStatusLabels,
   mockAccountOrders,
@@ -161,7 +160,11 @@ export function AccountOverview() {
   const [wishlistCount, setWishlistCount] = useState(12);
 
   useEffect(() => {
-    setWishlistCount(readWishlistCount());
+    const timeoutId = window.setTimeout(() => {
+      setWishlistCount(readWishlistCount());
+    }, 0);
+
+    return () => window.clearTimeout(timeoutId);
   }, []);
 
   const orders = useMemo(

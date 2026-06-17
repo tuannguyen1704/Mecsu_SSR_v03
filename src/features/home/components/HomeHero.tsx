@@ -1,3 +1,4 @@
+import { getHeaderSearchSuggestions } from "@/features/products/services/product-service";
 import { HOME_HERO_DATA } from "../data/hero-data";
 import { HeroBackground } from "./HeroBackground";
 import { HomeHeroClient } from "./HomeHeroClient";
@@ -11,7 +12,10 @@ export function HomeHero() {
       />
 
       <div className="relative z-10 mx-auto flex w-full max-w-4xl flex-col items-center text-center">
-        <HomeHeroClient hero={HOME_HERO_DATA} />
+        <HomeHeroClient
+          hero={HOME_HERO_DATA}
+          suggestions={getHeaderSearchSuggestions()}
+        />
       </div>
     </section>
   );

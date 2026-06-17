@@ -226,14 +226,18 @@ export const OrderReviewModal: React.FC<OrderReviewModalProps> = ({
 
   useEffect(() => {
     if (order && isOpen) {
-      const initialReviews: ProductReview[] = order.items.map((item) => ({
-        itemId: item.id,
-        rating: 0,
-        comment: "",
-        images: [],
-      }));
-      setProductReviews(initialReviews);
-      setOverallReview({ rating: 0, comment: "" });
+      const timeoutId = window.setTimeout(() => {
+        const initialReviews: ProductReview[] = order.items.map((item) => ({
+          itemId: item.id,
+          rating: 0,
+          comment: "",
+          images: [],
+        }));
+        setProductReviews(initialReviews);
+        setOverallReview({ rating: 0, comment: "" });
+      }, 0);
+
+      return () => window.clearTimeout(timeoutId);
     }
   }, [order, isOpen]);
 

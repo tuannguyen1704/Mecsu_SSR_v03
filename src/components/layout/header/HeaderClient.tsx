@@ -3,28 +3,36 @@
 import { useEffect, useState } from "react";
 import { CheckCircle2, ChevronDown, Factory, Menu } from "lucide-react";
 import { motion } from "motion/react";
+import dynamic from "next/dynamic";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
-  AuthModal,
   getCurrentUser,
   logout,
-  type MockAuthUser,
-} from "@/features/auth";
+} from "@/features/auth/services/mock-auth-service";
+import type { MockAuthUser } from "@/features/auth/types/auth";
 import type { HeaderCategory } from "@/features/categories/data/header-categories";
 import { useCart } from "@/features/cart";
-import type { Product } from "@/features/products/types/product";
+import type { SearchSuggestionItem } from "@/features/products/services/search-products";
 import HeaderAccountMenu from "./HeaderAccountMenu";
 import HeaderCartButton from "./HeaderCartButton";
-import HeaderCategoryMenu from "./HeaderCategoryMenu";
 import HeaderSearch from "./HeaderSearch";
 import MobileHeader from "./MobileHeader";
+
+const AuthModal = dynamic(
+  () => import("@/features/auth/components/AuthModal"),
+  { ssr: false },
+);
+
+const HeaderCategoryMenu = dynamic(() => import("./HeaderCategoryMenu"), {
+  ssr: false,
+});
 
 interface HeaderClientProps {
   categories: HeaderCategory[];
   locations: string[];
-  products: Product[];
+  suggestions: SearchSuggestionItem[];
 }
 
 const mockNotifications = [
@@ -42,7 +50,7 @@ const mockNotifications = [
 export default function HeaderClient({
   categories,
   locations,
-  products,
+  suggestions,
 }: HeaderClientProps) {
   const pathname = usePathname();
   const router = useRouter();
@@ -60,7 +68,7 @@ export default function HeaderClient({
   const [selectedLocation, setSelectedLocation] = useState(
     locations[0] ?? "TP. Hồ Chí Minh",
   );
-  const { totalItems, subtotal } = useCart();
+  const { totalProducts, subtotal } = useCart();
   const isMockLoggedIn = Boolean(mockUser);
 
   useEffect(() => {
@@ -162,7 +170,7 @@ export default function HeaderClient({
                     isHomepageSearchSticky ? "w-full" : "hidden w-full"
                   }
                 >
-                  <HeaderSearch products={products} />
+                  <HeaderSearch suggestions={suggestions} />
                 </motion.div>
                 <div className={isHomepageSearchSticky ? "hidden" : "block"}>
                   <TrustBadges />
@@ -174,7 +182,7 @@ export default function HeaderClient({
                 animate={{ opacity: 1, scale: 1 }}
                 className="w-full"
               >
-                <HeaderSearch products={products} />
+                <HeaderSearch suggestions={suggestions} />
               </motion.div>
             )}
           </div>
@@ -199,14 +207,14 @@ export default function HeaderClient({
               }}
               onOpenChange={setIsProfileOpen}
             />
-            <HeaderCartButton cartCount={totalItems} cartTotal={subtotal} />
+            <HeaderCartButton cartCount={totalProducts} cartTotal={subtotal} />
           </nav>
 
           <MobileHeader
             categories={categories}
-            cartCount={totalItems}
+            cartCount={totalProducts}
             isOpen={isMobileOpen}
-            products={products}
+            suggestions={suggestions}
             onAccountClick={() => {
               if (isMockLoggedIn) {
                 setIsProfileOpen((open) => !open);
@@ -219,22 +227,26 @@ export default function HeaderClient({
         </div>
       </div>
 
-      <HeaderCategoryMenu
-        categories={categories}
-        isOpen={isCategoryOpen}
-        locations={locations}
-        selectedLocation={selectedLocation}
-        onClose={() => setIsCategoryOpen(false)}
-        onLocationChange={setSelectedLocation}
-      />
-      <AuthModal
-        isOpen={isLoginModalOpen}
-        onClose={() => setIsLoginModalOpen(false)}
-        onSuccess={(user) => {
-          setMockUser(user);
-          setIsProfileOpen(false);
-        }}
-      />
+      {isCategoryOpen ? (
+        <HeaderCategoryMenu
+          categories={categories}
+          isOpen={isCategoryOpen}
+          locations={locations}
+          selectedLocation={selectedLocation}
+          onClose={() => setIsCategoryOpen(false)}
+          onLocationChange={setSelectedLocation}
+        />
+      ) : null}
+      {isLoginModalOpen ? (
+        <AuthModal
+          isOpen={isLoginModalOpen}
+          onClose={() => setIsLoginModalOpen(false)}
+          onSuccess={(user) => {
+            setMockUser(user);
+            setIsProfileOpen(false);
+          }}
+        />
+      ) : null}
     </header>
   );
 }

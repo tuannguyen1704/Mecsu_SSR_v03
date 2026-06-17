@@ -1,8 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { ChevronUp, ShoppingCart } from "lucide-react";
-import { getSeededPlaceholder } from "@/lib/image-placeholders";
+import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import { useCart } from "@/features/cart";
 import { notifyCartItemAdded } from "@/features/cart/services/cart-feedback";
 import type { Product } from "../../types/product";
@@ -20,7 +21,7 @@ const navItems = [
 export function ProductDetailStickyBar({ product }: ProductDetailStickyBarProps) {
   const [isVisible, setIsVisible] = useState(false);
   const { addItem } = useCart();
-  const productImage = product.image || getSeededPlaceholder(product.id);
+  const productImage = product.image || getSeededCategoryImage(product.id);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -65,12 +66,13 @@ export function ProductDetailStickyBar({ product }: ProductDetailStickyBarProps)
       <div className="mx-auto max-w-[1500px] px-4 lg:px-8">
         <div className="flex h-[82px] items-center justify-between py-2">
           <div className="flex min-w-0 items-center gap-4">
-            <div className="h-14 w-14 shrink-0 overflow-hidden rounded border border-slate-100 bg-white p-1">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+            <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded border border-slate-100 bg-white p-1">
+              <Image
                 src={productImage}
                 alt={product.name}
-                className="h-full w-full object-contain"
+                fill
+                sizes="56px"
+                className="object-contain p-1"
               />
             </div>
             <div className="flex min-w-0 flex-col justify-center">

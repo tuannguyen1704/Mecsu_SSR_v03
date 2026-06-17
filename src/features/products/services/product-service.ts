@@ -1,5 +1,6 @@
 import { PRODUCTS } from "../data/products";
 import type { Product } from "../types/product";
+import type { SearchSuggestionItem } from "./search-products";
 import type { Category } from "@/features/categories/types/category";
 import type { CategorySubcategory } from "@/features/categories/types/category";
 import {
@@ -7,6 +8,32 @@ import {
   getCategorySubcategories,
 } from "@/features/categories/services/category-service";
 import { toSlug } from "@/lib/routing";
+
+export interface ProductPageData {
+  product: Product;
+  compatibleProducts: Product[];
+}
+
+const productAdapter = {
+  async listProducts(): Promise<Product[]> {
+    return PRODUCTS;
+  },
+  async getProductByIdOrSlug(productId: string): Promise<Product | undefined> {
+    return getProductByIdOrSlug(productId);
+  },
+  async listProductsForCategory(category: Category): Promise<Product[]> {
+    return getProductsForCategory(category);
+  },
+  async listProductsForSubcategory(
+    category: Category,
+    subcategory: CategorySubcategory,
+  ): Promise<Product[]> {
+    return getProductsForSubcategory(category, subcategory);
+  },
+  async getProductStaticParams(): Promise<{ productId: string }[]> {
+    return getProductStaticParams();
+  },
+};
 
 export function getProductsForCategory(category: Category): Product[] {
   const allowedSubcategorySlugs = new Set(
@@ -29,6 +56,31 @@ export function getProductsForCategory(category: Category): Product[] {
 
 export function getProductHref(product: Product): string {
   return `/san-pham/${product.slug || toSlug(product.name)}`;
+}
+
+export function getHeaderSearchProducts(limit = 36): Product[] {
+  return PRODUCTS.slice(0, limit);
+}
+
+export function getHeaderSearchSuggestions(limit = 36): SearchSuggestionItem[] {
+  return PRODUCTS.slice(0, limit).map(toSearchSuggestionItem);
+}
+
+function toSearchSuggestionItem(product: Product): SearchSuggestionItem {
+  return {
+    id: product.id,
+    name: product.name,
+    slug: product.slug,
+    sku: product.sku,
+    category: product.category,
+    categorySlug: product.categorySlug,
+    brand: product.brand,
+    price: product.price,
+    originalPrice: product.originalPrice,
+    discount: product.discount,
+    image: product.image,
+    tags: product.tags,
+  };
 }
 
 export function getProductStaticParams(): { productId: string }[] {
@@ -151,4 +203,55 @@ export function getProductsForSubcategory(
     categorySlug: subcategory.slug,
     tags: [...(product.tags || []), category.slug, subcategory.slug],
   }));
+}
+
+export async function listProducts(): Promise<Product[]> {
+  return productAdapter.listProducts();
+}
+
+export async function getProduct(
+  productId: string,
+): Promise<Product | undefined> {
+  return productAdapter.getProductByIdOrSlug(productId);
+}
+
+export async function listProductsForCategory(
+  category: Category,
+): Promise<Product[]> {
+  return productAdapter.listProductsForCategory(category);
+}
+
+export async function listProductsForSubcategory(
+  category: Category,
+  subcategory: CategorySubcategory,
+): Promise<Product[]> {
+  return productAdapter.listProductsForSubcategory(category, subcategory);
+}
+
+export async function getProductRouteParams(): Promise<{ productId: string }[]> {
+  return productAdapter.getProductStaticParams();
+}
+
+export async function getProductPageData(
+  productId: string,
+): Promise<ProductPageData | undefined> {
+  const product = await getProduct(productId);
+
+  if (!product) {
+    return undefined;
+  }
+
+  const relatedProducts = getRelatedProducts(product, 10);
+  const compatibleProducts =
+    relatedProducts.length >= 8
+      ? relatedProducts
+      : [
+          ...relatedProducts,
+          ...PRODUCTS.filter((candidate) => candidate.id !== product.id),
+        ].slice(0, 10);
+
+  return {
+    product,
+    compatibleProducts,
+  };
 }
