@@ -7,6 +7,7 @@ import {
   Mail,
   MapPin,
   Package,
+  BellRing,
   RotateCcw,
   User,
 } from "lucide-react";
@@ -21,6 +22,7 @@ export const accountIconMap = {
   payment: CreditCard,
   user: User,
   wishlist: Heart,
+  stockAlerts: BellRing,
   feedback: Mail,
   support: HeadphonesIcon,
 } satisfies Record<AccountIconKey, typeof LayoutDashboard>;

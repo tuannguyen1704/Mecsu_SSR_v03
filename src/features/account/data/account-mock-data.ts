@@ -30,6 +30,7 @@ export const accountNavigationSections: AccountNavigationSection[] = [
       { id: "addresses", label: "Địa chỉ giao hàng", href: "/tai-khoan/dia-chi", icon: "addresses" },
       { id: "payment", label: "Phương thức thanh toán", href: "/tai-khoan/phuong-thuc-thanh-toan", icon: "payment" },
       { id: "user", label: "Thông tin tài khoản", href: "/tai-khoan/thong-tin-ca-nhan", icon: "user" },
+      { id: "stock-alerts", label: "Nhắc hàng", href: "/tai-khoan/nhac-hang", icon: "stockAlerts" },
     ],
   },
   {

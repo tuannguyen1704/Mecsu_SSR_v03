@@ -51,7 +51,7 @@ export function ProductFilterSidebar({
 }: ProductFilterSidebarProps) {
   return (
     <aside className="h-full w-[300px] shrink-0">
-      <div className="flex h-[calc(100vh-112px)] flex-col overflow-hidden border-r border-slate-200 bg-[#f5f5f5] lg:sticky lg:top-24">
+      <div className="flex h-[calc(100vh-8px)] flex-col overflow-hidden border-r border-slate-200 bg-[#f5f5f5] lg:sticky lg:top-2">
         <div className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
           <div className="flex items-center gap-2">
             <Filter size={16} className="text-[#1a1a1a]" />

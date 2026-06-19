@@ -6,6 +6,7 @@ export type AccountIconKey =
   | "addresses"
   | "payment"
   | "wishlist"
+  | "stockAlerts"
   | "feedback"
   | "support"
   | "user";

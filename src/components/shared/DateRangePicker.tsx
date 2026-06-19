@@ -15,6 +15,7 @@ interface DateRangePickerProps {
   onApply?: (value: DateRangeValue) => void;
   placeholder?: string;
   className?: string;
+  popoverClassName?: string;
 }
 
 const WEEKDAYS = ["T2", "T3", "T4", "T5", "T6", "T7", "CN"];
@@ -108,6 +109,7 @@ export function DateRangePicker({
   onApply,
   placeholder = "Chọn khoảng ngày",
   className,
+  popoverClassName,
 }: DateRangePickerProps) {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -221,7 +223,12 @@ export function DateRangePicker({
       </button>
 
       {isOpen ? (
-        <div className="absolute left-0 top-full z-50 mt-2 w-[min(36rem,calc(100vw-2rem))] rounded-xl border border-[#DDE7F3] bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.12)]">
+        <div
+          className={cn(
+            "absolute left-0 top-full z-50 mt-2 w-[min(36rem,calc(100vw-2rem))] rounded-xl border border-[#DDE7F3] bg-white p-4 shadow-[0_18px_40px_rgba(15,23,42,0.12)]",
+            popoverClassName,
+          )}
+        >
           <div className="grid gap-4 md:grid-cols-[8.5rem_1fr]">
             <div className="flex gap-2 overflow-x-auto pb-1 md:flex-col md:overflow-visible md:pb-0">
               {presets.map((preset) => (

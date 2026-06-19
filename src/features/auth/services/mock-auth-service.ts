@@ -12,6 +12,7 @@ import type {
 } from "../types/auth";
 
 const MOCK_DELAY_MS = 280;
+export const AUTH_STATE_CHANGED_EVENT = "mecsu-auth-state-changed";
 
 function wait() {
   return new Promise((resolve) => {
@@ -67,6 +68,11 @@ function writeCurrentUser(user: MockAuthUser) {
   window.localStorage.setItem(AUTH_USER_STORAGE_KEY, JSON.stringify(user));
 }
 
+function notifyAuthStateChanged() {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new Event(AUTH_STATE_CHANGED_EVENT));
+}
+
 export async function login({
   email,
   password,
@@ -88,6 +94,7 @@ export async function login({
 
   const user = toSafeUser(account);
   writeCurrentUser(user);
+  notifyAuthStateChanged();
   return { ok: true, data: user };
 }
 
@@ -142,13 +149,16 @@ export async function registerAccount(
 
   const user = toSafeUser(account);
   writeCurrentUser(user);
+  notifyAuthStateChanged();
   return { ok: true, data: user };
 }
 
 export async function logout() {
   await wait();
-  if (!canUseStorage()) return;
-  window.localStorage.removeItem(AUTH_USER_STORAGE_KEY);
+  if (canUseStorage()) {
+    window.localStorage.removeItem(AUTH_USER_STORAGE_KEY);
+  }
+  notifyAuthStateChanged();
 }
 
 export function getCurrentUser(): MockAuthUser | null {

@@ -8,6 +8,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import {
+  AUTH_STATE_CHANGED_EVENT,
   getCurrentUser,
   logout,
 } from "@/features/auth/services/mock-auth-service";
@@ -15,6 +16,10 @@ import type { MockAuthUser } from "@/features/auth/types/auth";
 import type { HeaderCategory } from "@/features/categories/data/header-categories";
 import { useCart } from "@/features/cart";
 import type { SearchSuggestionItem } from "@/features/products/services/search-products";
+import {
+  CATEGORY_MENU_OPEN_EVENT,
+  PROMOTION_PANEL_OPEN_EVENT,
+} from "@/features/promotions/events";
 import HeaderAccountMenu from "./HeaderAccountMenu";
 import HeaderCartButton from "./HeaderCartButton";
 import HeaderSearch from "./HeaderSearch";
@@ -79,6 +84,19 @@ export default function HeaderClient({
     return () => window.clearTimeout(timeoutId);
   }, []);
 
+  useEffect(() => {
+    const handleAuthStateChanged = () => {
+      setMockUser(getCurrentUser());
+      setIsProfileOpen(false);
+    };
+
+    window.addEventListener(AUTH_STATE_CHANGED_EVENT, handleAuthStateChanged);
+
+    return () => {
+      window.removeEventListener(AUTH_STATE_CHANGED_EVENT, handleAuthStateChanged);
+    };
+  }, []);
+
   const isAccountPage = pathname.startsWith("/tai-khoan");
 
   useEffect(() => {
@@ -121,6 +139,21 @@ export default function HeaderClient({
     };
   }, [isCategoryOpen, isMobileOpen]);
 
+  useEffect(() => {
+    const handlePromotionPanelOpen = () => {
+      setIsCategoryOpen(false);
+    };
+
+    window.addEventListener(PROMOTION_PANEL_OPEN_EVENT, handlePromotionPanelOpen);
+
+    return () => {
+      window.removeEventListener(
+        PROMOTION_PANEL_OPEN_EVENT,
+        handlePromotionPanelOpen,
+      );
+    };
+  }, []);
+
   const headerPosition = isAccountPage ? "relative" : isSubcategoryPage ? "relative" : "sticky top-0";
 
   return (
@@ -145,18 +178,24 @@ export default function HeaderClient({
           </Link>
 
           <button
-            onClick={() => setIsCategoryOpen((open) => !open)}
+            onClick={() => {
+              if (!isCategoryOpen) {
+                window.dispatchEvent(new Event(CATEGORY_MENU_OPEN_EVENT));
+              }
+
+              setIsCategoryOpen((open) => !open);
+            }}
             className="group relative hidden h-12 shrink-0 items-center gap-4 overflow-hidden rounded-md bg-[#163F78] px-6 text-[13px] font-bold tracking-widest text-white shadow-md transition-all hover:brightness-110 lg:flex"
           >
             <div className="absolute inset-0 bg-white/5 opacity-0 transition-opacity group-hover:opacity-100" />
             <Menu
               size={20}
-              className="text-brand-primary transition-transform duration-500 group-hover:rotate-180"
+              className="text-brand-primary"
             />
             Danh mục
             <ChevronDown
               size={16}
-              className={`transition-transform duration-300 ${isCategoryOpen ? "rotate-180" : ""}`}
+              className="shrink-0"
             />
           </button>
 
