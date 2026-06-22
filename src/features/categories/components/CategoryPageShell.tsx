@@ -13,12 +13,12 @@ export function CategoryPageShell({ category }: { category: Category }) {
   const subcategories = getCategorySubcategories(category);
 
   return (
-    <main className="mx-auto max-w-[1600px] px-6 py-12 lg:px-12">
+    <main className="mx-auto w-full min-w-0 max-w-[1600px] px-6 py-12 lg:px-12">
       <CategoryBreadcrumb category={category} />
       <CategoryHero category={category} />
 
-      <div className="grid grid-cols-1 gap-12 lg:grid-cols-4">
-        <aside className="lg:col-span-1">
+      <div className="grid min-w-0 grid-cols-1 gap-12 lg:grid-cols-[260px_minmax(0,1fr)]">
+        <aside className="min-w-0">
           <h2 className="mb-6 text-2xl font-bold text-slate-900">
             Shop Related Categories
           </h2>
@@ -40,7 +40,7 @@ export function CategoryPageShell({ category }: { category: Category }) {
           </ul>
         </aside>
 
-        <div className="lg:col-span-3">
+        <div className="min-w-0">
           <CategorySubcategoryGrid
             category={category}
             subcategories={subcategories}

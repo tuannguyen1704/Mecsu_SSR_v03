@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Package, Search, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { useRouter } from "next/navigation";
@@ -23,6 +23,7 @@ export default function HeaderSearch({
   const [searchValue, setSearchValue] = useState("");
   const [isFocused, setIsFocused] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const debouncedSearchValue = useDebounce(searchValue, 300);
   const searchSuggestions = getSearchSuggestions(
     suggestions,
@@ -36,13 +37,37 @@ export default function HeaderSearch({
       const normalized = keyword.trim();
       if (!normalized) return;
       setIsFocused(false);
+      setSearchValue("");
+      inputRef.current?.blur();
       router.push(`/search?q=${encodeURIComponent(normalized)}`);
     },
     [router, searchValue],
   );
 
+  useEffect(() => {
+    if (!shouldShowDropdown) {
+      return;
+    }
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setIsFocused(false);
+        inputRef.current?.blur();
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [shouldShowDropdown]);
+
   return (
-    <div className={`relative w-full ${className}`}>
+    <div ref={containerRef} className={`relative w-full ${className}`}>
       <motion.div
         className={`relative flex items-center overflow-hidden rounded-md border-2 bg-white transition-all ${
           isFocused

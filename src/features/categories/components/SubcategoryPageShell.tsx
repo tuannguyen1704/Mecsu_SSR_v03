@@ -1,6 +1,7 @@
 import type { Product } from "@/features/products/types/product";
 import type { Category, CategorySubcategory } from "../types/category";
 import { CategoryListingClient } from "./CategoryListingClient";
+import { SubcategoryCarousel } from "./subcategory-lower/SubcategoryCarousel";
 import { SubcategoryBreadcrumb } from "./SubcategoryBreadcrumb";
 import { SubcategoryLowerSections } from "./subcategory-lower";
 
@@ -29,6 +30,8 @@ export function SubcategoryPageShell({
           xuất.
         </p>
       </section>
+
+      <SubcategoryCarousel category={category} currentSubcategory={subcategory} />
 
       <CategoryListingClient
         title={subcategory.name}

@@ -1,29 +1,29 @@
 import type { Product } from "@/features/products/types/product";
+import type { Category } from "@/features/categories/types/category";
 import { CategoryListingClient } from "@/features/categories/components/CategoryListingClient";
 import { SearchBreadcrumb } from "./SearchBreadcrumb";
 import { SearchEmptyState } from "./SearchEmptyState";
+import { RelatedSubcategoryCarousel } from "@/features/categories/components/RelatedSubcategoryCarousel";
 
 interface SearchPageShellProps {
   query: string;
   products: Product[];
+  categories: Category[];
 }
 
-export function SearchPageShell({ query, products }: SearchPageShellProps) {
+export function SearchPageShell({ query, products, categories }: SearchPageShellProps) {
   const trimmedQuery = query.trim();
   const totalLabel = `${products.length.toLocaleString("vi-VN")} sản phẩm`;
 
   return (
-    <main className="mx-auto max-w-[1600px] px-6 py-8 lg:px-12">
-      <SearchBreadcrumb />
+    <main className="mx-auto w-full min-w-0 max-w-[1600px] px-6 py-8 lg:px-12">
+      <SearchBreadcrumb query={trimmedQuery} />
 
       {!trimmedQuery ? (
         <SearchEmptyState type="empty-query" />
       ) : (
         <>
           <section className="mb-8">
-            <p className="mb-2 text-[12px] font-black tracking-[0.22em] text-[#005da4] uppercase">
-              Search Results
-            </p>
             <div className="flex flex-col gap-2 md:flex-row md:items-end md:justify-between">
               <div>
                 <h1 className="text-2xl font-black tracking-tight text-[#1a1a1a] md:text-3xl">
@@ -40,13 +40,19 @@ export function SearchPageShell({ query, products }: SearchPageShellProps) {
           </section>
 
           {products.length > 0 ? (
-            <CategoryListingClient
-              title="Search Results"
-              products={products}
-              productCountLabel={totalLabel}
-            />
+            <>
+              <RelatedSubcategoryCarousel query={trimmedQuery} categories={categories} />
+              <CategoryListingClient
+                title={trimmedQuery}
+                products={products}
+                productCountLabel={totalLabel}
+              />
+            </>
           ) : (
-            <SearchEmptyState query={trimmedQuery} type="no-results" />
+            <>
+              <RelatedSubcategoryCarousel query={trimmedQuery} categories={categories} />
+              <SearchEmptyState query={trimmedQuery} type="no-results" />
+            </>
           )}
         </>
       )}

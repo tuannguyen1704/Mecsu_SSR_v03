@@ -34,6 +34,8 @@ export function HeroSearchBox({ placeholder, suggestions }: HeroSearchBoxProps) 
       const trimmedKeyword = keyword.trim();
       if (!trimmedKeyword) return;
       setIsFocused(false);
+      setSearchValue("");
+      inputRef.current?.blur();
       router.push(`/search?q=${encodeURIComponent(trimmedKeyword)}`);
     },
     [router],

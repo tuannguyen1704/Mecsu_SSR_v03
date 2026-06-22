@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { SearchPageShell, getSearchResults } from "@/features/search";
+import { getAllCategories } from "@/features/categories/services/category-service";
 
 interface SearchPageProps {
   searchParams?: Promise<{
@@ -37,6 +38,7 @@ export async function generateMetadata({
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const query = await getQuery(searchParams);
   const products = getSearchResults(query);
+  const categories = getAllCategories();
 
-  return <SearchPageShell query={query} products={products} />;
+  return <SearchPageShell query={query} products={products} categories={categories} />;
 }

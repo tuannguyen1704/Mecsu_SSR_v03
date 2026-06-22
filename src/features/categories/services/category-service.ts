@@ -59,6 +59,33 @@ export function getSubcategoryBySlug(
   );
 }
 
+export function getCategoryTrailBySearchQuery(query: string): {
+  category: Category;
+  subcategory?: CategorySubcategory;
+} | null {
+  const normalizedQuery = toSlug(query.trim());
+
+  if (!normalizedQuery) {
+    return null;
+  }
+
+  for (const category of CATEGORIES) {
+    const subcategory = getCategorySubcategories(category).find(
+      (item) => item.slug === normalizedQuery,
+    );
+
+    if (subcategory) {
+      return { category, subcategory };
+    }
+  }
+
+  const category = CATEGORIES.find(
+    (item) => item.slug === normalizedQuery,
+  );
+
+  return category ? { category } : null;
+}
+
 export async function listCategories(): Promise<Category[]> {
   return categoryAdapter.listCategories();
 }
