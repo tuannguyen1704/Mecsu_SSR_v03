@@ -68,13 +68,13 @@ export function HeroSearchBox({ placeholder, suggestions }: HeroSearchBoxProps) 
   return (
     <div ref={containerRef} className="relative w-full">
       <motion.div
-        className={`relative flex h-[60px] items-center overflow-hidden rounded-md border-2 bg-white transition-all ${
+        className={`relative flex h-12 min-w-0 items-center overflow-hidden rounded-md border-2 bg-white transition-all sm:h-[56px] lg:h-[60px] ${
           isFocused
             ? "border-brand-primary shadow-lg shadow-brand-primary/20"
             : "border-white/50 hover:border-slate-300"
         }`}
       >
-        <div className="flex items-center justify-center pr-2 pl-4">
+        <div className="flex items-center justify-center pr-2 pl-3 sm:pl-4">
           <Search
             size={20}
             className={`transition-colors ${
@@ -99,7 +99,7 @@ export function HeroSearchBox({ placeholder, suggestions }: HeroSearchBoxProps) 
             }
           }}
           placeholder={placeholder}
-          className="h-full flex-1 border-none bg-transparent text-[15px] font-medium text-slate-800 outline-none placeholder:font-normal placeholder:text-slate-400"
+          className="h-full min-w-0 flex-1 border-none bg-transparent text-sm font-medium text-slate-800 outline-none placeholder:font-normal placeholder:text-slate-400 sm:text-[15px]"
           aria-label="Search products"
           autoComplete="off"
           autoCorrect="off"
@@ -135,7 +135,7 @@ export function HeroSearchBox({ placeholder, suggestions }: HeroSearchBoxProps) 
                   <button
                     key={product.id}
                     onClick={() => handleSuggestionSelect(product)}
-                    className="group flex w-full items-center gap-4 border-b border-slate-100 px-4 py-3 text-left transition-colors last:border-b-0 hover:bg-slate-50"
+                  className="group flex w-full min-w-0 items-center gap-3 border-b border-slate-100 px-3 py-3 text-left transition-colors last:border-b-0 hover:bg-slate-50 sm:gap-4 sm:px-4"
                   >
                     <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-lg border border-slate-200 bg-white p-1 transition-colors duration-200 group-hover:bg-slate-50">
                       <Image
@@ -147,7 +147,7 @@ export function HeroSearchBox({ placeholder, suggestions }: HeroSearchBoxProps) 
                       />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <div className="flex items-start justify-between gap-2">
+                      <div className="flex min-w-0 flex-col gap-1 sm:flex-row sm:items-start sm:justify-between sm:gap-2">
                         <div className="min-w-0 flex-1">
                           <h4 className="truncate text-[13px] leading-tight font-bold text-brand-secondary transition-colors duration-200 group-hover:text-slate-900">
                             {product.name}
@@ -161,7 +161,7 @@ export function HeroSearchBox({ placeholder, suggestions }: HeroSearchBoxProps) 
                             </span>
                           </div>
                         </div>
-                        <div className="shrink-0 text-right">
+                        <div className="shrink-0 text-left sm:text-right">
                           <div className="text-[14px] font-black text-[#1a1a1a]">
                             {product.price.toLocaleString("vi-VN")} đ
                           </div>

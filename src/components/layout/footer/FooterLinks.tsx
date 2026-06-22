@@ -13,10 +13,10 @@ type FooterLinksProps = {
 export function FooterLinks({ title, links }: FooterLinksProps) {
   return (
     <div className="flex flex-col">
-      <h3 className="mb-5 border-b border-white/[0.08] pb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white">
+      <h3 className="mb-6 text-lg font-semibold uppercase text-white">
         {title}
       </h3>
-      <ul className="flex flex-col gap-3 text-[13px]">
+      <ul className="flex flex-col gap-4 text-sm">
         {links.map((link) => (
           <li key={`${title}-${link.label}`}>
             <Link

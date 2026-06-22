@@ -37,7 +37,7 @@ export function CartQuantityControl({
   };
 
   return (
-    <div className="flex items-center overflow-hidden rounded-md border border-slate-200 bg-white">
+    <div className="flex w-fit shrink-0 items-center self-start overflow-hidden rounded-md border border-slate-200 bg-white">
       <button
         type="button"
         onClick={() => {
@@ -45,7 +45,7 @@ export function CartQuantityControl({
           setDraftQuantity(String(nextQuantity));
           onChange(nextQuantity);
         }}
-        className="flex h-8 w-8 items-center justify-center border-r border-slate-200 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+        className="flex h-8 w-8 shrink-0 items-center justify-center border-r border-slate-200 text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
         aria-label="Giảm số lượng"
       >
         -
@@ -65,7 +65,7 @@ export function CartQuantityControl({
             event.currentTarget.blur();
           }
         }}
-        className="h-8 w-12 border-r border-slate-200 bg-slate-50/50 px-0 text-center text-[13px] font-semibold tabular-nums text-[#111111] outline-none"
+        className="h-8 w-10 shrink-0 border-r border-slate-200 bg-slate-50/50 px-0 text-center text-[13px] font-semibold tabular-nums text-[#111111] outline-none sm:w-12"
         aria-label="Số lượng"
       />
       <button
@@ -75,7 +75,7 @@ export function CartQuantityControl({
           setDraftQuantity(String(nextQuantity));
           onChange(nextQuantity);
         }}
-        className="flex h-8 w-8 items-center justify-center text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
+        className="flex h-8 w-8 shrink-0 items-center justify-center text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-700"
         aria-label="Tăng số lượng"
       >
         +

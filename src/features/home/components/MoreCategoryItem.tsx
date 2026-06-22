@@ -7,9 +7,9 @@ export function MoreCategoryItem({ item }: { item: MoreCategoryItemType }) {
   return (
     <Link
       href={item.href}
-      className="group/item flex w-[140px] shrink-0 cursor-pointer flex-col items-center gap-3"
+      className="group/item flex w-[120px] shrink-0 snap-start cursor-pointer flex-col items-center gap-3 sm:w-[140px]"
     >
-      <div className="relative flex h-[120px] w-full items-center justify-center rounded-xl p-2 transition-transform duration-300 group-hover/item:-translate-y-1">
+      <div className="relative flex h-[104px] w-full items-center justify-center rounded-xl p-2 transition-transform duration-300 group-hover/item:-translate-y-1 sm:h-[120px]">
         <Image
           src={getSeededCategoryImage(item.name)}
           alt={item.name}

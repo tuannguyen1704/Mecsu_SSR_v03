@@ -26,6 +26,7 @@ import {
   Wrench,
   Quote,
 } from "lucide-react";
+import { Breadcrumb as SharedBreadcrumb } from "@/components/shared/Breadcrumb";
 import { cn } from "@/lib/utils";
 import {
   getAllPublicFaqItems,
@@ -59,30 +60,18 @@ function CategoryIcon({
 
 function Breadcrumb({ category }: { category?: PublicFaqCategory }) {
   return (
-    <nav className="flex flex-wrap items-center gap-2 text-[13px] font-medium text-slate-500">
-      <Link href="/" className="transition-colors hover:text-[#163F78]">
-        Trang chủ
-      </Link>
-      <ChevronRight size={14} className="text-slate-400" />
-      <Link
-        href="/dich-vu-khach-hang"
-        className="transition-colors hover:text-[#163F78]"
-      >
-        Dịch vụ khách hàng
-      </Link>
-      <ChevronRight size={14} className="text-slate-400" />
-      {category ? (
-        <>
-          <Link href="/faqs" className="transition-colors hover:text-[#163F78]">
-            FAQs
-          </Link>
-          <ChevronRight size={14} className="text-slate-400" />
-          <span className="font-semibold text-slate-900">{category.name}</span>
-        </>
-      ) : (
-        <span className="font-semibold text-slate-900">FAQs</span>
-      )}
-    </nav>
+    <SharedBreadcrumb
+      items={[
+        { label: "Trang chủ", href: "/" },
+        { label: "Dịch vụ khách hàng", href: "/dich-vu-khach-hang" },
+        ...(category
+          ? [
+              { label: "FAQs", href: "/faqs" },
+              { label: category.name },
+            ]
+          : [{ label: "FAQs" }]),
+      ]}
+    />
   );
 }
 

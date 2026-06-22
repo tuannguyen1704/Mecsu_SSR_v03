@@ -31,6 +31,7 @@ import {
   Users,
   Wrench,
 } from "lucide-react";
+import { Breadcrumb as SharedBreadcrumb } from "@/components/shared/Breadcrumb";
 import { Toast } from "@/components/ui/toast";
 import { cn } from "@/lib/utils";
 import { publicFaqCategories } from "../data/public-support-data";
@@ -68,13 +69,12 @@ interface ActionCardProps {
 
 function Breadcrumb() {
   return (
-    <nav className="flex items-center gap-2 text-[13px] font-medium text-slate-500">
-      <Link href="/" className="transition-colors hover:text-[#163F78]">
-        Trang chủ
-      </Link>
-      <ChevronRight size={14} className="text-slate-400" />
-      <span className="font-semibold text-slate-900">Dịch vụ khách hàng</span>
-    </nav>
+    <SharedBreadcrumb
+      items={[
+        { label: "Trang chủ", href: "/" },
+        { label: "Dịch vụ khách hàng" },
+      ]}
+    />
   );
 }
 

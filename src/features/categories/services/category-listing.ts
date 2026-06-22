@@ -1,6 +1,6 @@
 import type { Product } from "@/features/products/types/product";
 
-export const CATEGORY_LISTING_ITEMS_PER_PAGE = 12;
+export const CATEGORY_LISTING_ITEMS_PER_PAGE = 52;
 
 export interface ProductFilterOption {
   id: string;

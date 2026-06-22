@@ -35,22 +35,22 @@ export function HomeMoreCategories() {
   };
 
   return (
-    <section className="mx-auto max-w-[1600px] px-6 pt-10 pb-2 font-sans lg:px-12">
-      <h2 className="mb-8 text-3xl font-bold tracking-tight text-slate-800">
-        More categories to explore
+    <section className="mx-auto max-w-[1600px] px-4 pt-8 pb-2 font-sans sm:px-6 sm:pt-10 lg:px-12">
+      <h2 className="mb-5 text-2xl font-bold tracking-tight text-slate-800 sm:mb-8 sm:text-3xl">
+        Khám phá thêm danh mục
       </h2>
 
       <div className="group relative">
         <button
           onClick={() => scrollCategories("left")}
-          className="absolute top-1/2 -left-4 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-600 opacity-0 shadow-sm transition-colors hover:bg-slate-50 group-hover:opacity-100 disabled:opacity-0"
+          className="absolute top-1/2 -left-4 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-600 opacity-0 shadow-sm transition-colors hover:bg-slate-50 group-hover:opacity-100 disabled:opacity-0 md:flex"
           aria-label="Scroll categories left"
         >
           <ChevronLeft size={24} />
         </button>
         <button
           onClick={() => scrollCategories("right")}
-          className="absolute top-1/2 -right-4 z-10 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-600 opacity-0 shadow-sm transition-colors hover:bg-slate-50 group-hover:opacity-100 disabled:opacity-0"
+          className="absolute top-1/2 -right-4 z-10 hidden h-12 w-12 -translate-y-1/2 items-center justify-center rounded-md border border-slate-300 bg-white text-slate-600 opacity-0 shadow-sm transition-colors hover:bg-slate-50 group-hover:opacity-100 disabled:opacity-0 md:flex"
           aria-label="Scroll categories right"
         >
           <ChevronRight size={24} />

@@ -7,7 +7,7 @@ import type {
   RegisterAccountPayload,
   RegisterAddressPayload,
 } from "../types/auth";
-import { registerAccount } from "../services/mock-auth-service";
+import { completeVerifiedRegistration } from "../services/registration-service";
 import { MecsuMiniLogo } from "./LoginForm";
 
 interface RegisterAddressStepProps {
@@ -44,10 +44,10 @@ export default function RegisterAddressStep({
   const completeRegistration = async (shouldSaveAddress: boolean) => {
     setIsSubmitting(true);
     setFormError("");
-    const result = await registerAccount({
-      ...account,
-      address: shouldSaveAddress ? address : undefined,
-    });
+    const result = await completeVerifiedRegistration(
+      account,
+      shouldSaveAddress ? address : undefined,
+    );
     setIsSubmitting(false);
 
     if (!result.ok) {
@@ -59,10 +59,10 @@ export default function RegisterAddressStep({
   };
 
   return (
-    <div className="flex max-h-[calc(100dvh-32px)] min-h-0 flex-col bg-white">
-      <div className="shrink-0 bg-white px-7 pt-7 pb-4">
+    <div className="flex max-h-[calc(100dvh-16px)] min-h-0 flex-col bg-white sm:max-h-[calc(100dvh-32px)]">
+      <div className="shrink-0 bg-white px-5 pt-5 pb-3 sm:px-7 sm:pt-7 sm:pb-4">
         <MecsuMiniLogo />
-        <div className="mt-6 flex items-center gap-3">
+        <div className="mt-4 flex min-w-0 items-center gap-2 sm:mt-6 sm:gap-3">
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#16A34A] text-[12px] font-bold text-white">
             <Check size={15} />
           </span>
@@ -75,7 +75,7 @@ export default function RegisterAddressStep({
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-7 pb-5 [scrollbar-width:thin]">
+      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto scroll-smooth px-5 pb-5 [scrollbar-width:thin] sm:px-7">
         <div>
           <h2 id="auth-modal-title" className="mb-1 text-2xl font-bold text-slate-900">
           Địa chỉ giao hàng
@@ -84,7 +84,7 @@ export default function RegisterAddressStep({
         </div>
 
         <div className="rounded-2xl border border-[#E2E8F0] bg-[#F8FAFC] px-4 py-3">
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3 sm:flex-nowrap">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-white text-[#003B73] shadow-sm">
               <User size={17} />
             </div>
@@ -102,7 +102,7 @@ export default function RegisterAddressStep({
             <button
               type="button"
               onClick={onBack}
-              className="text-[12px] font-bold text-[#003B73] hover:underline"
+              className="ml-auto text-[12px] font-bold text-[#003B73] hover:underline"
             >
               Đổi người nhận
             </button>
@@ -170,8 +170,8 @@ export default function RegisterAddressStep({
         ) : null}
       </div>
 
-      <div className="shrink-0 border-t border-slate-200 bg-white/95 px-5 py-4 shadow-[0_-8px_24px_rgba(15,23,42,0.06)]">
-        <div className="grid grid-cols-[1fr_0.8fr_1.35fr] gap-2">
+      <div className="shrink-0 border-t border-slate-200 bg-white/95 px-4 py-3 shadow-[0_-8px_24px_rgba(15,23,42,0.06)] sm:px-5 sm:py-4">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-[1fr_0.8fr_1.35fr]">
           <button
             type="button"
             onClick={onBack}
@@ -192,7 +192,7 @@ export default function RegisterAddressStep({
             type="button"
             onClick={() => completeRegistration(true)}
             disabled={isSubmitting}
-            className="h-11 rounded-xl bg-[#FFC72C] px-3 text-[12px] font-black text-[#003B73] uppercase transition-colors hover:bg-[#f2bd24] disabled:opacity-70"
+            className="col-span-2 h-11 rounded-xl bg-[#FFC72C] px-3 text-[12px] font-black text-[#003B73] uppercase transition-colors hover:bg-[#f2bd24] disabled:opacity-70 sm:col-span-1"
           >
             {isSubmitting ? "Đang lưu..." : "Hoàn tất đăng ký"}
           </button>

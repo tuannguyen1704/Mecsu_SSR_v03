@@ -10,6 +10,7 @@ import type {
   MockAuthUser,
   RegisterPayload,
 } from "../types/auth";
+import { getSupabaseBrowserClient } from "./supabase-client";
 
 const MOCK_DELAY_MS = 280;
 export const AUTH_STATE_CHANGED_EVENT = "mecsu-auth-state-changed";
@@ -77,9 +78,52 @@ export async function login({
   email,
   password,
 }: LoginPayload): Promise<AuthServiceResult<MockAuthUser>> {
+  const normalizedEmail = normalizeEmail(email);
+
+  if (process.env.NODE_ENV !== "production") {
+    const seededAccount = seedMockAccounts.find(
+      (candidate) =>
+        normalizeEmail(candidate.email) === normalizedEmail &&
+        candidate.password === password,
+    );
+
+    if (seededAccount) {
+      await wait();
+      const user = toSafeUser(seededAccount);
+      writeCurrentUser(user);
+      notifyAuthStateChanged();
+      return { ok: true, data: user };
+    }
+  }
+
+  const supabase = getSupabaseBrowserClient();
+  if (supabase) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: normalizedEmail,
+      password,
+    });
+
+    if (error || !data.user) {
+      return { ok: false, error: error?.message || "Không thể đăng nhập." };
+    }
+
+    const user: MockAuthUser = {
+      id: data.user.id,
+      fullName:
+        String(data.user.user_metadata.full_name || "").trim() ||
+        data.user.email?.split("@")[0] ||
+        "Khách hàng Mecsu",
+      email: data.user.email || normalizedEmail,
+      phone: String(data.user.user_metadata.phone || "").trim() || undefined,
+      createdAt: data.user.created_at,
+    };
+    writeCurrentUser(user);
+    notifyAuthStateChanged();
+    return { ok: true, data: user };
+  }
+
   await wait();
 
-  const normalizedEmail = normalizeEmail(email);
   const account = readAccounts().find(
     (candidate) => normalizeEmail(candidate.email) === normalizedEmail,
   );
@@ -154,6 +198,11 @@ export async function registerAccount(
 }
 
 export async function logout() {
+  const supabase = getSupabaseBrowserClient();
+  if (supabase) {
+    await supabase.auth.signOut();
+  }
+
   await wait();
   if (canUseStorage()) {
     window.localStorage.removeItem(AUTH_USER_STORAGE_KEY);

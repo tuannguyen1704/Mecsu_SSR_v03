@@ -10,15 +10,15 @@ export function HomeExploreMore() {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <section className="border-t border-slate-200 bg-white py-16 font-sans">
-      <div className="mx-auto max-w-[1600px] px-6 lg:px-12">
-        <h2 className="mb-8 text-2xl font-bold tracking-tight text-slate-800">
-          Explore more
+    <section className="border-t border-slate-200 bg-white py-10 font-sans sm:py-16">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-12">
+        <h2 className="mb-6 text-2xl font-bold tracking-tight text-slate-800 sm:mb-8">
+          Khám phá thêm
         </h2>
 
         <div className="relative">
           <div
-            className={`grid grid-cols-2 gap-4 transition-all duration-300 md:grid-cols-4 ${
+            className={`grid grid-cols-1 gap-3 transition-all duration-300 min-[390px]:grid-cols-2 md:grid-cols-4 md:gap-4 ${
               isExpanded ? "max-h-none" : "max-h-40 overflow-hidden"
             }`}
           >
@@ -44,7 +44,7 @@ export function HomeExploreMore() {
             onClick={() => setIsExpanded((current) => !current)}
             className="flex items-center rounded-full px-4 py-2 font-medium text-[#4c7dac] transition-all duration-300 hover:bg-[#4c7dac]/10 active:scale-95"
           >
-            {isExpanded ? "See Less" : "See More"}
+            {isExpanded ? "Thu gọn" : "Xem thêm"}
             <ChevronDown
               size={16}
               className={`ml-1 transition-transform ${isExpanded ? "rotate-180" : ""}`}

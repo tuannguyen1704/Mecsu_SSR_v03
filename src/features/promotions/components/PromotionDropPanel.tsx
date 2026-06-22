@@ -28,7 +28,7 @@ export function PromotionDropPanel({ open, onClose }: PromotionDropPanelProps) {
           <motion.button
             type="button"
             aria-label="Đóng bảng ưu đãi"
-            className="fixed inset-x-0 bottom-0 top-20 z-[240] bg-slate-950/45"
+            className="fixed inset-x-0 bottom-0 top-16 z-[240] bg-slate-950/45 xl:top-20"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -37,14 +37,14 @@ export function PromotionDropPanel({ open, onClose }: PromotionDropPanelProps) {
           />
 
           <motion.div
-            className="pointer-events-none fixed inset-x-0 top-20 z-[260] px-3 sm:px-4 lg:px-8"
+            className="pointer-events-none fixed inset-x-0 top-16 z-[260] px-2 sm:px-4 lg:px-8 xl:top-20"
             initial={{ opacity: 0, y: -18 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -18 }}
             transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
           >
-            <div className="pointer-events-auto mx-auto mt-3 max-h-[calc(100vh-5rem-24px)] max-w-[1180px] overflow-hidden rounded-lg border border-[#E2E8F0] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.18)]">
-              <div className="flex items-start justify-between gap-4 border-b border-[#E2E8F0] p-4 sm:p-5">
+            <div className="pointer-events-auto mx-auto mt-2 max-h-[calc(100dvh-4rem-16px)] max-w-[1180px] overflow-hidden rounded-lg border border-[#E2E8F0] bg-white shadow-[0_18px_45px_rgba(15,23,42,0.18)] lg:mt-3 lg:max-h-[calc(100dvh-5rem-24px)]">
+              <div className="flex items-start justify-between gap-3 border-b border-[#E2E8F0] p-3 sm:gap-4 sm:p-5">
                 <div>
                   <h2 className="text-xl font-semibold text-[#163F78]">
                     Ưu đãi doanh nghiệp
@@ -64,7 +64,7 @@ export function PromotionDropPanel({ open, onClose }: PromotionDropPanelProps) {
                 </button>
               </div>
 
-              <div className="max-h-[calc(100vh-5rem-150px)] overflow-y-auto p-4 sm:p-5">
+              <div className="max-h-[calc(100dvh-4rem-132px)] overflow-y-auto p-3 sm:p-5 lg:max-h-[calc(100dvh-5rem-150px)]">
                 <div>
                   <PromotionFilterChips
                     categories={promotionCategories}

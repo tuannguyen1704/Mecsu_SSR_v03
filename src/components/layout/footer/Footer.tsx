@@ -1,8 +1,8 @@
-import Image from "next/image";
 import Link from "next/link";
-import { FooterBrandContact, FooterSupportContact } from "./FooterContact";
+import { FooterSupportContact } from "./FooterContact";
 import { FooterClient } from "./FooterClient";
 import { FooterLinks } from "./FooterLinks";
+import { FooterNewsletter } from "./FooterNewsletter";
 import { FooterSocials } from "./FooterSocials";
 
 const aboutLinks = [
@@ -27,19 +27,20 @@ const supportLinks = [
 export function Footer() {
   return (
     <footer className="relative border-t-[8px] border-brand-primary bg-brand-secondary font-sans text-slate-300">
-      <div className="mx-auto max-w-[1280px] px-4 py-12 sm:px-6 lg:px-8 lg:py-14">
-        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 lg:gap-10">
-          <FooterBrandContact />
+      <div className="mx-auto max-w-[1520px] px-4 py-12 sm:px-6 lg:px-8 lg:py-16">
+        <div className="grid grid-cols-1 gap-10 sm:grid-cols-2 xl:grid-cols-[0.8fr_0.9fr_1.15fr_1.25fr] xl:gap-14">
           <FooterLinks title="Về Mecsu" links={aboutLinks} />
           <FooterLinks title="Hỗ trợ khách hàng" links={supportLinks} />
 
           <div className="flex flex-col">
-            <h3 className="mb-5 border-b border-white/[0.08] pb-3 text-[11px] font-bold uppercase tracking-[0.12em] text-white">
+            <h3 className="mb-6 text-lg font-semibold uppercase text-white">
               Kết nối với Mecsu
             </h3>
             <FooterSocials />
             <FooterSupportContact />
           </div>
+
+          <FooterNewsletter />
         </div>
       </div>
 
@@ -52,39 +53,9 @@ export function Footer() {
               © 2026. Công ty cổ phần Mecsu. Giấy chứng nhận ĐKKD số
               0313039340 do Sở KH&ĐT TP.HCM cấp ngày 23/05/2016
             </p>
-            <div className="flex items-center gap-3">
-              <a
-                href="http://online.gov.vn/Home/WebDetails/71868?AspxAutoDetectCookieSupport=1"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
-                <Image
-                  src="/assets/logoSaleNoti.png"
-                  alt="Bộ Công Thương"
-                  width={116}
-                  height={36}
-                  className="h-9 w-auto"
-                />
-              </a>
-              <a
-                href="https://www.dmca.com/Protection/Status.aspx?ID=be7aa439-eb56-4e40-8cad-5071286d26d5&refurl=https://mecsu.vn/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block"
-              >
-                <Image
-                  src="/assets/dmca.png"
-                  alt="DMCA"
-                  width={116}
-                  height={36}
-                  className="h-9 w-auto"
-                />
-              </a>
-            </div>
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-2 sm:gap-5">
             <Link
               href="#"
               className="text-[11px] font-semibold uppercase tracking-wide text-slate-500 transition-colors hover:text-white"

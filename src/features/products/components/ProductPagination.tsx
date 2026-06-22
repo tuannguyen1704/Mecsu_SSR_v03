@@ -36,7 +36,7 @@ export function ProductPagination({
             : "text-[#005da4] hover:bg-slate-50"
         }`}
       >
-        First
+        Trang đầu
       </button>
       <button
         type="button"
@@ -48,7 +48,7 @@ export function ProductPagination({
             : "text-[#005da4] hover:bg-slate-50"
         }`}
       >
-        Previous
+        Trước
       </button>
 
       <div className="mx-2 flex items-center gap-1">
@@ -85,7 +85,7 @@ export function ProductPagination({
           currentPage === totalPages ? "cursor-not-allowed opacity-50" : ""
         }`}
       >
-        Next
+        Sau
       </button>
       <button
         type="button"
@@ -95,7 +95,7 @@ export function ProductPagination({
           currentPage === totalPages ? "cursor-not-allowed opacity-50" : ""
         }`}
       >
-        Last
+        Trang cuối
       </button>
     </div>
   );

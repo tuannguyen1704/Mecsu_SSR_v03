@@ -162,10 +162,12 @@ export default function HeaderClient({
     >
       <div
         className={`border-b border-slate-200 transition-all duration-300 ${
-          isScrolled ? "bg-white/95 shadow-sm backdrop-blur-md" : "bg-white"
+          isScrolled
+            ? "bg-white/95 shadow-sm xl:backdrop-blur-md"
+            : "bg-white"
         }`}
       >
-        <div className="mx-auto flex h-20 max-w-[1600px] items-center gap-12 px-6 lg:px-12">
+        <div className="mx-auto flex h-16 max-w-[1600px] items-center gap-2 px-3 sm:gap-4 sm:px-4 xl:h-20 xl:gap-12 xl:px-12">
           <Link href="/" className="flex shrink-0 items-center">
             <Image
               src="/mecsu-sologan.png"
@@ -173,7 +175,7 @@ export default function HeaderClient({
               width={178}
               height={64}
               priority
-              className="h-16 w-auto object-contain"
+              className="h-12 w-auto max-w-[132px] object-contain sm:h-14 sm:max-w-[154px] xl:h-16 xl:max-w-none"
             />
           </Link>
 
@@ -185,7 +187,7 @@ export default function HeaderClient({
 
               setIsCategoryOpen((open) => !open);
             }}
-            className="group relative hidden h-12 shrink-0 items-center gap-4 overflow-hidden rounded-md bg-[#163F78] px-6 text-[13px] font-bold tracking-widest text-white shadow-md transition-all hover:brightness-110 lg:flex"
+            className="group relative hidden h-12 shrink-0 items-center gap-4 overflow-hidden rounded-md bg-[#163F78] px-6 text-[13px] font-bold tracking-widest text-white shadow-md transition-all hover:brightness-110 xl:flex"
           >
             <div className="absolute inset-0 bg-white/5 opacity-0 transition-opacity group-hover:opacity-100" />
             <Menu
@@ -226,11 +228,7 @@ export default function HeaderClient({
             )}
           </div>
 
-          <div className="hidden flex-1 items-center lg:flex xl:hidden">
-            <TrustBadges />
-          </div>
-
-          <nav className="ml-auto hidden items-center gap-10 md:flex">
+          <nav className="ml-auto hidden items-center gap-10 xl:flex">
             <HeaderAccountMenu
               isOpen={isProfileOpen}
               isLoggedIn={isMockLoggedIn}
@@ -256,7 +254,7 @@ export default function HeaderClient({
             suggestions={suggestions}
             onAccountClick={() => {
               if (isMockLoggedIn) {
-                setIsProfileOpen((open) => !open);
+                router.push("/tai-khoan");
                 return;
               }
               setIsLoginModalOpen(true);

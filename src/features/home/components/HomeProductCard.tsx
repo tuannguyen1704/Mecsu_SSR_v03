@@ -29,7 +29,7 @@ export function HomeProductCard({
   );
 
   return (
-    <div className="flex min-w-[200px] max-w-[200px] shrink-0 snap-start flex-col rounded-lg bg-white p-3 shadow-sm">
+    <div className="flex min-w-[76vw] max-w-[260px] shrink-0 snap-start flex-col rounded-lg bg-white p-3 shadow-sm min-[430px]:min-w-[230px] sm:min-w-[200px] sm:max-w-[200px]">
       <div className="relative mb-3 flex flex-1 flex-col">
         <button
           onClick={() => setIsWishlisted((value) => !value)}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import type { Product } from "@/features/products/types/product";
@@ -85,7 +85,27 @@ export function CategoryListingClient({
     setCurrentPage(1);
   };
 
-  const filterSidebar = (
+  useEffect(() => {
+    if (!isMobileFilterOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setIsMobileFilterOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isMobileFilterOpen]);
+
+  const desktopFilterSidebar = (
     <ProductFilterSidebar
       brandFilters={brandFilters}
       selectedBrands={selectedBrands}
@@ -98,7 +118,9 @@ export function CategoryListingClient({
   return (
     <section ref={productListRef} className="mt-12">
       <div className="relative flex gap-8">
-        <div className="hidden w-[300px] shrink-0 lg:block">{filterSidebar}</div>
+        <div className="hidden w-[300px] shrink-0 lg:block">
+          {desktopFilterSidebar}
+        </div>
 
         <div className="min-w-0 flex-1">
           <CategorySortBar
@@ -139,15 +161,32 @@ export function CategoryListingClient({
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 200 }}
-              className="fixed top-0 bottom-0 left-0 z-[401] w-[300px] overflow-y-auto bg-white p-6 shadow-2xl"
+              className="fixed inset-y-0 left-0 z-[401] flex h-[100dvh] w-[min(360px,calc(100vw-24px))] max-w-full flex-col overflow-hidden bg-white shadow-2xl"
+              role="dialog"
+              aria-modal="true"
+              aria-label="Bộ lọc sản phẩm"
             >
-              <div className="mb-6 flex items-center justify-between border-b border-slate-100 pb-4">
+              <div className="flex shrink-0 items-center justify-between border-b border-slate-200 px-5 pt-[max(1rem,env(safe-area-inset-top))] pb-4">
                 <h3 className="text-lg font-black tracking-tight uppercase">Bộ lọc</h3>
-                <button type="button" onClick={() => setIsMobileFilterOpen(false)}>
+                <button
+                  type="button"
+                  onClick={() => setIsMobileFilterOpen(false)}
+                  className="flex h-10 w-10 items-center justify-center text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
+                  aria-label="Đóng bộ lọc"
+                >
                   <X size={24} className="text-slate-400" />
                 </button>
               </div>
-              <div className="pb-20">{filterSidebar}</div>
+              <div className="custom-scrollbar min-h-0 flex-1 overflow-y-auto overscroll-contain pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+                <ProductFilterSidebar
+                  variant="mobile"
+                  brandFilters={brandFilters}
+                  selectedBrands={selectedBrands}
+                  selectedAvailability={selectedAvailability}
+                  onBrandToggle={toggleBrand}
+                  onAvailabilityToggle={toggleAvailability}
+                />
+              </div>
             </motion.div>
           </>
         ) : null}

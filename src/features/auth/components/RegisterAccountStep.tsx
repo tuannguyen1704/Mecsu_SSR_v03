@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Eye, EyeOff, Lock, Mail, Phone, User } from "lucide-react";
 import { checkEmailExists } from "../services/mock-auth-service";
+import { requestEmailVerification } from "../services/registration-service";
 import type { RegisterAccountPayload } from "../types/auth";
 import AuthField from "./AuthField";
 import { MecsuMiniLogo } from "./LoginForm";
@@ -10,7 +11,10 @@ import { MecsuMiniLogo } from "./LoginForm";
 interface RegisterAccountStepProps {
   initialValue: RegisterAccountPayload;
   onBackToLogin: () => void;
-  onContinue: (payload: RegisterAccountPayload) => void;
+  onVerificationSent: (
+    payload: RegisterAccountPayload,
+    verified: boolean,
+  ) => void;
 }
 
 type RegisterAccountErrors = Partial<Record<keyof RegisterAccountPayload, string>> & {
@@ -24,7 +28,7 @@ function isValidEmail(email: string) {
 export default function RegisterAccountStep({
   initialValue,
   onBackToLogin,
-  onContinue,
+  onVerificationSent,
 }: RegisterAccountStepProps) {
   const [form, setForm] = useState<RegisterAccountPayload>(initialValue);
   const [errors, setErrors] = useState<RegisterAccountErrors>({});
@@ -51,6 +55,10 @@ export default function RegisterAccountStep({
       nextErrors.email = "Email không hợp lệ.";
     }
 
+    if (!form.phone?.trim()) {
+      nextErrors.phone = "Vui lòng nhập số điện thoại.";
+    }
+
     if (!form.password) {
       nextErrors.password = "Vui lòng nhập mật khẩu.";
     } else if (form.password.length < 6) {
@@ -68,28 +76,37 @@ export default function RegisterAccountStep({
 
     setIsChecking(true);
     const exists = await checkEmailExists(trimmedEmail);
-    setIsChecking(false);
 
     if (exists) {
+      setIsChecking(false);
       setErrors({
         email: "Email đã tồn tại. Vui lòng đăng nhập hoặc dùng email khác.",
       });
       return;
     }
 
-    onContinue({
+    const payload = {
       ...form,
       fullName: trimmedFullName,
       email: trimmedEmail,
       phone: form.phone?.trim() || "",
-    });
+    };
+    const result = await requestEmailVerification(payload);
+    setIsChecking(false);
+
+    if (!result.ok) {
+      setErrors({ form: result.error });
+      return;
+    }
+
+    onVerificationSent(payload, result.data.verified);
   };
 
   return (
     <>
-      <div className="bg-white px-8 pt-8 pb-5">
+      <div className="bg-white px-5 pt-3 pb-2 sm:px-8">
         <MecsuMiniLogo />
-        <div className="mt-6 mb-5 flex items-center gap-2">
+        <div className="mt-2.5 mb-3 flex items-center gap-2">
           <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[#003B73] text-[12px] font-bold text-white">
             1
           </span>
@@ -101,7 +118,7 @@ export default function RegisterAccountStep({
         <p className="text-sm text-slate-500">Nhập thông tin để đăng ký tài khoản</p>
       </div>
 
-      <div className="space-y-3.5 px-8 pb-5">
+      <div className="space-y-3 px-5 pb-5 sm:px-8">
         <AuthField
           label="Họ và tên"
           type="text"
@@ -111,6 +128,7 @@ export default function RegisterAccountStep({
           autoComplete="name"
           icon={User}
           error={errors.fullName}
+          compact
         />
         <AuthField
           label="Email"
@@ -121,12 +139,19 @@ export default function RegisterAccountStep({
           autoComplete="email"
           icon={Mail}
           error={errors.email}
+          compact
         />
         <label className="block">
-          <span className="mb-2 block text-[11px] font-bold tracking-wider text-slate-600 uppercase">
-            Số điện thoại (Tùy chọn)
+          <span className="mb-1.5 block text-[11px] font-bold tracking-wider text-slate-600 uppercase">
+            Số điện thoại
           </span>
-          <span className="relative flex h-12 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white transition-all hover:border-slate-300 focus-within:border-[#003B73] focus-within:ring-2 focus-within:ring-[#003B73]/10">
+          <span
+            className={`relative flex h-11 overflow-hidden rounded-xl border bg-white transition-all hover:border-slate-300 focus-within:ring-2 ${
+              errors.phone
+                ? "border-red-300 focus-within:border-red-500 focus-within:ring-red-500/10"
+                : "border-[#E2E8F0] focus-within:border-[#003B73] focus-within:ring-[#003B73]/10"
+            }`}
+          >
             <span className="flex items-center gap-2 border-r border-slate-200 bg-slate-50 px-3 text-sm font-bold text-slate-600">
               <Phone size={16} className="text-slate-400" />
               +84
@@ -140,6 +165,11 @@ export default function RegisterAccountStep({
               className="min-w-0 flex-1 px-4 text-sm outline-none placeholder:text-slate-400"
             />
           </span>
+          {errors.phone ? (
+            <span className="mt-1.5 block text-[12px] text-red-600">
+              {errors.phone}
+            </span>
+          ) : null}
         </label>
         <AuthField
           label="Mật khẩu"
@@ -150,6 +180,7 @@ export default function RegisterAccountStep({
           autoComplete="new-password"
           icon={Lock}
           error={errors.password}
+          compact
           trailing={
             <button
               type="button"
@@ -170,6 +201,7 @@ export default function RegisterAccountStep({
           autoComplete="new-password"
           icon={Lock}
           error={errors.confirmPassword}
+          compact
           trailing={
             <button
               type="button"
@@ -190,9 +222,9 @@ export default function RegisterAccountStep({
           type="button"
           onClick={handleContinue}
           disabled={isChecking}
-          className="h-12 w-full rounded-xl bg-[#003B73] text-sm font-bold tracking-wider text-white uppercase transition-colors hover:bg-[#002d5a] disabled:cursor-not-allowed disabled:opacity-70"
+          className="h-11 w-full rounded-xl bg-[#003B73] text-sm font-bold tracking-wider text-white uppercase transition-colors hover:bg-[#002d5a] disabled:cursor-not-allowed disabled:opacity-70"
         >
-          {isChecking ? "Đang kiểm tra..." : "Tiếp tục"}
+          {isChecking ? "Đang gửi email..." : "Xác thực email"}
         </button>
         <div className="text-center text-[13px] font-medium text-slate-500">
           Đã có tài khoản?{" "}

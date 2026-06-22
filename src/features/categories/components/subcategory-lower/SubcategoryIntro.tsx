@@ -41,11 +41,11 @@ export function SubcategoryIntro({ title, paragraphs }: SubcategoryIntroProps) {
         >
           {isExpanded ? (
             <>
-              See Less <ChevronUp size={18} className="translate-y-[0.5px]" />
+              Thu gọn <ChevronUp size={18} className="translate-y-[0.5px]" />
             </>
           ) : (
             <>
-              See More <ChevronDown size={18} className="translate-y-[0.5px]" />
+              Xem thêm <ChevronDown size={18} className="translate-y-[0.5px]" />
             </>
           )}
         </button>

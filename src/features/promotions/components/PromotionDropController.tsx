@@ -54,7 +54,7 @@ export function PromotionDropController({
 
           <div
             id="uu-dai-mua-hang"
-            className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-5 lg:gap-6"
+            className="no-scrollbar flex snap-x snap-mandatory gap-4 overflow-x-auto pb-2 md:grid md:grid-cols-2 md:overflow-visible md:pb-0 lg:grid-cols-5 lg:gap-6"
           >
             {children}
           </div>

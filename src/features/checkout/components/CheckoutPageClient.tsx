@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -202,6 +202,14 @@ export function CheckoutPageClient() {
     [items],
   );
 
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [step]);
+
   const placeOrder = () => {
     if (!address || items.length === 0) return;
 
@@ -224,7 +232,7 @@ export function CheckoutPageClient() {
 
   if (items.length === 0) {
     return (
-      <section className="mx-auto flex min-h-[420px] max-w-[980px] flex-col items-center justify-center rounded-2xl border border-slate-200 bg-white px-6 py-14 text-center shadow-sm">
+      <section className="mx-auto flex min-h-[420px] max-w-[980px] flex-col items-center justify-center rounded-sm border border-slate-200 bg-white px-6 py-14 text-center shadow-sm">
         <ShoppingCart size={42} className="mb-4 text-slate-300" />
         <h1 className="mb-3 text-2xl font-bold tracking-tight text-slate-900 md:text-3xl">
           Không có sản phẩm để thanh toán
@@ -295,6 +303,35 @@ export function CheckoutPageClient() {
           subtotal={subtotal}
           vat={vat}
         />
+
+        {step === 1 ? (
+          <div className="flex justify-end lg:hidden">
+            <CheckoutContinueButton
+              disabled={!address}
+              onClick={() => setStep(2)}
+            />
+          </div>
+        ) : null}
+
+        {step === 2 ? (
+          <div className="lg:hidden">
+            <StepActions
+              continueLabel="Tiếp tục"
+              onBack={() => setStep(1)}
+              onContinue={() => setStep(3)}
+            />
+          </div>
+        ) : null}
+
+        {step === 3 ? (
+          <div className="lg:hidden">
+            <StepActions
+              continueLabel="Đặt hàng"
+              onBack={() => setStep(2)}
+              onContinue={placeOrder}
+            />
+          </div>
+        ) : null}
       </div>
 
       {isAddressModalOpen ? (
@@ -420,7 +457,7 @@ function InformationStep({
 
       <CheckoutSection icon={<MapPin size={20} />} title="Địa chỉ giao hàng" subtitle="Nơi nhận hàng">
         <div className="space-y-4 pt-4">
-          <div className="rounded-xl bg-slate-50 p-4 text-sm text-slate-600">
+          <div className="rounded-sm bg-slate-50 p-4 text-sm text-slate-600">
             <span className="font-medium">Đang đặt hàng bằng tài khoản:</span>{" "}
             <span className="font-semibold text-[#003B73]">{accountEmail}</span>
           </div>
@@ -432,7 +469,7 @@ function InformationStep({
               onDelete={onAddressDelete}
             />
           ) : (
-            <div className="rounded-xl bg-slate-50 px-4 py-8 text-center">
+            <div className="rounded-sm bg-slate-50 px-4 py-8 text-center">
               <MapPin size={48} className="mx-auto mb-3 text-slate-300" />
               <p className="font-semibold text-slate-700">Bạn chưa có địa chỉ giao hàng</p>
               <p className="mt-1 text-sm text-slate-500">
@@ -495,22 +532,34 @@ function InformationStep({
         </div>
       </CheckoutSection>
 
-      <div className="flex justify-end">
-        <button
-          type="button"
-          disabled={!address}
-          onClick={onContinue}
-          className={`inline-flex h-12 items-center justify-center gap-2 rounded-xl px-7 text-sm font-bold transition-all ${
-            address
-              ? "bg-[#003B73] text-white hover:bg-[#002d5a]"
-              : "cursor-not-allowed bg-slate-200 text-slate-400"
-          }`}
-        >
-          Tiếp tục
-          <ArrowRight size={16} />
-        </button>
+      <div className="hidden justify-end lg:flex">
+        <CheckoutContinueButton disabled={!address} onClick={onContinue} />
       </div>
     </>
+  );
+}
+
+function CheckoutContinueButton({
+  disabled,
+  onClick,
+}: {
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      disabled={disabled}
+      onClick={onClick}
+      className={`inline-flex h-12 items-center justify-center gap-2 rounded-xl px-7 text-sm font-bold transition-all ${
+        disabled
+          ? "cursor-not-allowed bg-slate-200 text-slate-400"
+          : "bg-[#003B73] text-white hover:bg-[#002d5a]"
+      }`}
+    >
+      Tiếp tục
+      <ArrowRight size={16} />
+    </button>
   );
 }
 
@@ -540,7 +589,7 @@ function VatCard({
   };
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-white p-5">
+    <div className="rounded-sm border border-slate-200 bg-white p-5">
       <label className="flex cursor-pointer items-start gap-4">
         <span
           className={`mt-0.5 flex h-5 w-5 items-center justify-center rounded border-2 ${
@@ -640,7 +689,7 @@ function CheckoutSection({
   title: string;
 }) {
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="rounded-sm border border-slate-200 bg-white p-5">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#003B73]/10 text-[#003B73]">
@@ -668,7 +717,7 @@ function AddressSummary({
   onDelete: () => void;
 }) {
   return (
-    <div className="relative rounded-xl border border-slate-200 bg-white px-6 py-5">
+    <div className="relative rounded-sm border border-slate-200 bg-white px-6 py-5">
       <div className="pr-10">
         <span className="mb-3 inline-flex items-center gap-1 rounded-md bg-[#FFF4D6] px-2.5 py-1 text-[11px] font-bold text-[#173E75]">
           <Check size={12} />
@@ -752,7 +801,13 @@ function PaymentMethodStep({
         </div>
       </CheckoutSection>
 
-      <StepActions onBack={onBack} onContinue={onContinue} continueLabel="Tiếp tục" />
+      <div className="hidden lg:block">
+        <StepActions
+          onBack={onBack}
+          onContinue={onContinue}
+          continueLabel="Tiếp tục"
+        />
+      </div>
     </>
   );
 }
@@ -779,7 +834,7 @@ function ConfirmOrderStep({
     <>
       {paymentMethod === "bank" ? <QrPaymentBlock /> : null}
 
-      <section className="rounded-2xl border border-slate-200 bg-white p-5">
+      <section className="rounded-sm border border-slate-200 bg-white p-5">
         <h2 className="mb-4 text-lg font-bold text-slate-900">Xác nhận đơn hàng</h2>
         <div className="grid gap-3 md:grid-cols-2">
           <ConfirmInfo label="Địa chỉ giao hàng" value={address ? `${address.address}, ${address.ward}, ${address.district}, ${address.province}` : "Chưa có địa chỉ"} />
@@ -789,7 +844,13 @@ function ConfirmOrderStep({
         </div>
       </section>
 
-      <StepActions onBack={onBack} onContinue={onPlaceOrder} continueLabel="Đặt hàng" />
+      <div className="hidden lg:block">
+        <StepActions
+          onBack={onBack}
+          onContinue={onPlaceOrder}
+          continueLabel="Đặt hàng"
+        />
+      </div>
     </>
   );
 }
@@ -802,7 +863,7 @@ function QrPaymentBlock() {
   };
 
   return (
-    <section className="rounded-2xl border border-slate-200 bg-white p-5">
+    <section className="rounded-sm border border-slate-200 bg-white p-5">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#003B73]/10 text-[#003B73]">
@@ -819,7 +880,7 @@ function QrPaymentBlock() {
       </div>
 
       <div className="grid gap-5 md:grid-cols-[180px_minmax(0,1fr)]">
-        <div className="flex aspect-square items-center justify-center rounded-2xl border border-slate-200 bg-slate-50">
+        <div className="flex aspect-square items-center justify-center rounded-sm border border-slate-200 bg-slate-50">
           <QrCode size={92} className="text-[#003B73]" />
         </div>
         <div className="space-y-3">
@@ -843,7 +904,7 @@ function BankRow({
   value: string;
 }) {
   return (
-    <div className="flex items-center justify-between gap-3 rounded-xl bg-slate-50 px-4 py-3">
+    <div className="flex items-center justify-between gap-3 rounded-sm bg-slate-50 px-4 py-3">
       <div>
         <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">{label}</p>
         <p className="text-sm font-bold text-slate-900">{value}</p>
@@ -864,7 +925,7 @@ function BankRow({
 
 function ConfirmInfo({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-xl bg-slate-50 p-4">
+    <div className="rounded-sm bg-slate-50 p-4">
       <p className="mb-1 text-[10px] font-bold uppercase tracking-wider text-slate-500">
         {label}
       </p>
@@ -970,7 +1031,7 @@ function CheckoutSummary({
 }) {
   return (
     <aside className="space-y-3 lg:sticky lg:top-28 lg:self-start">
-      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white">
+      <div className="overflow-hidden rounded-sm border border-slate-200 bg-white">
         <div className="border-b border-slate-100 p-5">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-slate-900">Tóm tắt đơn hàng</h2>
@@ -981,7 +1042,7 @@ function CheckoutSummary({
         <div className="max-h-[240px] space-y-3 overflow-y-auto p-5">
           {items.map((item) => (
             <div key={item.productId} className="flex gap-3">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-lg bg-slate-50 p-2">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-sm bg-slate-50 p-2">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
                   src={item.image || getSeededPlaceholder(item.productId)}
@@ -1022,7 +1083,7 @@ function CheckoutSummary({
         </div>
       </div>
 
-      <div className="rounded-2xl border border-slate-100 bg-slate-50 p-5">
+      <div className="hidden rounded-sm border border-slate-100 bg-slate-50 p-5 lg:block">
         <div className="grid grid-cols-2 gap-3">
           <TrustItem icon={<Receipt size={14} />} text="Hỗ trợ xuất hóa đơn VAT" />
           <TrustItem icon={<ShieldCheck size={14} />} text="Giá minh bạch, không phí ẩn" />
@@ -1031,7 +1092,7 @@ function CheckoutSummary({
         </div>
       </div>
 
-      <div className="flex items-center justify-center gap-2 py-2 text-slate-400">
+      <div className="hidden items-center justify-center gap-2 py-2 text-slate-400 lg:flex">
         <ShieldCheck size={16} />
         <span className="text-[11px] font-medium">Thanh toán bảo mật 256-bit SSL</span>
       </div>
@@ -1073,7 +1134,7 @@ function CheckoutAddressPicker({
   return (
     <div className="fixed inset-0 z-[99999] bg-black/50 p-4 backdrop-blur-sm">
       <div className="flex min-h-dvh items-center justify-center">
-        <div className="flex max-h-[calc(100dvh-32px)] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl">
+        <div className="flex max-h-[calc(100dvh-32px)] w-full max-w-lg flex-col overflow-hidden rounded-sm bg-white shadow-2xl">
           <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5">
             <div>
               <h2 className="text-lg font-bold leading-tight text-slate-900">
@@ -1117,7 +1178,7 @@ function CheckoutAddressPicker({
                 </span>
               </button>
             ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 px-6 py-8 text-center text-sm font-semibold text-slate-500">
+              <div className="rounded-sm border border-dashed border-slate-300 bg-slate-50 px-6 py-8 text-center text-sm font-semibold text-slate-500">
                 Chưa có địa chỉ đã lưu
               </div>
             )}
@@ -1221,7 +1282,7 @@ function ShippingAddressModal({
       <div className="flex min-h-dvh items-center justify-center">
         <form
           onSubmit={handleSubmit}
-          className="flex max-h-[calc(100dvh-32px)] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
+          className="flex max-h-[calc(100dvh-32px)] w-full max-w-lg flex-col overflow-hidden rounded-sm bg-white shadow-2xl"
         >
           <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5">
             <div>

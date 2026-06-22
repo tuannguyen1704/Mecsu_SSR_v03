@@ -43,36 +43,36 @@ function BrandSuffix({ type }: { type: FeaturedBrand["suffix"] }) {
 
 export function HomeFeaturedBrands() {
   return (
-    <section className="bg-white pt-2 pb-10">
-      <div className="mx-auto max-w-[1600px] px-6 lg:px-12">
-        <div className="mb-6 flex items-baseline gap-4">
-          <h2 className="text-[32px] font-bold tracking-tight text-slate-900">
-            Brands you trust
+    <section className="bg-white pt-2 pb-10 mt-5">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-12">
+        <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-baseline sm:gap-4">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-[32px]">
+            Thương hiệu đáng tin cậy
           </h2>
           <Link
-            href="#"
+            href="/thuong-hieu"
             className="text-[15px] font-medium text-[#326295] hover:underline"
           >
-            See more
+            Xem thêm
           </Link>
         </div>
 
-        <div className="mb-12 flex flex-wrap items-center gap-3">
+        <div className="no-scrollbar mb-8 flex items-center gap-3 overflow-x-auto pb-2 sm:mb-12 md:flex-wrap md:overflow-visible md:pb-0">
           <button className="rounded-md bg-[#163F78] px-5 py-1.5 text-[14px] font-bold text-white">
-            Trusted brands
+            Thương hiệu uy tín
           </button>
 
           <div className="mx-2 h-6 w-px bg-slate-300" />
 
           <span className="mr-2 text-[16px] font-bold text-slate-800">
-            By industry
+            Theo lĩnh vực
           </span>
 
-          <div className="flex flex-wrap gap-3">
+          <div className="flex shrink-0 gap-3 md:flex-wrap">
             {FEATURED_BRAND_INDUSTRIES.map((industry) => (
               <button
                 key={industry}
-                className="rounded-md border border-slate-200 bg-white px-5 py-2 text-[14px] font-medium text-slate-700 transition-all duration-200 hover:border-[#264553] hover:text-[#264553]"
+                className="shrink-0 rounded-md border border-slate-200 bg-white px-5 py-2 text-[14px] font-medium whitespace-nowrap text-slate-700 transition-all duration-200 hover:border-[#264553] hover:text-[#264553]"
               >
                 {industry}
               </button>
@@ -80,11 +80,11 @@ export function HomeFeaturedBrands() {
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-between gap-8 opacity-95">
+        <div className="grid grid-cols-2 items-center gap-3 opacity-95 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-8 xl:grid-cols-8">
           {FEATURED_BRANDS.map((brand) => (
             <div
               key={brand.id}
-              className={`select-none rounded-xl p-4 uppercase transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg ${brand.weightClass} ${brand.colorClass}`}
+              className={`flex min-h-20 min-w-0 select-none items-center justify-center rounded-xl p-3 text-center uppercase transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg sm:p-4 ${brand.weightClass} ${brand.colorClass}`}
             >
               <BrandPrefix type={brand.prefix} />
               {brand.name}

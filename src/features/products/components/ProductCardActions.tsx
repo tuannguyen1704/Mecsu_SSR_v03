@@ -29,12 +29,14 @@ export function ProductCardActions({
       <button
         type="button"
         onClick={() => setIsWishlisted((current) => !current)}
-        className="absolute top-4 right-4 z-10 text-slate-400 transition-colors hover:text-red-500"
+        className="absolute top-3 right-3 z-10 text-slate-400 transition-colors hover:text-red-500 sm:top-4 sm:right-4"
         aria-label="Toggle wishlist"
       >
         <Heart
           size={18}
-          className={isWishlisted ? "fill-red-500 text-red-500" : ""}
+          className={`h-[17px] w-[17px] sm:h-[18px] sm:w-[18px] ${
+            isWishlisted ? "fill-red-500 text-red-500" : ""
+          }`}
         />
       </button>
 
@@ -56,7 +58,7 @@ export function ProductCardActions({
           setWasAdded(true);
           window.setTimeout(() => setWasAdded(false), 1200);
         }}
-        className={`mt-3 w-full rounded-sm border py-2.5 text-sm font-bold tracking-tight uppercase transition-all ${
+        className={`mt-2 w-full rounded-sm border px-1 py-2 text-[11px] font-bold tracking-tight uppercase transition-all sm:mt-3 sm:px-0 sm:py-2.5 sm:text-sm ${
           isOutOfStock
             ? "border-slate-800 bg-white text-slate-800 hover:bg-slate-800 hover:text-white"
             : "border-brand-primary bg-brand-primary text-brand-secondary hover:bg-brand-primary/90"

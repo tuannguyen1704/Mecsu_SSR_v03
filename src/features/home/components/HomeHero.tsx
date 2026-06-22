@@ -5,7 +5,7 @@ import { HomeHeroClient } from "./HomeHeroClient";
 
 export function HomeHero() {
   return (
-    <section className="relative flex h-[calc(100vh-80px)] items-center justify-center overflow-hidden px-6 pt-1 pb-12 lg:px-12">
+    <section className="relative flex min-h-[calc(100svh-64px)] items-center justify-center overflow-hidden px-4 py-10 sm:px-6 md:py-12 xl:h-[calc(100vh-80px)] xl:min-h-0 xl:px-12 xl:pt-1 xl:pb-12">
       <HeroBackground
         imageUrl={HOME_HERO_DATA.backgroundImageUrl}
         imageAlt={HOME_HERO_DATA.backgroundAlt}

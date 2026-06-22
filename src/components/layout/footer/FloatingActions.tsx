@@ -62,10 +62,10 @@ function ContactMenu() {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => setOpen((prev) => !prev)}
-        className="flex items-center gap-2 rounded-2xl border border-white/10 bg-[#D32F2F] px-5 py-2.5 text-sm font-bold text-white shadow-xl hover:bg-[#B71C1C]"
+        className="flex h-11 w-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#D32F2F] p-0 text-sm font-bold text-white shadow-xl hover:bg-[#B71C1C] sm:h-auto sm:w-auto sm:rounded-2xl sm:px-5 sm:py-2.5"
         ref={buttonRef}
       >
-        <span className="tracking-tight">Liên hệ</span>
+        <span className="hidden tracking-tight sm:inline">Liên hệ</span>
         <Headphones size={18} className="text-white" />
       </motion.button>
 
@@ -76,7 +76,7 @@ function ContactMenu() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 bottom-full z-[1001] mb-3 w-[272px] rounded-[20px] bg-white p-4 shadow-[0_12px_40px_rgba(0,0,0,0.12)]"
+            className="absolute right-0 bottom-full z-[1001] mb-3 w-[min(272px,calc(100vw-24px))] rounded-xl bg-white p-3 shadow-[0_12px_40px_rgba(0,0,0,0.12)] sm:rounded-[20px] sm:p-4"
             ref={menuRef}
           >
             <div className="flex flex-col gap-1">
@@ -128,7 +128,7 @@ export function FloatingActions() {
   };
 
   return (
-    <div className="fixed right-6 bottom-6 z-[1000] flex flex-col items-end gap-3">
+    <div className="fixed right-3 bottom-3 z-[1000] flex flex-col items-end gap-2 sm:right-6 sm:bottom-6 sm:gap-3">
       <ContactMenu />
       <AnimatePresence>
         {showScroll && (
@@ -139,9 +139,11 @@ export function FloatingActions() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={scrollToTop}
-            className="group flex items-center gap-2 overflow-hidden rounded-2xl border border-white/10 bg-brand-secondary px-5 py-2.5 text-white shadow-xl"
+            className="group flex h-11 w-11 items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/10 bg-brand-secondary p-0 text-white shadow-xl sm:h-auto sm:w-auto sm:rounded-2xl sm:px-5 sm:py-2.5"
           >
-            <span className="text-sm font-bold tracking-tight">Lên đầu</span>
+            <span className="hidden text-sm font-bold tracking-tight sm:inline">
+              Lên đầu
+            </span>
             <ChevronsUp
               size={20}
               className="transition-transform group-hover:-translate-y-0.5"

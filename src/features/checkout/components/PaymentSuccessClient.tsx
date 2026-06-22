@@ -204,27 +204,27 @@ export function PaymentSuccessClient() {
         </motion.section>
 
         <motion.section
-          className="flex w-full flex-col-reverse gap-3 sm:flex-row"
+          className="grid w-full grid-cols-2 gap-2 sm:flex sm:gap-3"
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.4 }}
         >
           <Link
             href="/tai-khoan/don-hang"
-            className="inline-flex flex-1 items-center justify-center gap-2 rounded-lg px-6 py-2.5 font-semibold text-white transition-all hover:brightness-110 sm:flex-none"
+            className="inline-flex min-w-0 items-center justify-center gap-1.5 rounded-lg px-2 py-2.5 text-[12px] font-semibold whitespace-nowrap text-white transition-all hover:brightness-110 sm:flex-none sm:gap-2 sm:px-6 sm:text-base"
             style={{ background: palette.navy }}
           >
             Theo dõi đơn hàng
-            <ArrowRight size={18} />
+            <ArrowRight size={16} className="shrink-0 sm:h-[18px] sm:w-[18px]" />
           </Link>
 
-          <div className="flex sm:justify-end">
+          <div className="flex min-w-0 sm:justify-end">
             <Link
               href="/"
-              className="inline-flex items-center justify-center gap-2 rounded-lg border px-6 py-2.5 font-semibold transition-all hover:bg-slate-50"
+              className="inline-flex w-full min-w-0 items-center justify-center gap-1.5 rounded-lg border px-2 py-2.5 text-[12px] font-semibold whitespace-nowrap transition-all hover:bg-slate-50 sm:w-auto sm:gap-2 sm:px-6 sm:text-base"
               style={{ borderColor: palette.navy, color: palette.navy }}
             >
-              <ShoppingBag size={18} />
+              <ShoppingBag size={16} className="shrink-0 sm:h-[18px] sm:w-[18px]" />
               Tiếp tục mua sắm
             </Link>
           </div>

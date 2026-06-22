@@ -22,14 +22,14 @@ export function HomeBestDealsClient({ products }: { products: Product[] }) {
   };
 
   return (
-    <div className="relative rounded-md bg-[#163F78] p-5 lg:p-6">
+    <div className="relative rounded-md bg-[#163F78] p-4 sm:p-5 lg:p-6">
       <h2 className="mb-5 text-[22px] font-bold text-white">
-        Best deals for you
+        Ưu đãi dành cho bạn
       </h2>
 
       <button
         onClick={() => scroll("left")}
-        className="absolute top-[55%] left-2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-white hover:bg-white/10"
+        className="absolute top-[55%] left-2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-white hover:bg-white/10 md:flex"
         aria-label="Scroll best deals left"
       >
         <ChevronLeft size={24} />
@@ -37,7 +37,7 @@ export function HomeBestDealsClient({ products }: { products: Product[] }) {
 
       <div
         ref={scrollRef}
-        className="no-scrollbar relative z-0 flex snap-x gap-3 overflow-x-auto"
+        className="no-scrollbar relative z-0 flex snap-x snap-mandatory gap-3 overflow-x-auto"
       >
         {products.map((product) => (
           <HomeProductCard
@@ -50,7 +50,7 @@ export function HomeBestDealsClient({ products }: { products: Product[] }) {
 
       <button
         onClick={() => scroll("right")}
-        className="absolute top-[55%] right-2 z-10 flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-white hover:bg-white/10"
+        className="absolute top-[55%] right-2 z-10 hidden h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full text-white hover:bg-white/10 md:flex"
         aria-label="Scroll best deals right"
       >
         <ChevronRight size={24} />

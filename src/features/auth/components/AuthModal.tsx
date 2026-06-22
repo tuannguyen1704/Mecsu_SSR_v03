@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
@@ -8,8 +8,10 @@ import type { MockAuthUser, RegisterAccountPayload } from "../types/auth";
 import LoginForm from "./LoginForm";
 import RegisterAccountStep from "./RegisterAccountStep";
 import RegisterAddressStep from "./RegisterAddressStep";
+import EmailVerificationStep from "./EmailVerificationStep";
 
 type AuthModalMode = "login" | "register";
+type RegisterStep = "account" | "verify-email" | "address";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -27,10 +29,13 @@ const emptyRegisterAccount: RegisterAccountPayload = {
 
 export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps) {
   const [mode, setMode] = useState<AuthModalMode>("login");
-  const [registerStep, setRegisterStep] = useState<1 | 2>(1);
+  const [registerStep, setRegisterStep] = useState<RegisterStep>("account");
   const [registerAccount, setRegisterAccount] =
     useState<RegisterAccountPayload>(emptyRegisterAccount);
   const portalRoot = typeof document === "undefined" ? null : document.body;
+  const handleEmailVerified = useCallback(() => {
+    setRegisterStep("address");
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -56,7 +61,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
     const timeoutId = window.setTimeout(() => {
       setMode("login");
-      setRegisterStep(1);
+      setRegisterStep("account");
       setRegisterAccount(emptyRegisterAccount);
     }, 0);
 
@@ -69,13 +74,15 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
   const isRegister = mode === "register";
   const modalWidth =
-    isRegister && registerStep === 2
-      ? "max-w-[min(520px,calc(100vw-32px))]"
+    isRegister && registerStep === "address"
+      ? "max-w-[min(520px,calc(100vw-16px))]"
       : isRegister
-        ? "max-w-[500px]"
-        : "max-w-[460px]";
-  const modalOverflow = isRegister && registerStep === 2 ? "overflow-hidden" : "overflow-y-auto";
-
+        ? "max-w-[min(500px,calc(100vw-16px))]"
+        : "max-w-[min(460px,calc(100vw-16px))]";
+  const modalOverflow =
+    isRegister && registerStep === "address"
+      ? "overflow-hidden"
+      : "overflow-y-auto";
   return createPortal(
     <AnimatePresence>
       {isOpen && (
@@ -91,13 +98,13 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             aria-hidden="true"
           />
           <div className="absolute inset-0 bg-slate-950/15" aria-hidden="true" />
-          <div className="pointer-events-none relative z-10 flex min-h-dvh items-center justify-center overflow-y-auto p-4">
+          <div className="pointer-events-none relative z-10 flex min-h-dvh items-center justify-center overflow-y-auto p-2 sm:p-4">
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(event) => event.stopPropagation()}
-              className={`pointer-events-auto relative z-10 max-h-[calc(100dvh-32px)] w-full rounded-3xl bg-white shadow-2xl ${modalOverflow} ${modalWidth}`}
+              className={`pointer-events-auto relative z-10 max-h-[calc(100dvh-16px)] w-full rounded bg-white shadow-2xl sm:max-h-[calc(100dvh-32px)] ${modalOverflow} ${modalWidth}`}
               role="dialog"
               aria-modal="true"
               aria-labelledby="auth-modal-title"
@@ -118,22 +125,28 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
                   }}
                   onRegisterClick={() => {
                     setMode("register");
-                    setRegisterStep(1);
+                    setRegisterStep("account");
                   }}
                 />
-              ) : registerStep === 1 ? (
+              ) : registerStep === "account" ? (
                 <RegisterAccountStep
                   initialValue={registerAccount}
                   onBackToLogin={() => setMode("login")}
-                  onContinue={(payload) => {
+                  onVerificationSent={(payload, verified) => {
                     setRegisterAccount(payload);
-                    setRegisterStep(2);
+                    setRegisterStep(verified ? "address" : "verify-email");
                   }}
+                />
+              ) : registerStep === "verify-email" ? (
+                <EmailVerificationStep
+                  email={registerAccount.email}
+                  onBack={() => setRegisterStep("account")}
+                  onVerified={handleEmailVerified}
                 />
               ) : (
                 <RegisterAddressStep
                   account={registerAccount}
-                  onBack={() => setRegisterStep(1)}
+                  onBack={() => setRegisterStep("account")}
                   onSuccess={(user) => {
                     onSuccess(user);
                     onClose();

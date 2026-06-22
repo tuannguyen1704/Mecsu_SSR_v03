@@ -18,11 +18,11 @@ export function PromotionCard({ promotion, index }: PromotionCardProps) {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ delay: index * 0.1 }}
-      className={`flex flex-col gap-3 ${index === 0 ? "lg:col-span-2" : "lg:col-span-1"}`}
+      className={`flex min-w-[84vw] max-w-[360px] shrink-0 snap-start flex-col gap-3 md:min-w-0 md:max-w-none ${index === 0 ? "lg:col-span-2" : "lg:col-span-1"}`}
     >
       <Link
         href={promotion.href}
-        className="group relative flex h-[240px] cursor-pointer flex-col justify-between overflow-hidden rounded-md p-6 transition-all duration-500 lg:h-[260px]"
+        className="group relative flex h-[210px] cursor-pointer flex-col justify-between overflow-hidden rounded-md p-5 transition-all duration-500 sm:h-[230px] sm:p-6 lg:h-[260px]"
       >
         <div className="absolute inset-0">
           <Image
@@ -40,7 +40,7 @@ export function PromotionCard({ promotion, index }: PromotionCardProps) {
         </div>
 
         <div className="relative z-10 w-full">
-          <h3 className="text-[26px] leading-[1.1] font-bold whitespace-pre-line text-white tracking-tight drop-shadow-md">
+          <h3 className="text-[22px] leading-[1.1] font-bold whitespace-pre-line text-white tracking-tight drop-shadow-md sm:text-[24px] lg:text-[26px]">
             {promotion.title}
           </h3>
         </div>

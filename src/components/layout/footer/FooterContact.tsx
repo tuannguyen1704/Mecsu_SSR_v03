@@ -44,21 +44,22 @@ export function FooterBrandContact() {
 export function FooterSupportContact() {
   return (
     <>
-      <p className="mb-4 text-[13px] text-slate-400">
+      <p className="mb-5 text-base font-medium text-white">
         Cần hỗ trợ hãy liên hệ với Mecsu.
       </p>
 
-      <ul className="flex flex-col gap-2.5 text-[13px]">
+      <ul className="flex flex-col gap-3 text-sm">
         <li className="flex items-start gap-2.5">
           <Phone size={14} className="mt-0.5 shrink-0 text-brand-primary" />
-          <span className="text-slate-400">
-            Tổng đài CSKH:{" "}
-            <strong className="font-semibold text-white">18008137</strong>
+          <span className="text-slate-300">
+            <strong className="font-semibold text-white">Tổng đài CSKH:</strong>{" "}
+            18008137
           </span>
         </li>
         <li className="flex items-start gap-2.5">
           <Mail size={14} className="mt-0.5 shrink-0 text-brand-primary" />
-          <span className="text-slate-400">
+          <span className="text-slate-300">
+            <strong className="font-semibold text-white">Email:</strong>{" "}
             <a
               href="mailto:sales@mecsu.vn"
               className="transition-colors hover:text-white"
@@ -69,8 +70,11 @@ export function FooterSupportContact() {
         </li>
         <li className="flex items-start gap-2.5">
           <MapPin size={14} className="mt-1 shrink-0 text-brand-primary" />
-          <span className="leading-snug text-slate-400">
-            B28/i - B29/i, Đường Số 2B, Bình Hưng Hòa B, Bình Tân, TP.HCM
+          <span className="leading-6 text-slate-300">
+            <strong className="font-semibold text-white">Địa chỉ:</strong>{" "}
+            B28 - 29/I Đường số 2B, KCN Vĩnh Lộc,
+            <br />
+            P. Bình Hưng Hòa B, Q. Bình Tân, TP.HCM
           </span>
         </li>
       </ul>

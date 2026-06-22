@@ -1,19 +1,20 @@
+import Image from "next/image";
 import Link from "next/link";
 import { HOME_BLOG_PREVIEW_ITEMS } from "../data/home-blog-preview";
 
 export function HomeBlogPreview() {
   return (
-    <section className="bg-slate-50 py-14 lg:py-16">
-      <div className="mx-auto max-w-[1600px] px-6 lg:px-12">
-        <div className="mb-8 flex items-baseline gap-4">
-          <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-            Trending guides
+    <section className="bg-slate-50 py-10 sm:py-14 lg:py-16">
+      <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-12">
+        <div className="mb-6 flex flex-col gap-2 sm:mb-8 sm:flex-row sm:items-baseline sm:gap-4">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">
+            Kiến thức nổi bật
           </h2>
           <Link
             href="/blog"
             className="text-sm font-medium text-blue-600 hover:text-blue-800"
           >
-            Explore our Resource Hub
+            Xem thêm bài viết
           </Link>
         </div>
 
@@ -24,12 +25,13 @@ export function HomeBlogPreview() {
               href={`/blog/${item.slug}`}
               className="group overflow-hidden rounded-lg border border-slate-200 bg-white"
             >
-              <div className="h-56 overflow-hidden">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
+              <div className="relative aspect-[16/10] overflow-hidden">
+                <Image
                   src={item.image}
                   alt={item.title}
-                  className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                  fill
+                  sizes="(min-width: 1024px) 25vw, (min-width: 768px) 50vw, 100vw"
+                  className="object-cover transition-transform duration-500 group-hover:scale-105"
                 />
               </div>
               <div className="p-5">
@@ -50,4 +52,3 @@ export function HomeBlogPreview() {
     </section>
   );
 }
-

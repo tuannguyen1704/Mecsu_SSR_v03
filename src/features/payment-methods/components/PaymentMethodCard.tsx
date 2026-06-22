@@ -56,7 +56,7 @@ export function PaymentMethodCard({
             <div className="min-w-0">
               <h2 className="font-bold text-slate-900">{method.displayName}</h2>
               <p className="mt-1 text-sm text-slate-600">{method.accountName}</p>
-              <p className="mt-1 font-mono text-sm font-semibold text-[#163F78]">
+              <p className="mt-1 text-sm font-semibold text-[#163F78]">
                 {method.maskedValue}
               </p>
             </div>

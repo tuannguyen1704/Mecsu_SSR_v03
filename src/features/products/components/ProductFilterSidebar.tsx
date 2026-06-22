@@ -16,6 +16,7 @@ interface ProductFilterSidebarProps {
   onBrandToggle: (brand: string) => void;
   selectedAvailability: string[];
   onAvailabilityToggle: (value: string) => void;
+  variant?: "desktop" | "mobile";
 }
 
 const MATERIAL_FILTERS: FilterItem[] = [
@@ -48,10 +49,23 @@ export function ProductFilterSidebar({
   onBrandToggle,
   selectedAvailability,
   onAvailabilityToggle,
+  variant = "desktop",
 }: ProductFilterSidebarProps) {
+  const isMobile = variant === "mobile";
+
   return (
-    <aside className="h-full w-[300px] shrink-0">
-      <div className="flex h-[calc(100vh-8px)] flex-col overflow-hidden border-r border-slate-200 bg-[#f5f5f5] lg:sticky lg:top-2">
+    <aside
+      className={
+        isMobile ? "w-full min-w-0" : "h-full w-[300px] shrink-0"
+      }
+    >
+      <div
+        className={
+          isMobile
+            ? "w-full min-w-0 bg-[#f5f5f5]"
+            : "flex h-[calc(100vh-8px)] flex-col overflow-hidden border-r border-slate-200 bg-[#f5f5f5] lg:sticky lg:top-2"
+        }
+      >
         <div className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
           <div className="flex items-center gap-2">
             <Filter size={16} className="text-[#1a1a1a]" />
@@ -61,7 +75,13 @@ export function ProductFilterSidebar({
           </div>
         </div>
 
-        <div className="custom-scrollbar flex-1 overflow-y-auto pb-12">
+        <div
+          className={
+            isMobile
+              ? "w-full min-w-0 pb-4"
+              : "custom-scrollbar flex-1 overflow-y-auto pb-12"
+          }
+        >
           <div className="bg-white">
             <FilterGroup
               title="Sẵn có & Giao hàng"
@@ -249,9 +269,9 @@ function FilterGroup({
                       onChange={() => onToggle(item.id)}
                       className="mt-0.5 h-4 w-4 cursor-pointer appearance-none rounded-none border border-slate-300 transition-all checked:border-[#1a1a1a] checked:bg-[#1a1a1a]"
                     />
-                    <div className="ml-3 flex min-w-0 flex-1 items-center justify-between">
+                    <div className="ml-3 flex min-w-0 flex-1 items-start justify-between gap-2">
                       <span
-                        className={`text-[14px] leading-tight transition-colors ${
+                        className={`min-w-0 break-words text-[14px] leading-tight transition-colors ${
                           selectedItems.includes(item.id)
                             ? "font-black text-[#1a1a1a]"
                             : "font-bold text-slate-600 group-hover:text-slate-900"
@@ -260,7 +280,7 @@ function FilterGroup({
                         {item.label}
                       </span>
                       {item.count !== undefined ? (
-                        <span className="ml-2 shrink-0 text-[12px] font-bold tracking-tighter text-slate-400 tabular-nums">
+                        <span className="shrink-0 text-[12px] font-bold tracking-tighter text-slate-400 tabular-nums">
                           ({item.count.toLocaleString("vi-VN")})
                         </span>
                       ) : null}

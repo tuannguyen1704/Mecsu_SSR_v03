@@ -6,13 +6,13 @@ import Link from "next/link";
 import { motion } from "motion/react";
 import {
   CheckCircle2,
-  ChevronRight,
   MessageCircle,
   Package,
   PhoneCall,
   Quote,
   Star,
 } from "lucide-react";
+import { Breadcrumb as SharedBreadcrumb } from "@/components/shared/Breadcrumb";
 import {
   aboutCoreValues,
   aboutIndustries,
@@ -35,13 +35,12 @@ const erpImage =
 
 function Breadcrumb() {
   return (
-    <nav className="flex items-center gap-2 text-[13px] font-medium text-slate-500">
-      <Link href="/" className="transition-colors hover:text-[#163F78]">
-        Trang chủ
-      </Link>
-      <ChevronRight size={14} className="text-slate-400" />
-      <span className="font-semibold text-slate-900">Giới thiệu Mecsu</span>
-    </nav>
+    <SharedBreadcrumb
+      items={[
+        { label: "Trang chủ", href: "/" },
+        { label: "Giới thiệu Mecsu" },
+      ]}
+    />
   );
 }
 

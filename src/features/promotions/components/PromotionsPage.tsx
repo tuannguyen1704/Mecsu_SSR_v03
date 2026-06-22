@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowRight, ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
+import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import { HOME_PROMOTIONS } from "@/features/home/data/home-promotions";
 import {
   HOME_BEST_DEALS,
@@ -121,15 +122,13 @@ export function PromotionsPage() {
     <main className="bg-[#F6F4EF] text-[#111827]">
       <section className="px-4 pt-6 lg:px-8 lg:pt-8">
         <div className="mx-auto max-w-[1280px]">
-          <div className="mb-5 flex items-center gap-2 text-sm text-slate-600">
-            <Link href="/" className="hover:text-[#163F78]">
-              Trang chủ
-            </Link>
-            <ChevronRight size={15} />
-            <span className="font-medium text-slate-800">
-              Ưu đãi và mã giảm giá
-            </span>
-          </div>
+          <Breadcrumb
+            className="mb-5"
+            items={[
+              { label: "Trang chủ", href: "/" },
+              { label: "Ưu đãi và mã giảm giá" },
+            ]}
+          />
 
           <div className="relative min-h-[520px] overflow-hidden rounded-md bg-[#111827] lg:min-h-[620px]">
             <Image

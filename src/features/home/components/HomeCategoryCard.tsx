@@ -46,7 +46,7 @@ export function HomeCategoryCard({ category }: { category: HeaderCategory }) {
         href={categoryUrl}
         className="mb-3 rounded-md bg-[#F2F2F2] p-4 shadow-sm transition-colors hover:bg-slate-100"
       >
-        <h3 className="text-[17px] leading-tight font-bold text-slate-900">
+        <h3 className="text-[17px] leading-tight font-semibold text-slate-900">
           {category.name}
         </h3>
       </Link>
@@ -84,7 +84,7 @@ export function HomeCategoryCard({ category }: { category: HeaderCategory }) {
             href={categoryUrl}
             className="group flex cursor-pointer items-center gap-1 text-[15px] font-medium text-blue-600 hover:underline"
           >
-            Shop all
+            Xem tất cả
             <Icon size={0} className="hidden" aria-hidden="true" />
           </Link>
         </div>

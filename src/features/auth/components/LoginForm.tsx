@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 import { Eye, EyeOff, Lock, Mail } from "lucide-react";
 import { login } from "../services/mock-auth-service";
 import type { MockAuthUser } from "../types/auth";
@@ -61,15 +62,15 @@ export default function LoginForm({ onSuccess, onRegisterClick }: LoginFormProps
 
   return (
     <>
-      <div className="bg-white px-8 pt-8 pb-6">
+      <div className="bg-white px-5 pt-5 pb-4 sm:px-8 sm:pt-8 sm:pb-6">
         <MecsuMiniLogo />
-        <h2 id="auth-modal-title" className="mt-7 mb-1 text-2xl font-bold text-slate-900">
+        <h2 id="auth-modal-title" className="mt-5 mb-1 text-2xl font-bold text-slate-900 sm:mt-7">
           Chào mừng trở lại
         </h2>
         <p className="text-sm text-slate-500">Đăng nhập để tiếp tục mua sắm</p>
       </div>
 
-      <div className="space-y-4 px-8 pb-6">
+      <div className="space-y-4 px-5 pb-5 sm:px-8 sm:pb-6">
         <AuthField
           label="Email"
           type="email"
@@ -141,7 +142,7 @@ export default function LoginForm({ onSuccess, onRegisterClick }: LoginFormProps
         </div>
       </div>
 
-      <div className="border-t border-slate-100 bg-slate-50 px-8 py-4">
+      <div className="border-t border-slate-100 bg-slate-50 px-5 py-4 sm:px-8">
         <p className="text-center text-[12px] leading-relaxed text-slate-400">
           Bằng việc đăng nhập, bạn đồng ý với Điều khoản sử dụng và Chính sách bảo mật
           của Mecsu.
@@ -153,13 +154,13 @@ export default function LoginForm({ onSuccess, onRegisterClick }: LoginFormProps
 
 export function MecsuMiniLogo() {
   return (
-    <div className="flex items-center gap-2">
-      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#003B73] text-lg font-black text-[#FFC72C]">
-        M
-      </div>
-      <span className="text-xl font-black italic tracking-tighter text-[#003B73]">
-        MECSU
-      </span>
-    </div>
+    <Image
+      src="/mecsu-sologan.png"
+      alt="MECSU - Một cách khác"
+      width={178}
+      height={64}
+      priority
+      className="h-12 w-auto max-w-full object-contain sm:h-14"
+    />
   );
 }

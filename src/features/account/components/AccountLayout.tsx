@@ -16,7 +16,7 @@ export function AccountLayout({
   activeHref = "/tai-khoan",
 }: AccountLayoutProps) {
   return (
-    <div className="min-h-screen bg-[#F6F8FB]">
+    <div className="min-h-screen bg-[#EEF1F5]">
       <AccountMobileNav
         user={mockAccountUser}
         sections={accountNavigationSections}

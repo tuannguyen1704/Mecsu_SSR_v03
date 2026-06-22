@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, CalendarDays, Clock, User } from "lucide-react";
+import { Breadcrumb } from "@/components/shared/Breadcrumb";
 import type { BlogArticle } from "../types/blog";
 import {
   getBlogArticleContent,
@@ -25,17 +26,13 @@ export function BlogDetailPageShell({ article }: BlogDetailPageShellProps) {
     <main className="min-h-screen bg-slate-50">
       <section className="border-b border-slate-100 bg-white">
         <div className="mx-auto max-w-[1400px] px-4 py-4 sm:px-6 lg:px-8">
-          <nav className="flex flex-wrap items-center gap-2 text-sm text-slate-500" aria-label="Breadcrumb">
-            <Link href="/" className="font-medium transition-colors hover:text-[#163F78]">
-              Trang chủ
-            </Link>
-            <span>/</span>
-            <Link href="/blog" className="font-medium transition-colors hover:text-[#163F78]">
-              Resource Hub
-            </Link>
-            <span>/</span>
-            <span className="line-clamp-1 text-slate-700">{article.title}</span>
-          </nav>
+          <Breadcrumb
+            items={[
+              { label: "Trang chủ", href: "/" },
+              { label: "Resource Hub", href: "/blog" },
+              { label: article.title },
+            ]}
+          />
         </div>
       </section>
 

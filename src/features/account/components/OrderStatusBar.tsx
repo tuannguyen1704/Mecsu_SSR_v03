@@ -62,11 +62,6 @@ export function OrderStatusBar({
           .filter((ts): ts is string => typeof ts === "string")
       : generateMockTimestamps(currentStepIndex);
 
-  const circleHeight = size === "sm" ? 40 : 48;
-  const circleWidth = size === "sm" ? 40 : 48;
-  const lineHeight = size === "sm" ? 6 : 8;
-  const lineTop = circleHeight / 2 - lineHeight / 2;
-
   if (isCancelled) {
     return (
       <div
@@ -95,12 +90,9 @@ export function OrderStatusBar({
   };
 
   return (
-    <div className="w-full relative px-2">
+    <div className="relative w-full px-0.5 sm:px-2">
       {/* Full-width progress line track - sits behind circles */}
-      <div
-        className="absolute z-[1]"
-        style={{ top: lineTop, height: lineHeight, left: 8, right: 8 }}
-      >
+      <div className="absolute top-[17px] right-[18px] left-[18px] z-[1] h-1 sm:top-5 sm:right-2 sm:left-2 sm:h-2">
         {/* Running label above the active segment */}
         {(() => {
           const isCompletedOrder = order.status === "completed";
@@ -120,7 +112,7 @@ export function OrderStatusBar({
 
           return (
             <div
-              className="absolute text-[10px] font-semibold whitespace-nowrap"
+              className="absolute hidden text-[10px] font-semibold whitespace-nowrap sm:block"
               style={{
                 left: `calc(${leftPercent}% + ${segmentWidth / 2}% + ${centerShift}%)`,
                 top: "-24px",
@@ -153,7 +145,13 @@ export function OrderStatusBar({
           return (
             <div
               key={`segment-${index}`}
-              className="absolute top-0 h-full overflow-hidden"
+              className={cn(
+                "absolute top-0 h-full overflow-hidden",
+                isFirst &&
+                  "[clip-path:inset(0_0_0_18px)] sm:[clip-path:inset(0_0_0_24px)]",
+                isLast &&
+                  "[clip-path:inset(0_18px_0_0)] sm:[clip-path:inset(0_24px_0_0)]",
+              )}
               style={{
                 left: `${index * segmentPct}%`,
                 width: `${segmentPct}%`,
@@ -162,11 +160,6 @@ export function OrderStatusBar({
                   : isLast
                     ? "0 4px 4px 0"
                     : "4px",
-                clipPath: isFirst
-                  ? "inset(0 0 0 24px)"
-                  : isLast
-                    ? "inset(0 24px 0 0)"
-                    : undefined,
               }}
             >
               <div
@@ -206,7 +199,7 @@ export function OrderStatusBar({
       </div>
 
       {/* Step items container */}
-      <div className="relative flex justify-between items-start z-10">
+      <div className="relative z-10 flex items-start justify-between">
         {TIMELINE_STEPS.map((step, index) => {
           const isCompleted = index < currentStepIndex;
           const isActive = index === currentStepIndex;
@@ -216,25 +209,19 @@ export function OrderStatusBar({
           return (
             <div
               key={step.id}
-              className="flex flex-col items-center"
-              style={{ width: circleWidth }}
+              className="flex min-w-0 flex-1 flex-col items-center sm:w-12 sm:flex-none"
             >
               {/* Icon area with fixed height */}
-              <div
-                className="relative flex items-center justify-center flex-shrink-0"
-                style={{ height: circleHeight, width: circleWidth }}
-              >
+              <div className="relative flex h-9 w-9 shrink-0 items-center justify-center sm:h-12 sm:w-12">
                 {/* Main circle button */}
                 <motion.div
                   className={cn(
-                    "rounded-full flex items-center justify-center border-4 transition-all duration-300 relative",
+                    "relative flex h-9 w-9 items-center justify-center rounded-full border-[3px] transition-all duration-300 sm:h-12 sm:w-12 sm:border-4",
                     isCompleted || isActive
                       ? "border-white shadow-md text-white"
                       : "border-white shadow-sm bg-white text-slate-300"
                   )}
                   style={{
-                    width: circleWidth,
-                    height: circleHeight,
                     backgroundColor: (isCompleted || isActive) ? accentColor : undefined,
                     boxShadow: isCompleted
                       ? `0 6px 16px ${glowColor}, inset 0 2px 4px rgba(255,255,255,0.2)`
@@ -251,7 +238,9 @@ export function OrderStatusBar({
                       isCompleted || isActive
                         ? "text-white"
                         : "text-slate-400",
-                      size === "sm" ? "w-6 h-6" : "w-6 h-6 md:w-7 md:h-7"
+                      size === "sm"
+                        ? "h-[18px] w-[18px] sm:h-6 sm:w-6"
+                        : "h-[18px] w-[18px] sm:h-6 sm:w-6 md:h-7 md:w-7"
                     )}
                     strokeWidth={2.2}
                   />
@@ -259,9 +248,9 @@ export function OrderStatusBar({
               </div>
 
               {/* Labels + Timestamp below */}
-              <div className="mt-3 flex flex-col items-center">
+              <div className="mt-2 flex min-w-0 flex-col items-center sm:mt-3">
                 <p
-                  className="text-[13px] font-medium leading-4 text-center whitespace-nowrap transition-colors duration-300"
+                  className="text-center text-[10px] leading-3 font-medium whitespace-nowrap transition-colors duration-300 sm:text-[13px] sm:leading-4"
                   style={{
                     color: isCompleted ? accentColor : isActive ? "#0F172A" : "#64748B",
                   }}
@@ -270,16 +259,30 @@ export function OrderStatusBar({
                 </p>
 
                 <p
-                  className="mt-1.5 text-center text-[11px] leading-3 font-mono"
+                  className="mt-1 text-center text-[9px] leading-3 whitespace-nowrap sm:mt-1.5 sm:text-[11px]"
                   style={{ color: "#94A3B8" }}
                 >
                   {index === TIMELINE_STEPS.length - 1 &&
                   order.status === "completed"
-                    ? "Đã giao thành công"
+                    ? (
+                      <>
+                        <span className="sm:hidden">Đã giao</span>
+                        <span className="hidden sm:inline">Đã giao thành công</span>
+                      </>
+                    )
                     : isActive
                       ? "--"
                       : isCompleted && timestamp
-                        ? formatTimestamp(timestamp)
+                        ? (
+                          <>
+                            <span className="sm:hidden">
+                              {formatTimestamp(timestamp).split("•")[1]?.trim()}
+                            </span>
+                            <span className="hidden sm:inline">
+                              {formatTimestamp(timestamp)}
+                            </span>
+                          </>
+                        )
                         : "--"}
                 </p>
               </div>

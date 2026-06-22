@@ -26,18 +26,18 @@ export default function MobileHeader({
   onOpenChange,
 }: MobileHeaderProps) {
   return (
-    <div className="ml-auto flex items-center gap-4 md:hidden">
+    <div className="ml-auto flex min-w-0 items-center gap-2 xl:hidden">
       <button
         type="button"
         onClick={onAccountClick}
-        className="flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 shadow-sm"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 shadow-sm sm:h-11 sm:w-11"
         aria-label="Mở đăng nhập"
       >
         <User size={20} className="text-slate-500" />
       </button>
       <Link
         href="/gio-hang"
-        className="relative flex h-11 w-11 items-center justify-center rounded-full bg-slate-900 shadow-lg ring-4 ring-slate-900/5"
+        className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-900 shadow-lg ring-2 ring-slate-900/5 sm:h-11 sm:w-11 sm:ring-4"
         aria-label="Đi tới giỏ hàng"
       >
         <ShoppingCart size={20} className="text-brand-primary" />
@@ -49,7 +49,7 @@ export default function MobileHeader({
       </Link>
       <button
         onClick={() => onOpenChange(true)}
-        className="flex h-11 w-11 items-center justify-center rounded-md bg-[#163F78] text-white shadow-md"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-[#163F78] text-white shadow-md sm:h-11 sm:w-11"
         aria-label="Open menu"
       >
         <Menu size={22} className="text-brand-primary" />
@@ -70,16 +70,16 @@ export default function MobileHeader({
               animate={{ x: 0 }}
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 240 }}
-              className="fixed bottom-0 right-0 top-0 z-[501] flex w-[min(390px,100vw)] flex-col bg-white shadow-2xl"
+              className="fixed inset-0 z-[501] flex w-screen max-w-none flex-col bg-white shadow-2xl"
             >
-              <div className="flex h-20 items-center justify-between border-b border-slate-200 px-5">
+              <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4 sm:h-20 sm:px-5">
                 <Link href="/" onClick={() => onOpenChange(false)}>
                   <Image
                     src="/mecsu-sologan.png"
                     alt="MECSU Logo"
                     width={160}
                     height={58}
-                    className="h-14 w-auto object-contain"
+                    className="h-12 w-auto object-contain sm:h-14"
                   />
                 </Link>
                 <button
@@ -91,7 +91,7 @@ export default function MobileHeader({
                 </button>
               </div>
 
-              <div className="border-b border-slate-100 p-5">
+              <div className="border-b border-slate-100 p-4 sm:p-5">
                 <HeaderSearch suggestions={suggestions} />
               </div>
 
@@ -105,7 +105,7 @@ export default function MobileHeader({
                       {category.name}
                       <span className="text-brand-secondary group-open:rotate-90">›</span>
                     </summary>
-                    <div className="grid grid-cols-2 gap-2 border-b border-slate-100 bg-slate-50 p-4">
+                    <div className="grid grid-cols-1 gap-2 border-b border-slate-100 bg-slate-50 p-4 min-[390px]:grid-cols-2">
                       {category.subcategories.slice(0, 12).map((subcategory) => (
                         <button
                           key={subcategory}
