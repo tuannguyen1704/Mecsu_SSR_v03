@@ -1,7 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Check, MapPin, Phone, User } from "lucide-react";
+import { VietnamAddressSelect } from "@/shared/components/VietnamAddressSelect";
+import {
+  getProvinces,
+  getWardsByProvinceCode,
+} from "@/shared/lib/vietnam-address";
 import type {
   MockAuthUser,
   RegisterAccountPayload,
@@ -16,15 +21,12 @@ interface RegisterAddressStepProps {
   onSuccess: (user: MockAuthUser) => void;
 }
 
-const provinces = ["TP. Hồ Chí Minh", "Hà Nội", "Đà Nẵng"];
-const districts = ["Quận 1", "Quận Bình Thạnh", "Quận Cầu Giấy", "Quận Hải Châu"];
-const wards = ["Phường Bến Nghé", "Phường 25", "Phường Dịch Vọng", "Phường Thạch Thang"];
-
 const emptyAddress: RegisterAddressPayload = {
-  province: "",
-  district: "",
-  ward: "",
-  addressLine: "",
+  provinceCode: "",
+  provinceName: "",
+  wardCode: "",
+  wardName: "",
+  streetAddress: "",
   note: "",
 };
 
@@ -37,11 +39,36 @@ export default function RegisterAddressStep({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formError, setFormError] = useState("");
 
-  const updateAddress = (field: keyof RegisterAddressPayload, value: string) => {
-    setAddress((current) => ({ ...current, [field]: value }));
-  };
+  const provinceOptions = useMemo(
+    () =>
+      getProvinces().map((province) => ({
+        code: province.code,
+        label: province.name_with_type,
+      })),
+    [],
+  );
+  const wardOptions = useMemo(
+    () =>
+      getWardsByProvinceCode(address.provinceCode ?? "").map((ward) => ({
+        code: ward.code,
+        label: ward.name_with_type,
+      })),
+    [address.provinceCode],
+  );
 
   const completeRegistration = async (shouldSaveAddress: boolean) => {
+    if (
+      shouldSaveAddress &&
+      (!address.provinceCode ||
+        !address.provinceName ||
+        !address.wardCode ||
+        !address.wardName ||
+        !address.streetAddress?.trim())
+    ) {
+      setFormError("Vui lòng chọn tỉnh/thành phố, phường/xã và nhập địa chỉ cụ thể.");
+      return;
+    }
+
     setIsSubmitting(true);
     setFormError("");
     const result = await completeVerifiedRegistration(
@@ -114,23 +141,36 @@ export default function RegisterAddressStep({
         </p>
 
         <div className="space-y-3.5">
-          <SelectField
+          <VietnamAddressSelect
             label="Tỉnh/Thành phố"
-            value={address.province ?? ""}
-            onChange={(value) => updateAddress("province", value)}
-            options={provinces}
+            placeholder="Chọn tỉnh/thành phố"
+            value={address.provinceCode ?? ""}
+            options={provinceOptions}
+            onChange={(option) =>
+              setAddress((current) => ({
+                ...current,
+                provinceCode: option.code,
+                provinceName: option.label,
+                wardCode: "",
+                wardName: "",
+              }))
+            }
           />
-          <SelectField
-            label="Quận/Huyện"
-            value={address.district ?? ""}
-            onChange={(value) => updateAddress("district", value)}
-            options={districts}
-          />
-          <SelectField
+          <VietnamAddressSelect
             label="Phường/Xã"
-            value={address.ward ?? ""}
-            onChange={(value) => updateAddress("ward", value)}
-            options={wards}
+            placeholder={
+              address.provinceCode ? "Chọn phường/xã" : "Chọn tỉnh/thành phố trước"
+            }
+            value={address.wardCode ?? ""}
+            options={wardOptions}
+            disabled={!address.provinceCode}
+            onChange={(option) =>
+              setAddress((current) => ({
+                ...current,
+                wardCode: option.code,
+                wardName: option.label,
+              }))
+            }
           />
           <label className="block">
             <span className="mb-2 block text-[11px] font-bold tracking-wider text-slate-600 uppercase">
@@ -142,8 +182,13 @@ export default function RegisterAddressStep({
                 className="pointer-events-none absolute top-1/2 left-4 -translate-y-1/2 text-slate-400"
               />
               <input
-                value={address.addressLine ?? ""}
-                onChange={(event) => updateAddress("addressLine", event.target.value)}
+                value={address.streetAddress ?? ""}
+                onChange={(event) =>
+                  setAddress((current) => ({
+                    ...current,
+                    streetAddress: event.target.value,
+                  }))
+                }
                 placeholder="Số nhà, tên đường, tên công ty"
                 className="h-12 w-full rounded-xl border border-[#E2E8F0] bg-white pr-4 pl-11 text-sm outline-none transition-all placeholder:text-slate-400 hover:border-slate-300 focus:border-[#003B73] focus:ring-2 focus:ring-[#003B73]/10"
               />
@@ -157,7 +202,9 @@ export default function RegisterAddressStep({
           </span>
           <textarea
             value={address.note ?? ""}
-            onChange={(event) => updateAddress("note", event.target.value)}
+            onChange={(event) =>
+              setAddress((current) => ({ ...current, note: event.target.value }))
+            }
             placeholder="Ví dụ: giao giờ hành chính, gọi trước khi giao..."
             className="min-h-20 w-full resize-none rounded-xl border border-[#E2E8F0] bg-white px-4 py-3 text-sm outline-none transition-all placeholder:text-slate-400 hover:border-slate-300 focus:border-[#003B73] focus:ring-2 focus:ring-[#003B73]/10"
           />
@@ -199,37 +246,5 @@ export default function RegisterAddressStep({
         </div>
       </div>
     </div>
-  );
-}
-
-function SelectField({
-  label,
-  value,
-  options,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (value: string) => void;
-}) {
-  return (
-    <label className="block">
-      <span className="mb-2 block text-[11px] font-bold tracking-wider text-slate-600 uppercase">
-        {label}
-      </span>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="h-12 w-full rounded-xl border border-[#E2E8F0] bg-white px-4 text-sm outline-none transition-all hover:border-slate-300 focus:border-[#003B73] focus:ring-2 focus:ring-[#003B73]/10"
-      >
-        <option value="">Chọn</option>
-        {options.map((option) => (
-          <option key={option} value={option}>
-            {option}
-          </option>
-        ))}
-      </select>
-    </label>
   );
 }

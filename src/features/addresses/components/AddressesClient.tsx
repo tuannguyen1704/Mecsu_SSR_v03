@@ -18,10 +18,12 @@ import { AddressFormModal } from "./AddressFormModal";
 const initialFormData: AddressFormData = {
   fullName: "",
   phone: "",
-  province: "",
-  district: "",
-  ward: "",
-  detailAddress: "",
+  provinceCode: "",
+  provinceName: "",
+  wardCode: "",
+  wardName: "",
+  streetAddress: "",
+  note: "",
   isDefault: false,
 };
 
@@ -36,17 +38,14 @@ function validateAddress(formData: AddressFormData) {
   } else if (!/^[0-9]{10,11}$/.test(formData.phone.replace(/\s/g, ""))) {
     errors.phone = "Số điện thoại không hợp lệ";
   }
-  if (!formData.province) {
-    errors.province = "Vui lòng chọn Tỉnh/Thành phố";
+  if (!formData.provinceCode || !formData.provinceName) {
+    errors.provinceCode = "Vui lòng chọn tỉnh/thành phố";
   }
-  if (!formData.district) {
-    errors.district = "Vui lòng chọn Quận/Huyện";
+  if (!formData.wardCode || !formData.wardName) {
+    errors.wardCode = "Vui lòng chọn phường/xã";
   }
-  if (!formData.ward) {
-    errors.ward = "Vui lòng chọn Phường/Xã";
-  }
-  if (!formData.detailAddress.trim()) {
-    errors.detailAddress = "Vui lòng nhập địa chỉ chi tiết";
+  if (!formData.streetAddress.trim()) {
+    errors.streetAddress = "Vui lòng nhập địa chỉ cụ thể";
   }
 
   return errors;
@@ -56,10 +55,14 @@ function addressToFormData(address: Address): AddressFormData {
   return {
     fullName: address.fullName,
     phone: address.phone,
-    province: address.province,
-    district: address.district,
-    ward: address.ward,
-    detailAddress: address.detailAddress,
+    provinceCode: address.provinceCode || "",
+    provinceName: address.provinceName || address.province || "",
+    wardCode: address.wardCode || "",
+    wardName: address.wardName || address.ward || "",
+    streetAddress: address.streetAddress || address.detailAddress || "",
+    note: address.note || "",
+    districtCode: address.districtCode,
+    districtName: address.districtName || address.district,
     isDefault: address.isDefault,
   };
 }
@@ -120,10 +123,14 @@ export function AddressesClient() {
       id: editingAddress?.id || `addr-${Date.now()}`,
       fullName: formData.fullName.trim(),
       phone: formData.phone.trim(),
-      province: formData.province,
-      district: formData.district,
-      ward: formData.ward,
-      detailAddress: formData.detailAddress.trim(),
+      provinceCode: formData.provinceCode,
+      provinceName: formData.provinceName,
+      wardCode: formData.wardCode,
+      wardName: formData.wardName,
+      streetAddress: formData.streetAddress.trim(),
+      note: formData.note.trim() || undefined,
+      districtCode: editingAddress?.districtCode,
+      districtName: editingAddress?.districtName || editingAddress?.district,
       isDefault: formData.isDefault || addresses.length === 0,
     };
 

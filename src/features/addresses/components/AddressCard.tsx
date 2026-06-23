@@ -12,10 +12,10 @@ interface AddressCardProps {
 
 export function formatFullAddress(address: Address) {
   return [
-    address.detailAddress,
-    address.ward,
-    address.district,
-    address.province,
+    address.streetAddress || address.detailAddress,
+    address.wardName || address.ward,
+    address.districtName || address.district,
+    address.provinceName || address.province,
   ].filter(Boolean).join(", ");
 }
 
@@ -33,6 +33,11 @@ export function AddressCard({
             <span className="mb-2 inline-flex items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-semibold text-amber-700">
               <Star size={10} />
               Mặc định
+            </span>
+          ) : null}
+          {(address.districtName || address.district) && !address.wardCode ? (
+            <span className="mb-2 ml-2 inline-flex rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600">
+              Cần cập nhật địa chỉ mới
             </span>
           ) : null}
           <div className="flex items-start gap-2">

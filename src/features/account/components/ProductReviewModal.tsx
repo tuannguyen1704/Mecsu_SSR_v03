@@ -79,6 +79,8 @@ export function ProductReviewModal({
   return (
     <div
       className="fixed inset-0 z-[400] flex items-center justify-center"
+      role="dialog"
+      aria-modal="true"
       style={{
         backgroundColor: "rgba(15, 23, 42, 0.38)",
         backdropFilter: "blur(6px)",

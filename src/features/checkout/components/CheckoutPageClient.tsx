@@ -33,6 +33,11 @@ import { useCart } from "@/features/cart";
 import type { CartItem } from "@/features/cart/types/cart";
 import { formatCartPrice } from "@/features/cart/utils/cart-format";
 import { getSeededPlaceholder } from "@/lib/image-placeholders";
+import { VietnamAddressSelect } from "@/shared/components/VietnamAddressSelect";
+import {
+  getProvinces,
+  getWardsByProvinceCode,
+} from "@/shared/lib/vietnam-address";
 import { saveLastOrder } from "../services/checkout-storage";
 import type {
   CheckoutAddress,
@@ -96,80 +101,27 @@ const paymentMethods = [
 const accountEmail = "admin@gmail.com";
 
 const defaultCheckoutAddress: CheckoutAddress = {
-  address: "df",
-  district: "Quận 3",
   fullName: "Admin MECsu",
   note: "adf",
   phone: "0900000000",
-  province: "TP. Hồ Chí Minh",
-  ward: "Phường 1",
+  provinceCode: "12",
+  provinceName: "Thành phố Hồ Chí Minh",
+  wardCode: "268",
+  wardName: "Xã Thạnh An",
+  streetAddress: "df",
+  districtName: "Quận 3",
 };
 
-const provinces = [
-  { id: "hcm", name: "TP. Hồ Chí Minh" },
-  { id: "hn", name: "Hà Nội" },
-  { id: "dn", name: "Đà Nẵng" },
-  { id: "cantho", name: "Cần Thơ" },
-  { id: "hue", name: "Huế" },
-  { id: "dongnai", name: "Đồng Nai" },
-  { id: "binhduong", name: "Bình Dương" },
-];
-
-const districts: Record<string, { id: string; name: string }[]> = {
-  hcm: [
-    { id: "quan1", name: "Quận 1" },
-    { id: "quan3", name: "Quận 3" },
-    { id: "quan5", name: "Quận 5" },
-    { id: "quan7", name: "Quận 7" },
-    { id: "quan10", name: "Quận 10" },
-    { id: "phunhuan", name: "Phú Nhuận" },
-    { id: "tanbinh", name: "Tân Bình" },
-    { id: "binhthanh", name: "Bình Thạnh" },
-    { id: "govap", name: "Gò Vấp" },
-    { id: "thuduc", name: "Thủ Đức" },
-  ],
-  hn: [
-    { id: "hoankiem", name: "Hoàn Kiếm" },
-    { id: "badinh", name: "Ba Đình" },
-    { id: "dongda", name: "Đống Đa" },
-    { id: "haibatrung", name: "Hai Bà Trưng" },
-    { id: "thanhxuan", name: "Thanh Xuân" },
-    { id: "caugiay", name: "Cầu Giấy" },
-    { id: "tuliem", name: "Từ Liêm" },
-  ],
-  dn: [
-    { id: "haichau", name: "Hải Châu" },
-    { id: "thanhkhe", name: "Thanh Khê" },
-    { id: "sontra", name: "Sơn Trà" },
-    { id: "nguhanhson", name: "Ngũ Hành Sơn" },
-  ],
-};
-
-const wards: Record<string, { id: string; name: string }[]> = {
-  quan1: [
-    { id: "bennghe", name: "Bến Nghé" },
-    { id: "bennghe2", name: "Bến Nghé 2" },
-    { id: "cogiang", name: "Cô Giang" },
-    { id: "congtruong", name: "Công Trường" },
-    { id: "dakao", name: "Đa Kao" },
-  ],
-  quan3: [
-    { id: "phamngulao", name: "Phạm Ngũ Lão" },
-    { id: "phuong1", name: "Phường 1" },
-    { id: "phuong2", name: "Phường 2" },
-    { id: "phuong3", name: "Phường 3" },
-  ],
-  quan5: [
-    { id: "phuong1", name: "Phường 1" },
-    { id: "phuong2", name: "Phường 2" },
-    { id: "phuong3", name: "Phường 3" },
-  ],
-  quan7: [
-    { id: "tanthuandong", name: "Tân Thuận Đông" },
-    { id: "tanthuantay", name: "Tân Thuận Tây" },
-    { id: "tanphu", name: "Tân Phú" },
-  ],
-};
+function formatCheckoutAddress(address: CheckoutAddress) {
+  return [
+    address.streetAddress || address.address,
+    address.wardName || address.ward,
+    address.districtName || address.district,
+    address.provinceName || address.province,
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
 
 export function CheckoutPageClient() {
   const router = useRouter();
@@ -735,7 +687,7 @@ function AddressSummary({
           <p className="flex items-start gap-2 leading-6">
             <MapPin size={15} className="mt-1 text-slate-400" />
             <span>
-              {address.address}, {address.ward}, {address.district}, {address.province}
+              {formatCheckoutAddress(address)}
             </span>
           </p>
           {address.note ? (
@@ -837,7 +789,10 @@ function ConfirmOrderStep({
       <section className="rounded-sm border border-slate-200 bg-white p-5">
         <h2 className="mb-4 text-lg font-bold text-slate-900">Xác nhận đơn hàng</h2>
         <div className="grid gap-3 md:grid-cols-2">
-          <ConfirmInfo label="Địa chỉ giao hàng" value={address ? `${address.address}, ${address.ward}, ${address.district}, ${address.province}` : "Chưa có địa chỉ"} />
+          <ConfirmInfo
+            label="Địa chỉ giao hàng"
+            value={address ? formatCheckoutAddress(address) : "Chưa có địa chỉ"}
+          />
           <ConfirmInfo label="Phương thức vận chuyển" value={selectedShippingTitle} />
           <ConfirmInfo label="Phương thức thanh toán" value={selectedPaymentTitle} />
           <ConfirmInfo label="Xuất hóa đơn VAT" value={needVat ? "Có yêu cầu" : "Không yêu cầu"} />
@@ -1173,7 +1128,7 @@ function CheckoutAddressPicker({
                     <span className="font-medium text-slate-500">{address.phone}</span>
                   </span>
                   <span className="mt-2 block text-sm font-medium leading-6 text-slate-500">
-                    {address.address}, {address.ward}, {address.district}, {address.province}
+                    {formatCheckoutAddress(address)}
                   </span>
                 </span>
               </button>
@@ -1211,61 +1166,49 @@ function ShippingAddressModal({
 }) {
   const [form, setForm] = useState<CheckoutAddress>(
     initialAddress ?? {
-      address: "",
-      district: "",
       fullName: "",
       note: "",
       phone: "",
-      province: "",
-      ward: "",
+      provinceCode: "",
+      provinceName: "",
+      wardCode: "",
+      wardName: "",
+      streetAddress: "",
     },
   );
   const [submitted, setSubmitted] = useState(false);
-  const [openDropdown, setOpenDropdown] = useState<"province" | "district" | "ward" | null>(
-    null,
+  const provinceOptions = useMemo(
+    () =>
+      getProvinces().map((province) => ({
+        code: province.code,
+        label: province.name_with_type,
+      })),
+    [],
+  );
+  const wardOptions = useMemo(
+    () =>
+      getWardsByProvinceCode(form.provinceCode).map((ward) => ({
+        code: ward.code,
+        label: ward.name_with_type,
+      })),
+    [form.provinceCode],
   );
 
   const requiredFields: (keyof CheckoutAddress)[] = [
     "fullName",
     "phone",
-    "province",
-    "district",
-    "ward",
-    "address",
+    "provinceCode",
+    "provinceName",
+    "wardCode",
+    "wardName",
+    "streetAddress",
   ];
-  const hasErrors = requiredFields.some((field) => !form[field].trim());
+  const hasErrors = requiredFields.some(
+    (field) => !String(form[field] ?? "").trim(),
+  );
 
   const updateField = (field: keyof CheckoutAddress, value: string) => {
     setForm((current) => ({ ...current, [field]: value }));
-  };
-
-  const selectedProvince = provinces.find((province) => province.name === form.province);
-  const districtOptions = selectedProvince ? districts[selectedProvince.id] || [] : [];
-  const selectedDistrict = districtOptions.find((district) => district.name === form.district);
-  const wardOptions = selectedDistrict ? wards[selectedDistrict.id] || [] : [];
-
-  const selectProvince = (provinceName: string) => {
-    setForm((current) => ({
-      ...current,
-      district: "",
-      province: provinceName,
-      ward: "",
-    }));
-    setOpenDropdown(null);
-  };
-
-  const selectDistrict = (districtName: string) => {
-    setForm((current) => ({
-      ...current,
-      district: districtName,
-      ward: "",
-    }));
-    setOpenDropdown(null);
-  };
-
-  const selectWard = (wardName: string) => {
-    updateField("ward", wardName);
-    setOpenDropdown(null);
   };
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
@@ -1278,15 +1221,21 @@ function ShippingAddressModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[99999] bg-black/50 p-4 backdrop-blur-sm">
-      <div className="flex min-h-dvh items-center justify-center">
+    <div className="fixed inset-0 z-[99999] flex items-start justify-center overflow-hidden bg-black/50 px-4 pb-4 pt-[6vh] backdrop-blur-sm">
+      <div className="flex w-full justify-center">
         <form
           onSubmit={handleSubmit}
-          className="flex max-h-[calc(100dvh-32px)] w-full max-w-lg flex-col overflow-hidden rounded-sm bg-white shadow-2xl"
+          className="flex max-h-[88dvh] w-full max-w-lg flex-col overflow-hidden rounded-sm bg-white shadow-2xl"
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="checkout-add-address-title"
         >
-          <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5">
+          <div className="flex shrink-0 items-start justify-between border-b border-slate-200 px-6 py-5">
             <div>
-              <h2 className="text-[22px] font-bold leading-tight text-slate-900">
+              <h2
+                id="checkout-add-address-title"
+                className="text-[22px] font-bold leading-tight text-slate-900"
+              >
                 Thêm địa chỉ mới
               </h2>
               <p className="mt-1 text-[17px] font-medium text-slate-500">
@@ -1303,7 +1252,7 @@ function ShippingAddressModal({
             </button>
           </div>
 
-          <div className="custom-scrollbar-thin flex-1 space-y-4 overflow-y-auto px-6 py-6">
+          <div className="custom-scrollbar-thin min-h-0 flex-1 space-y-4 overflow-y-auto overscroll-contain px-6 py-6">
             <AddressTextField
               error={submitted && !form.fullName.trim()}
               label="Họ và tên"
@@ -1318,55 +1267,66 @@ function ShippingAddressModal({
               value={form.phone}
               onChange={(value) => updateField("phone", value)}
             />
-            <AddressDropdownField
-              error={submitted && !form.province.trim()}
+            <VietnamAddressSelect
               label="Tỉnh/Thành phố"
-              isOpen={openDropdown === "province"}
-              options={provinces}
-              placeholder="Chọn Tỉnh/Thành phố"
-              value={form.province}
-              onSelect={(option) => selectProvince(option.name)}
-              onToggle={() => setOpenDropdown(openDropdown === "province" ? null : "province")}
+              placeholder="Chọn tỉnh/thành phố"
+              value={form.provinceCode}
+              options={provinceOptions}
+              error={
+                submitted && (!form.provinceCode || !form.provinceName)
+                  ? "Vui lòng chọn tỉnh/thành phố"
+                  : undefined
+              }
+              onChange={(option) =>
+                setForm((current) => ({
+                  ...current,
+                  provinceCode: option.code,
+                  provinceName: option.label,
+                  wardCode: "",
+                  wardName: "",
+                }))
+              }
             />
-            <AddressDropdownField
-              disabled={!form.province}
-              error={submitted && !form.district.trim()}
-              label="Quận/Huyện"
-              isOpen={openDropdown === "district"}
-              options={districtOptions}
-              placeholder={form.province ? "Chọn Quận/Huyện" : "Chọn Tỉnh trước"}
-              value={form.district}
-              onSelect={(option) => selectDistrict(option.name)}
-              onToggle={() => setOpenDropdown(openDropdown === "district" ? null : "district")}
-            />
-            <AddressDropdownField
-              disabled={!form.district}
-              error={submitted && !form.ward.trim()}
+            <VietnamAddressSelect
               label="Phường/Xã"
-              isOpen={openDropdown === "ward"}
+              placeholder={
+                form.provinceCode
+                  ? "Chọn phường/xã"
+                  : "Chọn tỉnh/thành phố trước"
+              }
+              value={form.wardCode}
               options={wardOptions}
-              placeholder={form.district ? "Chọn Phường/Xã" : "Chọn Quận trước"}
-              value={form.ward}
-              onSelect={(option) => selectWard(option.name)}
-              onToggle={() => setOpenDropdown(openDropdown === "ward" ? null : "ward")}
+              disabled={!form.provinceCode}
+              error={
+                submitted && (!form.wardCode || !form.wardName)
+                  ? "Vui lòng chọn phường/xã"
+                  : undefined
+              }
+              onChange={(option) =>
+                setForm((current) => ({
+                  ...current,
+                  wardCode: option.code,
+                  wardName: option.label,
+                }))
+              }
             />
             <AddressTextField
-              error={submitted && !form.address.trim()}
+              error={submitted && !form.streetAddress.trim()}
               label="Địa chỉ cụ thể"
-              placeholder="123 Đường ABC, Phường XYZ"
-              value={form.address}
-              onChange={(value) => updateField("address", value)}
+              placeholder="Số nhà, tên đường, tên công ty"
+              value={form.streetAddress}
+              onChange={(value) => updateField("streetAddress", value)}
             />
             <label className="block">
               <span className="mb-3 block text-[13px] font-bold tracking-wider text-slate-600 uppercase">
-                Ghi chú giao hàng
+                Ghi chú giao hàng (Tùy chọn)
               </span>
               <textarea
                 value={form.note}
                 onChange={(event) => updateField("note", event.target.value)}
                 rows={3}
                 className="w-full resize-none rounded-xl border border-[#E2E8F0] px-4 py-3.5 text-[17px] font-medium text-slate-700 outline-none transition-all placeholder:text-slate-400 focus:border-[#003B73] focus:ring-2 focus:ring-[#003B73]/10"
-                placeholder="Giao giờ hành chính, gọi trước khi giao..."
+                placeholder="Ví dụ: giao giờ hành chính, gọi trước khi giao..."
               />
             </label>
             {submitted && hasErrors ? (
@@ -1376,7 +1336,7 @@ function ShippingAddressModal({
             ) : null}
           </div>
 
-          <div className="flex gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4">
+          <div className="flex shrink-0 gap-3 border-t border-slate-200 bg-slate-50 px-6 py-4">
             <button
               type="button"
               onClick={onClose}
@@ -1393,78 +1353,6 @@ function ShippingAddressModal({
           </div>
         </form>
       </div>
-    </div>
-  );
-}
-
-function AddressDropdownField({
-  disabled = false,
-  error,
-  isOpen,
-  label,
-  onSelect,
-  onToggle,
-  options,
-  placeholder,
-  value,
-}: {
-  disabled?: boolean;
-  error: boolean;
-  isOpen: boolean;
-  label: string;
-  onSelect: (option: { id: string; name: string }) => void;
-  onToggle: () => void;
-  options: { id: string; name: string }[];
-  placeholder: string;
-  value: string;
-}) {
-  return (
-    <div className="relative">
-      <span className={`mb-3 block text-[13px] font-bold tracking-wider uppercase ${error ? "text-red-500" : "text-slate-500"}`}>
-        <MapPin size={13} className="mr-1 inline align-[-2px]" />
-        {label}
-      </span>
-      <button
-        type="button"
-        disabled={disabled}
-        onClick={onToggle}
-        className={`flex w-full items-center justify-between rounded-xl border bg-white px-4 py-3.5 text-left text-[17px] font-medium outline-none transition-all ${
-          disabled ? "cursor-not-allowed bg-slate-100 opacity-60" : "hover:border-slate-300"
-        } ${
-          error
-            ? "border-red-300 text-red-600"
-            : "border-[#E2E8F0] text-slate-700 focus:border-[#003B73] focus:ring-2 focus:ring-[#003B73]/10"
-        }`}
-      >
-        <span className={value ? "text-slate-700" : "text-slate-400"}>{value || placeholder}</span>
-        <ChevronDown
-          size={18}
-          className={`shrink-0 text-slate-400 transition-transform ${isOpen ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      {isOpen && !disabled ? (
-        <div className="absolute z-[100000] mt-1 max-h-60 w-full overflow-auto rounded-xl border border-[#E2E8F0] bg-white py-1 shadow-lg">
-          {options.length > 0 ? (
-            options.map((option) => (
-              <button
-                key={option.id}
-                type="button"
-                onClick={() => onSelect(option)}
-                className={`w-full px-4 py-3 text-left text-[16px] transition-colors hover:bg-slate-50 ${
-                  value === option.name
-                    ? "bg-[#003B73]/5 font-semibold text-[#003B73]"
-                    : "text-slate-700"
-                }`}
-              >
-                {option.name}
-              </button>
-            ))
-          ) : (
-            <div className="px-4 py-3 text-[15px] text-slate-400">Không có dữ liệu</div>
-          )}
-        </div>
-      ) : null}
     </div>
   );
 }

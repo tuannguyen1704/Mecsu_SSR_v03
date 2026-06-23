@@ -97,10 +97,10 @@ export function PaymentSuccessClient() {
 
   const receiverText = [order.address.fullName, order.address.phone].filter(Boolean).join(" - ");
   const fullAddress = [
-    order.address.address,
-    order.address.ward,
-    order.address.district,
-    order.address.province,
+    order.address.streetAddress || order.address.address,
+    order.address.wardName || order.address.ward,
+    order.address.districtName || order.address.district,
+    order.address.provinceName || order.address.province,
   ]
     .filter(Boolean)
     .join(", ");

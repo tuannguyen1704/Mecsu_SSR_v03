@@ -18,7 +18,11 @@ export function CreateReturnModal({ isOpen, onClose }: CreateReturnModalProps) {
   }
 
   return (
-    <div className="fixed inset-0 z-[540] flex items-center justify-center p-4">
+    <div
+      className="fixed inset-0 z-[540] flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+    >
       <button
         type="button"
         aria-label="Đóng tạo yêu cầu đổi trả"

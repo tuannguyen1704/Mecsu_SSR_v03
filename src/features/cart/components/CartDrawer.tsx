@@ -33,6 +33,8 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 30, stiffness: 240 }}
             className="fixed top-0 right-0 bottom-0 z-[651] flex w-[min(440px,100vw)] flex-col bg-white shadow-2xl"
+            role="dialog"
+            aria-modal="true"
           >
             <div className="flex h-20 items-center justify-between border-b border-slate-200 px-6">
               <div>

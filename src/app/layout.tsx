@@ -4,6 +4,7 @@ import { Footer } from "@/components/layout/footer";
 import { Header } from "@/components/layout/header";
 import { LazyAddToCartPopup } from "@/features/cart/components/LazyAddToCartPopup";
 import AuthSessionBridge from "@/features/auth/components/AuthSessionBridge";
+import { ModalScrollLock } from "@/components/shared/ModalScrollLock";
 import "./globals.css";
 
 const inter = Inter({
@@ -36,6 +37,7 @@ export default function RootLayout({
     <html lang="vi" className="h-full antialiased">
       <body className={`${inter.variable} flex min-h-full flex-col font-sans`}>
         <AuthSessionBridge />
+        <ModalScrollLock />
         <Header />
         {children}
         <LazyAddToCartPopup />

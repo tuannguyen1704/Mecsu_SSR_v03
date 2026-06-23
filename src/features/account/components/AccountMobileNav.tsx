@@ -46,7 +46,11 @@ export function AccountMobileNav({
             className="fixed inset-0 z-[520] bg-black/50"
             onClick={() => setIsOpen(false)}
           />
-          <aside className="fixed inset-y-0 left-0 z-[521] w-[280px] border-r border-slate-200 bg-white">
+          <aside
+            className="fixed inset-y-0 left-0 z-[521] w-[280px] border-r border-slate-200 bg-white"
+            role="dialog"
+            aria-modal="true"
+          >
             <div className="flex items-center justify-between border-b border-[#E5EAF2] p-4">
               <span className="font-bold text-[#163F78]">Tài khoản</span>
               <button

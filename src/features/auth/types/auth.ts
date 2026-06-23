@@ -24,6 +24,13 @@ export interface RegisterAccountPayload {
 }
 
 export interface RegisterAddressPayload {
+  provinceCode?: string;
+  provinceName?: string;
+  wardCode?: string;
+  wardName?: string;
+  streetAddress?: string;
+  districtCode?: string;
+  districtName?: string;
   province?: string;
   district?: string;
   ward?: string;

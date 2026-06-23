@@ -24,11 +24,18 @@ export type CheckoutFormErrors = Partial<
 export interface CheckoutAddress {
   fullName: string;
   phone: string;
-  province: string;
-  district: string;
-  ward: string;
-  address: string;
+  provinceCode: string;
+  provinceName: string;
+  wardCode: string;
+  wardName: string;
+  streetAddress: string;
   note: string;
+  districtCode?: string;
+  districtName?: string;
+  province?: string;
+  district?: string;
+  ward?: string;
+  address?: string;
 }
 
 export interface CheckoutLastOrder {

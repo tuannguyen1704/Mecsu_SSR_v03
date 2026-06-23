@@ -34,6 +34,8 @@ interface RequestQuotationModalProps {
   onClose: () => void;
   onSuccess: (quotation: Quotation) => void;
   duplicateFrom?: Quotation | null;
+  initialItems?: QuotationRequestItem[] | null;
+  initialRequestName?: string;
 }
 
 type ProductSuggestion = {
@@ -95,9 +97,12 @@ export function RequestQuotationModal({
   onClose,
   onSuccess,
   duplicateFrom,
+  initialItems,
+  initialRequestName,
 }: RequestQuotationModalProps) {
   const router = useRouter();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const hasInitializedOpenRef = useRef(false);
   const [isDragging, setIsDragging] = useState(false);
   const [requestName, setRequestName] = useState("");
   const [desiredDeadline, setDesiredDeadline] = useState("");
@@ -143,7 +148,13 @@ export function RequestQuotationModal({
   }, [handleClose, isOpen]);
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      hasInitializedOpenRef.current = false;
+      return;
+    }
+
+    if (hasInitializedOpenRef.current) return;
+    hasInitializedOpenRef.current = true;
 
     const timer = window.setTimeout(() => {
       if (duplicateFrom) {
@@ -156,6 +167,21 @@ export function RequestQuotationModal({
         setSubmittedQuotation(null);
         setFiles([]);
         setErrors({});
+        return;
+      }
+
+      if (initialItems && initialItems.length > 0) {
+        setRequestName(initialRequestName || "Báo giá từ giỏ hàng");
+        setDesiredDeadline("");
+        setPriority("normal");
+        setItems(initialItems);
+        setGeneralNotes("Yêu cầu báo giá từ giỏ hàng.");
+        setFiles([]);
+        setErrors({});
+        setIsSubmitting(false);
+        setIsDirty(true);
+        setSubmittedQuotation(null);
+        setShowSuggestions(null);
         return;
       }
 
@@ -173,7 +199,7 @@ export function RequestQuotationModal({
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, [isOpen, duplicateFrom]);
+  }, [duplicateFrom, initialItems, initialRequestName, isOpen]);
 
   const summary = useMemo(
     () => ({
@@ -808,7 +834,11 @@ function ModalFrame({
   onBackdropClick: () => void;
 }) {
   return (
-    <div className="fixed inset-0 z-[9999]">
+    <div
+      className="fixed inset-0 z-[9999]"
+      role="dialog"
+      aria-modal="true"
+    >
       <button
         type="button"
         aria-label="Đóng modal"

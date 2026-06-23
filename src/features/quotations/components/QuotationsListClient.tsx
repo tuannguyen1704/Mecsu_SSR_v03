@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import {
   ChevronDown,
   ChevronLeft,
@@ -21,7 +21,11 @@ import {
   initializeQuotations,
   loadQuotations,
 } from "../services/quotation-storage";
-import type { Quotation, QuotationStatus } from "../types/quotation";
+import type {
+  Quotation,
+  QuotationRequestItem,
+  QuotationStatus,
+} from "../types/quotation";
 import { QuotationCard } from "./QuotationCard";
 import { QuotationEmptyState } from "./QuotationEmptyState";
 import { QuotationStats } from "./QuotationStats";
@@ -78,6 +82,7 @@ const emptyDateRange: DateRangeValue = { from: null, to: null };
 
 export function QuotationsListClient() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [quotations, setQuotations] = useState<Quotation[]>(mockQuotations);
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<FilterStatus>("all");
@@ -88,6 +93,11 @@ export function QuotationsListClient() {
   const [sortBy, setSortBy] = useState<SortOption>("newest");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [initialItems, setInitialItems] =
+    useState<QuotationRequestItem[] | null>(null);
+  const [initialRequestName, setInitialRequestName] = useState<
+    string | undefined
+  >();
   const [toast, setToast] = useState<{
     show: boolean;
     message: string;
@@ -100,10 +110,36 @@ export function QuotationsListClient() {
     initializeQuotations();
     const timer = window.setTimeout(() => {
       setQuotations(loadQuotations());
+
+      if (searchParams.get("openQuotation") !== "cart") return;
+
+      const storedItems = sessionStorage.getItem("mecsu-cart-rfq-items");
+      const storedName = sessionStorage.getItem("mecsu-cart-rfq-name");
+
+      sessionStorage.removeItem("mecsu-cart-rfq-items");
+      sessionStorage.removeItem("mecsu-cart-rfq-name");
+
+      if (!storedItems) return;
+
+      try {
+        const parsedItems: unknown = JSON.parse(storedItems);
+        if (
+          Array.isArray(parsedItems) &&
+          parsedItems.length > 0 &&
+          parsedItems.every(isQuotationRequestItem)
+        ) {
+          setInitialItems(parsedItems);
+          setInitialRequestName(storedName || "Báo giá từ giỏ hàng");
+          setIsModalOpen(true);
+        }
+      } catch {
+        setInitialItems(null);
+        setInitialRequestName(undefined);
+      }
     }, 0);
 
     return () => window.clearTimeout(timer);
-  }, []);
+  }, [searchParams]);
 
   const filteredQuotations = useMemo(() => {
     const query = searchQuery.trim().toLowerCase();
@@ -144,6 +180,8 @@ export function QuotationsListClient() {
 
   const handleCreateSuccess = (quotation: Quotation) => {
     setQuotations(addQuotation(quotation));
+    setInitialItems(null);
+    setInitialRequestName(undefined);
     setToast({
       show: true,
       message: "Gửi yêu cầu báo giá thành công",
@@ -310,8 +348,14 @@ export function QuotationsListClient() {
 
       <RequestQuotationModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setInitialItems(null);
+          setInitialRequestName(undefined);
+        }}
         onSuccess={handleCreateSuccess}
+        initialItems={initialItems}
+        initialRequestName={initialRequestName}
       />
 
       {toast.show ? (
@@ -322,6 +366,22 @@ export function QuotationsListClient() {
         />
       ) : null}
     </div>
+  );
+}
+
+function isQuotationRequestItem(
+  item: unknown,
+): item is QuotationRequestItem {
+  if (!item || typeof item !== "object") return false;
+
+  const candidate = item as Partial<QuotationRequestItem>;
+  return (
+    typeof candidate.id === "string" &&
+    typeof candidate.productName === "string" &&
+    typeof candidate.productCode === "string" &&
+    typeof candidate.quantity === "number" &&
+    candidate.quantity > 0 &&
+    candidate.unit === "cái"
   );
 }
 

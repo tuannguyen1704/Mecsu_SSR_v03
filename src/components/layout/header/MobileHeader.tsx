@@ -71,6 +71,8 @@ export default function MobileHeader({
               exit={{ x: "100%" }}
               transition={{ type: "spring", damping: 28, stiffness: 240 }}
               className="fixed inset-0 z-[501] flex w-screen max-w-none flex-col bg-white shadow-2xl"
+              role="dialog"
+              aria-modal="true"
             >
               <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4 sm:h-20 sm:px-5">
                 <Link href="/" onClick={() => onOpenChange(false)}>

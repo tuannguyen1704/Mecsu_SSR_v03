@@ -7,30 +7,36 @@ const demoAddresses: Address[] = [
     id: "addr-001",
     fullName: "Nguyễn Văn Minh",
     phone: "0909123456",
-    province: "TP.HCM",
-    district: "Quận 7",
-    ward: "Tân Thuận Đông",
-    detailAddress: "123 Đường Nguyễn Trãi, P.Tân Thuận Đông",
+    provinceCode: "12",
+    provinceName: "Thành phố Hồ Chí Minh",
+    wardCode: "268",
+    wardName: "Xã Thạnh An",
+    streetAddress: "123 Đường Nguyễn Trãi",
+    districtName: "Quận 7",
     isDefault: true,
   },
   {
     id: "addr-002",
     fullName: "Trần Thị Lan",
     phone: "0912345678",
-    province: "TP.HCM",
-    district: "Quận 1",
-    ward: "Bến Nghé",
-    detailAddress: "456 Đường Lê Lợi, Q.1",
+    provinceCode: "12",
+    provinceName: "Thành phố Hồ Chí Minh",
+    wardCode: "268",
+    wardName: "Xã Thạnh An",
+    streetAddress: "456 Đường Lê Lợi",
+    districtName: "Quận 1",
     isDefault: false,
   },
   {
     id: "addr-003",
     fullName: "Công Ty TNHH Mecsu",
     phone: "02812345678",
-    province: "TP.HCM",
-    district: "Quận Bình Thạnh",
-    ward: "Phường 1",
-    detailAddress: "789 Đường Xô Viết Nghệ Tĩnh, P.1, Q.Bình Thạnh",
+    provinceCode: "12",
+    provinceName: "Thành phố Hồ Chí Minh",
+    wardCode: "268",
+    wardName: "Xã Thạnh An",
+    streetAddress: "789 Đường Xô Viết Nghệ Tĩnh",
+    districtName: "Quận Bình Thạnh",
     isDefault: false,
   },
 ];
@@ -76,17 +82,26 @@ export function loadAddresses(): Address[] {
     if (!Array.isArray(parsed)) return [];
 
     return normalizeDefaultAddress(
-      parsed.filter(
-        (address) =>
-          address &&
-          address.id &&
-          address.fullName &&
-          address.phone &&
-          address.province &&
-          address.district &&
-          address.ward &&
-          address.detailAddress,
-      ),
+      parsed
+        .filter(
+          (address) =>
+            address &&
+            address.id &&
+            address.fullName &&
+            address.phone &&
+            (address.provinceName || address.province) &&
+            (address.wardName || address.ward) &&
+            (address.streetAddress || address.detailAddress),
+        )
+        .map((address) => ({
+          ...address,
+          provinceCode: address.provinceCode || "",
+          provinceName: address.provinceName || address.province || "",
+          wardCode: address.wardCode || "",
+          wardName: address.wardName || address.ward || "",
+          streetAddress: address.streetAddress || address.detailAddress || "",
+          districtName: address.districtName || address.district,
+        })),
     );
   } catch {
     return [];

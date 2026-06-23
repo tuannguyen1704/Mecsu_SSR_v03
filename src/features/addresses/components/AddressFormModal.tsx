@@ -1,7 +1,12 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import { AlertCircle, CheckCircle2, MapPin, Phone, Save, User, X } from "lucide-react";
+import { VietnamAddressSelect } from "@/shared/components/VietnamAddressSelect";
+import {
+  getProvinces,
+  getWardsByProvinceCode,
+} from "@/shared/lib/vietnam-address";
 import type { Address, AddressFormData } from "../types/address";
 
 interface AddressFormModalProps {
@@ -13,16 +18,6 @@ interface AddressFormModalProps {
   onClose: () => void;
   onSubmit: () => void;
 }
-
-const provinces = ["TP.HCM", "TP.Hà Nội", "TP.Đà Nẵng", "Bình Dương", "Đồng Nai"];
-const districts: Record<string, string[]> = {
-  "TP.HCM": ["Quận 1", "Quận 3", "Quận 7", "Quận 9", "Quận Bình Thạnh", "Thủ Đức"],
-  "TP.Hà Nội": ["Quận Ba Đình", "Quận Hoàn Kiếm", "Quận Đống Đa", "Quận Cầu Giấy"],
-  "TP.Đà Nẵng": ["Quận Hải Châu", "Quận Thanh Khê", "Quận Liên Chiểu"],
-  "Bình Dương": ["Thành phố Thủ Dầu Một", "Thuận An", "Dĩ An"],
-  "Đồng Nai": ["TP.Biên Hòa", "Long Thành", "Trảng Bom"],
-};
-const wards = ["Tân Thuận Đông", "Bến Nghé", "Phường 1", "Phường 2", "Phường 3", "Phường 4", "Phường 5"];
 
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
@@ -52,6 +47,23 @@ export function AddressFormModal({
       document.body.style.overflow = previousOverflow;
     };
   }, [isOpen]);
+
+  const provinceOptions = useMemo(
+    () =>
+      getProvinces().map((province) => ({
+        code: province.code,
+        label: province.name_with_type,
+      })),
+    [],
+  );
+  const wardOptions = useMemo(
+    () =>
+      getWardsByProvinceCode(formData.provinceCode).map((ward) => ({
+        code: ward.code,
+        label: ward.name_with_type,
+      })),
+    [formData.provinceCode],
+  );
 
   if (!isOpen) return null;
 
@@ -127,84 +139,71 @@ export function AddressFormModal({
             </label>
 
             <div className="grid gap-4 sm:grid-cols-2">
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-semibold text-slate-500">
-                  Tỉnh/Thành phố <span className="text-red-500">*</span>
-                </span>
-                <select
-                  value={formData.province}
-                  onChange={(event) => onChange({
+              <VietnamAddressSelect
+                label="Tỉnh/Thành phố"
+                placeholder="Chọn tỉnh/thành phố"
+                value={formData.provinceCode}
+                options={provinceOptions}
+                error={errors.provinceCode}
+                onChange={(option) =>
+                  onChange({
                     ...formData,
-                    province: event.target.value,
-                    district: "",
-                    ward: "",
-                  })}
-                  className={`${inputBase} ${inputState(Boolean(errors.province))}`}
-                >
-                  <option value="">Chọn Tỉnh/Thành phố</option>
-                  {provinces.map((province) => (
-                    <option key={province} value={province}>{province}</option>
-                  ))}
-                </select>
-                <FieldError message={errors.province} />
-              </label>
-
-              <label className="block">
-                <span className="mb-1.5 block text-xs font-semibold text-slate-500">
-                  Quận/Huyện <span className="text-red-500">*</span>
-                </span>
-                <select
-                  value={formData.district}
-                  onChange={(event) => onChange({
+                    provinceCode: option.code,
+                    provinceName: option.label,
+                    wardCode: "",
+                    wardName: "",
+                  })
+                }
+              />
+              <VietnamAddressSelect
+                label="Phường/Xã"
+                placeholder={
+                  formData.provinceCode
+                    ? "Chọn phường/xã"
+                    : "Chọn tỉnh/thành phố trước"
+                }
+                value={formData.wardCode}
+                options={wardOptions}
+                disabled={!formData.provinceCode}
+                error={errors.wardCode}
+                onChange={(option) =>
+                  onChange({
                     ...formData,
-                    district: event.target.value,
-                    ward: "",
-                  })}
-                  disabled={!formData.province}
-                  className={`${inputBase} ${inputState(Boolean(errors.district))} disabled:cursor-not-allowed disabled:bg-slate-50`}
-                >
-                  <option value="">Chọn Quận/Huyện</option>
-                  {formData.province && districts[formData.province]?.map((district) => (
-                    <option key={district} value={district}>{district}</option>
-                  ))}
-                </select>
-                <FieldError message={errors.district} />
-              </label>
+                    wardCode: option.code,
+                    wardName: option.label,
+                  })
+                }
+              />
             </div>
 
             <label className="block">
               <span className="mb-1.5 block text-xs font-semibold text-slate-500">
-                Phường/Xã <span className="text-red-500">*</span>
-              </span>
-              <select
-                value={formData.ward}
-                onChange={(event) => onChange({ ...formData, ward: event.target.value })}
-                disabled={!formData.district}
-                className={`${inputBase} ${inputState(Boolean(errors.ward))} disabled:cursor-not-allowed disabled:bg-slate-50`}
-              >
-                <option value="">Chọn Phường/Xã</option>
-                {formData.district && wards.map((ward) => (
-                  <option key={ward} value={ward}>{ward}</option>
-                ))}
-              </select>
-              <FieldError message={errors.ward} />
-            </label>
-
-            <label className="block">
-              <span className="mb-1.5 block text-xs font-semibold text-slate-500">
-                Địa chỉ chi tiết <span className="text-red-500">*</span>
+                Địa chỉ cụ thể <span className="text-red-500">*</span>
               </span>
               <div className="relative">
                 <MapPin size={18} className="absolute top-3.5 left-3 text-slate-400" />
                 <textarea
-                  value={formData.detailAddress}
-                  onChange={(event) => onChange({ ...formData, detailAddress: event.target.value })}
+                  value={formData.streetAddress}
+                  onChange={(event) => onChange({ ...formData, streetAddress: event.target.value })}
                   rows={3}
-                  placeholder="Số nhà, tên đường, tòa nhà, tầng..."
-                  className={`${inputBase} ${inputState(Boolean(errors.detailAddress))} min-h-[96px] resize-none pl-10`}
+                  placeholder="Số nhà, tên đường, tên công ty"
+                  className={`${inputBase} ${inputState(Boolean(errors.streetAddress))} min-h-[96px] resize-none pl-10`}
                 />
               </div>
-              <FieldError message={errors.detailAddress} />
+              <FieldError message={errors.streetAddress} />
+            </label>
+
+            <label className="block">
+              <span className="mb-1.5 block text-xs font-semibold text-slate-500">
+                Ghi chú giao hàng (Tùy chọn)
+              </span>
+              <textarea
+                value={formData.note}
+                onChange={(event) => onChange({ ...formData, note: event.target.value })}
+                rows={3}
+                placeholder="Ví dụ: giao giờ hành chính, gọi trước khi giao..."
+                className={`${inputBase} min-h-[88px] resize-none`}
+              />
             </label>
 
             <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-[#E5EAF2] bg-[#F8FAFD] px-4 py-3">

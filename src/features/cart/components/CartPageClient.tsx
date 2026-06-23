@@ -1,7 +1,9 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Building2, ShoppingBag, X } from "lucide-react";
+import type { QuotationRequestItem } from "@/features/quotations";
 import { getSeededPlaceholder } from "@/lib/image-placeholders";
 import { getProductByIdOrSlug } from "@/features/products/services/product-service";
 import { useCart } from "../hooks/useCart";
@@ -10,9 +12,28 @@ import { CartCommerceSections, CartEmptyState } from "./CartEmptyState";
 import { CartQuantityControl } from "./CartQuantityControl";
 
 export function CartPageClient() {
+  const router = useRouter();
   const { items, subtotal, removeItem, updateQuantity } = useCart();
   const vat = subtotal * 0.1;
   const grandTotal = subtotal + vat;
+
+  const handleRequestQuotationFromCart = () => {
+    const quotationItems: QuotationRequestItem[] = items.map((item) => ({
+      id: `cart-${item.productId}`,
+      productName: item.name,
+      productCode: item.sku,
+      quantity: item.quantity,
+      unit: "cái",
+      notes: "",
+    }));
+
+    sessionStorage.setItem(
+      "mecsu-cart-rfq-items",
+      JSON.stringify(quotationItems),
+    );
+    sessionStorage.setItem("mecsu-cart-rfq-name", "Báo giá từ giỏ hàng");
+    router.push("/tai-khoan/bao-gia?openQuotation=cart");
+  };
 
   if (items.length === 0) {
     return <CartEmptyState />;
@@ -150,15 +171,10 @@ export function CartPageClient() {
               </Link>
               <button
                 type="button"
+                onClick={handleRequestQuotationFromCart}
                 className="mt-4 w-full rounded border-2 border-[#005da4] py-3 font-semibold text-[#005da4] transition-colors hover:bg-[#005da4]/5"
               >
-                Yêu cầu báo giá (Bulk Order)
-              </button>
-              <button
-                type="button"
-                className="mt-4 flex w-full items-center justify-center gap-2 rounded border-2 border-[#163F78] py-3 font-semibold text-[#163F78] transition-colors hover:bg-[#163F78]/5"
-              >
-                + Thêm địa chỉ giao hàng
+                Yêu cầu báo giá
               </button>
             </aside>
           </div>
