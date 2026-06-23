@@ -15,17 +15,20 @@ import {
   getTotalProductPages,
 } from "../services/category-listing";
 import { CategorySortBar } from "./CategorySortBar";
+import { SearchNoResultsPanel } from "@/features/search/components/SearchNoResultsPanel";
 
 interface CategoryListingClientProps {
   title: string;
   products: Product[];
   productCountLabel?: string;
+  emptyStateQuery?: string;
 }
 
 export function CategoryListingClient({
   title,
   products,
   productCountLabel,
+  emptyStateQuery,
 }: CategoryListingClientProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortValue, setSortValue] = useState("featured");
@@ -34,7 +37,17 @@ export function CategoryListingClient({
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const productListRef = useRef<HTMLDivElement>(null);
 
-  const brandFilters = useMemo(() => getBrandFilters(products), [products]);
+  const brandFilters = useMemo(() => {
+    const filters = getBrandFilters(products);
+
+    return filters.length > 0
+      ? filters
+      : ["3M", "Bosch", "SKF", "SATA", "PISCO"].map((brand) => ({
+          id: brand,
+          label: brand,
+          count: 0,
+        }));
+  }, [products]);
 
   const filteredProducts = useMemo(
     () =>
@@ -132,17 +145,29 @@ export function CategoryListingClient({
             onOpenFilters={() => setIsMobileFilterOpen(true)}
           />
 
-          <div className="relative min-h-[500px] rounded-sm bg-[#ededed] p-4">
-            <ProductGrid products={paginatedProducts} />
+          <div
+            className={`relative rounded-sm bg-[#ededed] p-4 ${
+              filteredProducts.length === 0 && emptyStateQuery
+                ? "min-h-[352px]"
+                : "min-h-[500px]"
+            }`}
+          >
+            {paginatedProducts.length === 0 && emptyStateQuery ? (
+              <SearchNoResultsPanel query={emptyStateQuery} />
+            ) : (
+              <ProductGrid products={paginatedProducts} />
+            )}
           </div>
 
-          <div className="mt-8 rounded-sm border border-slate-200 bg-white">
-            <ProductPagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={handlePageChange}
-            />
-          </div>
+          {filteredProducts.length > 0 ? (
+            <div className="mt-8 rounded-sm border border-slate-200 bg-white">
+              <ProductPagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          ) : null}
         </div>
       </div>
 

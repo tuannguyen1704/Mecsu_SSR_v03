@@ -21,7 +21,7 @@ export function CategorySortBar({
 }: CategorySortBarProps) {
   return (
     <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-      <h1 className="text-xl font-bold text-[#1a1a1a]">
+      <h1 className="text-xl font-semibold text-[#1a1a1a]">
         {title}
         <span className="ml-1 text-sm font-normal text-slate-500">
           ({productCountLabel || `${productCount}+ sản phẩm`})

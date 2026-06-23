@@ -64,6 +64,7 @@ export default function HeaderClient({
   const isSubcategoryPage =
     pathSegments[0] === "danh-muc" && pathSegments.length >= 3;
   const isSearchPage = pathname === "/search";
+  const isBrandPage = pathname.startsWith("/thuong-hieu");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
@@ -156,7 +157,7 @@ export default function HeaderClient({
   }, []);
 
   const headerPosition =
-    isAccountPage || isSubcategoryPage || isSearchPage
+    isAccountPage || isSubcategoryPage || isSearchPage || isBrandPage
       ? "relative"
       : "sticky top-0";
 

@@ -11,6 +11,7 @@ export type Brand = {
   id: string;
   name: string;
   industry: Exclude<BrandIndustry, "Tất cả">;
+  logo?: string;
 };
 
 export const BRAND_INDUSTRIES: BrandIndustry[] = [
@@ -64,6 +65,7 @@ export const MOCK_BRANDS: Brand[] = brandNames.map((name, index) => ({
   id: toBrandId(name),
   name,
   industry: industries[index % industries.length],
+  logo: undefined,
 }));
 
 export function getBrandLetter(name: string) {

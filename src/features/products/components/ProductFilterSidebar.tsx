@@ -69,7 +69,7 @@ export function ProductFilterSidebar({
         <div className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
           <div className="flex items-center gap-2">
             <Filter size={16} className="text-[#1a1a1a]" />
-            <span className="text-[15px] font-black tracking-tighter text-[#1a1a1a] uppercase">
+            <span className="text-sm font-semibold text-[#0F172A] uppercase">
               Bộ lọc nâng cao
             </span>
           </div>
@@ -110,29 +110,7 @@ export function ProductFilterSidebar({
             />
 
             <div className="border-b border-slate-200 px-5 py-6">
-              <h4 className="mb-4 text-[15px] font-black tracking-wider text-[#1a1a1a] uppercase">
-                Khoảng giá (VND)
-              </h4>
-              <div className="flex items-center gap-2">
-                <input
-                  type="number"
-                  placeholder="Min"
-                  className="w-full rounded-none border border-slate-300 bg-[#f8f8f8] p-2.5 text-sm font-bold outline-none transition-colors focus:border-blue-600"
-                />
-                <span className="font-bold text-slate-400">-</span>
-                <input
-                  type="number"
-                  placeholder="Max"
-                  className="w-full rounded-none border border-slate-300 bg-[#f8f8f8] p-2.5 text-sm font-bold outline-none transition-colors focus:border-blue-600"
-                />
-              </div>
-              <button className="mt-4 w-full bg-[#1a1a1a] py-3 text-sm font-black tracking-[0.2em] text-white uppercase transition-all hover:bg-black active:scale-[0.98]">
-                Áp dụng giá
-              </button>
-            </div>
-
-            <div className="border-b border-slate-200 px-5 py-6">
-              <h4 className="mb-4 text-[15px] font-black tracking-wider text-[#1a1a1a] uppercase">
+              <h4 className="mb-4 text-sm font-semibold text-[#0F172A] uppercase">
                 Đánh giá khách hàng
               </h4>
               <div className="space-y-2">
@@ -154,7 +132,7 @@ export function ProductFilterSidebar({
                         />
                       ))}
                     </div>
-                    <span className="text-[14px] font-bold text-slate-500 transition-colors group-hover:text-[#1a1a1a]">
+                    <span className="text-sm text-[#475569] transition-colors group-hover:text-[#0F172A]">
                       {rating === 5 ? "Tất cả 5 sao" : `Từ ${rating} sao trở lên`}
                     </span>
                   </button>
@@ -164,7 +142,7 @@ export function ProductFilterSidebar({
 
             <div className="bg-[#f5f5f5] px-5 py-6">
               <div className="border border-dashed border-slate-200 bg-white p-4 text-center">
-                <p className="text-[11px] leading-relaxed font-bold tracking-widest text-slate-400 uppercase">
+                <p className="text-xs leading-relaxed font-normal text-[#94A3B8] uppercase">
                   Đang xem 25,482 sản phẩm
                   <br />
                   trong danh mục này
@@ -214,7 +192,7 @@ function FilterGroup({
         onClick={() => setIsOpen((open) => !open)}
         className="group flex w-full items-center justify-between px-5 py-4 text-left transition-colors hover:bg-slate-100"
       >
-        <span className="text-[15px] font-black tracking-wider text-[#1a1a1a] uppercase">
+        <span className="text-sm font-semibold text-[#0F172A] uppercase">
           {title}
         </span>
         <ChevronDown
@@ -271,16 +249,16 @@ function FilterGroup({
                     />
                     <div className="ml-3 flex min-w-0 flex-1 items-start justify-between gap-2">
                       <span
-                        className={`min-w-0 break-words text-[14px] leading-tight transition-colors ${
+                        className={`min-w-0 break-words text-sm leading-tight transition-colors ${
                           selectedItems.includes(item.id)
-                            ? "font-black text-[#1a1a1a]"
-                            : "font-bold text-slate-600 group-hover:text-slate-900"
+                            ? "font-medium text-[#163F78]"
+                            : "font-normal text-[#475569] group-hover:text-[#0F172A]"
                         }`}
                       >
                         {item.label}
                       </span>
                       {item.count !== undefined ? (
-                        <span className="shrink-0 text-[12px] font-bold tracking-tighter text-slate-400 tabular-nums">
+                        <span className="shrink-0 text-xs font-normal text-[#94A3B8] tabular-nums">
                           ({item.count.toLocaleString("vi-VN")})
                         </span>
                       ) : null}
@@ -293,7 +271,7 @@ function FilterGroup({
                 <button
                   type="button"
                   onClick={() => setIsExpanded((expanded) => !expanded)}
-                  className="mt-3 flex w-full items-center border-t border-slate-100 pt-2 text-[11px] font-black tracking-widest text-blue-600 uppercase hover:text-blue-800"
+                  className="mt-3 flex w-full items-center border-t border-slate-100 pt-2 text-xs font-medium text-blue-600 uppercase hover:text-blue-800"
                 >
                   {isExpanded ? (
                     <>

@@ -1,8 +1,13 @@
+"use client";
+
 import Link from "next/link";
+import { AnimatePresence, motion } from "motion/react";
+import { useState } from "react";
 import {
-  FEATURED_BRAND_INDUSTRIES,
-  FEATURED_BRANDS,
+  FEATURED_BRAND_GROUPS,
+  getFeaturedBrands,
   type FeaturedBrand,
+  type FeaturedBrandGroup,
 } from "../data/featured-brands";
 
 function BrandPrefix({ type }: { type: FeaturedBrand["prefix"] }) {
@@ -42,57 +47,102 @@ function BrandSuffix({ type }: { type: FeaturedBrand["suffix"] }) {
 }
 
 export function HomeFeaturedBrands() {
+  const [activeGroup, setActiveGroup] =
+    useState<FeaturedBrandGroup>("trusted");
+  const visibleBrands = getFeaturedBrands(activeGroup);
+
   return (
-    <section className="bg-white pt-2 pb-10 mt-5">
+    <section className="mt-5 bg-white pt-2 pb-10">
       <div className="mx-auto max-w-[1600px] px-4 sm:px-6 lg:px-12">
         <div className="mb-6 flex flex-col gap-2 sm:flex-row sm:items-baseline sm:gap-4">
           <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-[32px]">
             Thương hiệu đáng tin cậy
           </h2>
           <Link
-            href="/thuong-hieu"
+            href={`/thuong-hieu?group=${activeGroup}`}
             className="text-[15px] font-medium text-[#326295] hover:underline"
           >
             Xem thêm
           </Link>
         </div>
 
-        <div className="no-scrollbar mb-8 flex items-center gap-3 overflow-x-auto pb-2 sm:mb-12 md:flex-wrap md:overflow-visible md:pb-0">
-          <button className="rounded-md bg-[#163F78] px-5 py-1.5 text-[14px] font-bold text-white">
-            Thương hiệu uy tín
-          </button>
+        <div
+          className="no-scrollbar mb-8 flex snap-x items-center gap-3 overflow-x-auto pb-2 sm:mb-12 md:flex-wrap md:overflow-visible md:pb-0"
+          role="tablist"
+          aria-label="Lọc thương hiệu theo lĩnh vực"
+        >
+          <BrandFilterButton
+            active={activeGroup === "trusted"}
+            label="Thương hiệu uy tín"
+            onClick={() => setActiveGroup("trusted")}
+          />
 
-          <div className="mx-2 h-6 w-px bg-slate-300" />
+          <div className="mx-2 h-6 w-px shrink-0 bg-slate-300" />
 
-          <span className="mr-2 text-[16px] font-bold text-slate-800">
+          <span className="mr-2 shrink-0 text-[16px] font-bold whitespace-nowrap text-slate-800">
             Theo lĩnh vực
           </span>
 
-          <div className="flex shrink-0 gap-3 md:flex-wrap">
-            {FEATURED_BRAND_INDUSTRIES.map((industry) => (
-              <button
-                key={industry}
-                className="shrink-0 rounded-md border border-slate-200 bg-white px-5 py-2 text-[14px] font-medium whitespace-nowrap text-slate-700 transition-all duration-200 hover:border-[#264553] hover:text-[#264553]"
-              >
-                {industry}
-              </button>
-            ))}
-          </div>
+          {FEATURED_BRAND_GROUPS.map((group) => (
+            <BrandFilterButton
+              key={group.id}
+              active={activeGroup === group.id}
+              label={group.label}
+              onClick={() => setActiveGroup(group.id)}
+            />
+          ))}
         </div>
 
-        <div className="grid grid-cols-2 items-center gap-3 opacity-95 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-8 xl:grid-cols-8">
-          {FEATURED_BRANDS.map((brand) => (
-            <div
-              key={brand.id}
-              className={`flex min-h-20 min-w-0 select-none items-center justify-center rounded-xl p-3 text-center uppercase transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg sm:p-4 ${brand.weightClass} ${brand.colorClass}`}
+        <div className="min-h-[356px] sm:min-h-[280px] lg:min-h-[192px] xl:min-h-20">
+          <AnimatePresence mode="wait" initial={false}>
+            <motion.div
+              key={activeGroup}
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -6 }}
+              transition={{ duration: 0.18, ease: "easeOut" }}
+              className="grid grid-cols-2 items-center gap-3 opacity-95 sm:grid-cols-3 sm:gap-5 lg:grid-cols-4 lg:gap-8 xl:grid-cols-8"
             >
-              <BrandPrefix type={brand.prefix} />
-              {brand.name}
-              <BrandSuffix type={brand.suffix} />
-            </div>
-          ))}
+              {visibleBrands.map((brand) => (
+                <div
+                  key={brand.id}
+                  className={`flex min-h-20 min-w-0 select-none items-center justify-center rounded-xl p-3 text-center uppercase transition-all duration-300 hover:-translate-y-1 hover:bg-white hover:shadow-lg sm:p-4 ${brand.weightClass} ${brand.colorClass}`}
+                >
+                  <BrandPrefix type={brand.prefix} />
+                  {brand.name}
+                  <BrandSuffix type={brand.suffix} />
+                </div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
         </div>
       </div>
     </section>
+  );
+}
+
+function BrandFilterButton({
+  active,
+  label,
+  onClick,
+}: {
+  active: boolean;
+  label: string;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      role="tab"
+      aria-selected={active}
+      onClick={onClick}
+      className={`shrink-0 snap-start rounded-md border px-5 py-2 text-[14px] font-medium whitespace-nowrap transition-colors duration-200 ${
+        active
+          ? "border-[#163F78] bg-[#163F78] text-white"
+          : "border-slate-200 bg-white text-slate-700 hover:border-[#264553] hover:text-[#264553]"
+      }`}
+    >
+      {label}
+    </button>
   );
 }

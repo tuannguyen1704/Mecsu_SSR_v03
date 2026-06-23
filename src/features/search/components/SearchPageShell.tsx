@@ -1,6 +1,18 @@
 import type { Product } from "@/features/products/types/product";
 import type { Category } from "@/features/categories/types/category";
 import { CategoryListingClient } from "@/features/categories/components/CategoryListingClient";
+import {
+  SubcategoryExploreMore,
+  SubcategoryLowerSections,
+  SubcategoryTopSellers,
+} from "@/features/categories/components/subcategory-lower";
+import {
+  getExploreMoreLinks,
+  getTopSellerProducts,
+} from "@/features/categories/data/subcategory-content";
+import { getCategoryTrailBySearchQuery } from "@/features/categories/services/category-service";
+import { getHeaderSearchProducts } from "@/features/products/services/product-service";
+import { toSlug } from "@/lib/routing";
 import { SearchBreadcrumb } from "./SearchBreadcrumb";
 import { SearchEmptyState } from "./SearchEmptyState";
 import { RelatedSubcategoryCarousel } from "@/features/categories/components/RelatedSubcategoryCarousel";
@@ -14,6 +26,27 @@ interface SearchPageShellProps {
 export function SearchPageShell({ query, products, categories }: SearchPageShellProps) {
   const trimmedQuery = query.trim();
   const totalLabel = `${products.length.toLocaleString("vi-VN")} sản phẩm`;
+  const categoryTrail = getCategoryTrailBySearchQuery(trimmedQuery);
+  const lowerSectionCategory = categoryTrail?.category ?? {
+    id: "search-results",
+    name: "Sản phẩm công nghiệp",
+    slug: "search-results",
+    icon: "Search",
+    subcategories: [],
+  };
+  const lowerSectionSubcategory = categoryTrail?.subcategory ?? {
+    id: `search-${toSlug(trimmedQuery)}`,
+    name: trimmedQuery,
+    slug: toSlug(trimmedQuery),
+    href: `/search?q=${encodeURIComponent(trimmedQuery)}`,
+  };
+  const recommendationProducts = getHeaderSearchProducts(12);
+  const recommendationTopSellers = getTopSellerProducts(recommendationProducts);
+  const recommendationLinks = getExploreMoreLinks(
+    lowerSectionCategory,
+    lowerSectionSubcategory,
+    recommendationProducts,
+  );
 
   return (
     <main className="mx-auto w-full min-w-0 max-w-[1600px] px-6 py-8 lg:px-12">
@@ -39,20 +72,29 @@ export function SearchPageShell({ query, products, categories }: SearchPageShell
             </div>
           </section>
 
+          <RelatedSubcategoryCarousel query={trimmedQuery} categories={categories} />
+          <CategoryListingClient
+            title={products.length > 0 ? trimmedQuery : "Sản phẩm tìm thấy"}
+            products={products}
+            productCountLabel={totalLabel}
+            emptyStateQuery={products.length === 0 ? trimmedQuery : undefined}
+          />
+
           {products.length > 0 ? (
-            <>
-              <RelatedSubcategoryCarousel query={trimmedQuery} categories={categories} />
-              <CategoryListingClient
-                title={trimmedQuery}
-                products={products}
-                productCountLabel={totalLabel}
-              />
-            </>
+            <SubcategoryLowerSections
+              category={lowerSectionCategory}
+              subcategory={lowerSectionSubcategory}
+              products={products}
+            />
           ) : (
-            <>
-              <RelatedSubcategoryCarousel query={trimmedQuery} categories={categories} />
-              <SearchEmptyState query={trimmedQuery} type="no-results" />
-            </>
+            <div className="mt-16 bg-white">
+              <SubcategoryTopSellers
+                subcategoryName={trimmedQuery}
+                products={recommendationTopSellers}
+                title="Shop Top Sellers"
+              />
+              <SubcategoryExploreMore links={recommendationLinks} />
+            </div>
           )}
         </>
       )}

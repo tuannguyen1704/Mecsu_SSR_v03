@@ -16,18 +16,33 @@ import {
   type Brand,
   type BrandIndustry,
 } from "../data/mock-brands";
+import { BrandLogo } from "./BrandLogo";
+
+const GROUP_TO_INDUSTRY: Record<string, BrandIndustry> = {
+  precision: "Cơ khí chính xác",
+  automation: "Tự động hóa",
+  pneumatic: "Thiết bị khí nén",
+  handTools: "Công cụ cầm tay",
+  maintenance: "Bảo trì công nghiệp",
+  materials: "Vật liệu phụ trợ",
+};
 
 const AuthModal = dynamic(
   () => import("@/features/auth/components/AuthModal"),
   { ssr: false },
 );
 
-export function BrandListingPage() {
+export function BrandListingPage({
+  initialGroup,
+}: {
+  initialGroup?: string;
+}) {
   const router = useRouter();
   const [query, setQuery] = useState("");
   const [activeLetter, setActiveLetter] = useState("Tất cả");
-  const [activeIndustry, setActiveIndustry] =
-    useState<BrandIndustry>("Tất cả");
+  const [activeIndustry, setActiveIndustry] = useState<BrandIndustry>(
+    initialGroup ? GROUP_TO_INDUSTRY[initialGroup] || "Tất cả" : "Tất cả",
+  );
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
   const handleQuotationClick = () => {
@@ -169,10 +184,11 @@ export function BrandListingPage() {
                   {brands.map((brand) => (
                     <Link
                       key={brand.id}
-                      href={`/search?q=${encodeURIComponent(brand.name)}`}
-                      className="group flex min-h-24 items-center justify-between rounded-md border border-[#E2E8F0] bg-white px-5 py-4 transition-all hover:-translate-y-0.5 hover:border-[#163F78] hover:shadow-[0_6px_18px_rgba(15,23,42,0.05)]"
+                      href={`/thuong-hieu/${brand.id}`}
+                      className="group flex min-h-24 items-center gap-4 rounded-md border border-[#E2E8F0] bg-white px-4 py-4 transition-all hover:-translate-y-0.5 hover:border-[#163F78] hover:shadow-[0_6px_18px_rgba(15,23,42,0.05)] sm:px-5"
                     >
-                      <div className="min-w-0">
+                      <BrandLogo brand={brand} />
+                      <div className="min-w-0 flex-1">
                         <h3 className="truncate text-base font-semibold text-[#0F172A]">
                           {brand.name}
                         </h3>

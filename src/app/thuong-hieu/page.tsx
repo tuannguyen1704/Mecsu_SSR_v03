@@ -7,6 +7,13 @@ export const metadata: Metadata = {
     "Danh sách thương hiệu vật tư, dụng cụ và thiết bị công nghiệp tại Mecsu.",
 };
 
-export default function BrandsPage() {
-  return <BrandListingPage />;
+interface BrandsPageProps {
+  searchParams?: Promise<{ group?: string | string[] }>;
+}
+
+export default async function BrandsPage({ searchParams }: BrandsPageProps) {
+  const params = await searchParams;
+  const group = Array.isArray(params?.group) ? params.group[0] : params?.group;
+
+  return <BrandListingPage initialGroup={group} />;
 }

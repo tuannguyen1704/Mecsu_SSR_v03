@@ -30,7 +30,7 @@
     @apply bg-premium-bg text-text-main antialiased font-sans transition-colors duration-500;
     width: 100%;
     max-width: 100vw;
-    overflow-x: hidden;
+    overflow-x: clip;
   }
 
   body.modal-open {
