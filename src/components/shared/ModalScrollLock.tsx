@@ -2,8 +2,30 @@
 
 import { useEffect } from "react";
 
-const MODAL_SELECTOR =
-  '[aria-modal="true"], [data-modal-scroll-lock="true"]';
+const MODAL_SELECTOR = '[data-modal-scroll-lock="true"]';
+
+export function clearBodyScrollLock() {
+  if (typeof document === "undefined") return;
+  if (document.querySelector(MODAL_SELECTOR)) return;
+
+  const html = document.documentElement;
+  const body = document.body;
+  const shouldRestoreScroll = body.style.position === "fixed";
+  const scrollY = shouldRestoreScroll
+    ? Math.max(0, Number.parseInt(body.style.top || "0", 10) * -1)
+    : 0;
+
+  html.style.overflow = "";
+  body.style.overflow = "";
+  body.style.position = "";
+  body.style.top = "";
+  body.style.width = "";
+  body.classList.remove("modal-open");
+
+  if (shouldRestoreScroll) {
+    window.scrollTo(0, scrollY);
+  }
+}
 
 export function ModalScrollLock() {
   useEffect(() => {
@@ -16,6 +38,7 @@ export function ModalScrollLock() {
     let previousBodyPosition = "";
     let previousBodyTop = "";
     let previousBodyWidth = "";
+    let didUseFixedBodyLock = false;
     let lastTouchY = 0;
 
     const findScrollableParent = (
@@ -93,6 +116,7 @@ export function ModalScrollLock() {
       previousBodyPosition = body.style.position;
       previousBodyTop = body.style.top;
       previousBodyWidth = body.style.width;
+      didUseFixedBodyLock = true;
 
       html.style.overflow = "hidden";
       body.style.overflow = "hidden";
@@ -109,7 +133,13 @@ export function ModalScrollLock() {
       body.style.position = previousBodyPosition;
       body.style.top = previousBodyTop;
       body.style.width = previousBodyWidth;
-      window.scrollTo(0, scrollY);
+      body.classList.remove("modal-open");
+
+      if (didUseFixedBodyLock) {
+        window.scrollTo(0, scrollY);
+      }
+
+      didUseFixedBodyLock = false;
     };
 
     const syncScrollLock = () => {
@@ -121,7 +151,12 @@ export function ModalScrollLock() {
     };
 
     const observer = new MutationObserver(syncScrollLock);
-    observer.observe(body, { childList: true, subtree: true });
+    observer.observe(body, {
+      attributes: true,
+      attributeFilter: ["data-modal-scroll-lock"],
+      childList: true,
+      subtree: true,
+    });
     document.addEventListener("wheel", handleWheel, {
       capture: true,
       passive: false,

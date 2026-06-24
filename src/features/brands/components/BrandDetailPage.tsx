@@ -25,8 +25,9 @@ export function BrandDetailPage({
       <BrandRelatedCategories
         brandSlug={catalog.brand.slug}
         currentPath={currentPath}
-        children={node.children || []}
-      />
+      >
+        {node.children || []}
+      </BrandRelatedCategories>
       <BrandProductSection catalog={catalog} node={node} />
     </main>
   );

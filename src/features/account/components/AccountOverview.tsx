@@ -84,36 +84,44 @@ const moduleCards = [
   },
 ] as const;
 
-const quickActions = [
+type QuickAction = {
+  label: string;
+  subtitle: string;
+  href: string;
+  icon: typeof Truck;
+  variant: "primary" | "secondary";
+};
+
+const quickActions: QuickAction[] = [
   {
     label: "Theo dõi đơn hàng",
     subtitle: "Kiểm tra tình trạng giao hàng",
     href: "/tai-khoan/don-hang",
     icon: Truck,
-    variant: "primary" as const,
+    variant: "secondary",
   },
   {
     label: "Yêu cầu báo giá",
     subtitle: "Nhận báo giá cho sản phẩm",
     href: "/tai-khoan/bao-gia",
     icon: FileText,
-    variant: "secondary" as const,
+    variant: "secondary",
   },
   {
     label: "Tải hóa đơn VAT",
     subtitle: "Xuất hóa đơn điện tử",
     href: "/tai-khoan/don-hang",
     icon: Receipt,
-    variant: "secondary" as const,
+    variant: "secondary",
   },
   {
     label: "Liên hệ hỗ trợ",
     subtitle: "Chat hoặc gửi ticket",
     href: "/dich-vu-khach-hang",
     icon: HeadphonesIcon,
-    variant: "secondary" as const,
+    variant: "secondary",
   },
-] as const;
+];
 
 function parseVietnameseDate(date: string) {
   const [day, month, year] = date.split("/").map(Number);

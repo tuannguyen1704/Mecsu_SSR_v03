@@ -40,9 +40,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
   useEffect(() => {
     if (!isOpen) return;
 
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         onClose();
@@ -51,7 +48,6 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
 
     window.addEventListener("keydown", handleKeyDown);
     return () => {
-      document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isOpen, onClose]);
@@ -91,6 +87,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           className="fixed inset-0 z-[99999]"
+          data-modal-scroll-lock="true"
         >
           <div
             className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"

@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "motion/react";
-import { BadgeCheck, CheckCircle2, Package, Settings, Truck, XCircle } from "lucide-react";
+import { BadgeCheck, CheckCircle2, Package, Settings, Truck } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AccountOrderDetail, AccountOrderStatus } from "../types/account";
 
@@ -82,12 +82,6 @@ export function OrderStatusBar({
       </div>
     );
   }
-
-  const getIconClass = (isLit: boolean) => {
-    return isLit
-      ? "w-6 h-6 md:w-7 md:h-7 text-white stroke-[2.2]"
-      : "w-6 h-6 md:w-7 md:h-7 text-slate-400 stroke-[2.2]";
-  };
 
   return (
     <div className="relative w-full px-0.5 sm:px-2">

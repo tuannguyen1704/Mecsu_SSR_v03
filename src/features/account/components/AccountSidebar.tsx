@@ -63,8 +63,8 @@ export function AccountSidebar({
 
       <nav className="p-3">
         {sections.map((section) => (
-          <div key={section.id} className="mb-3">
-            <div className="px-4 py-2 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
+          <div key={section.id} className="mb-1.5">
+            <div className="px-4 py-1 text-[10px] font-semibold tracking-wider text-slate-400 uppercase">
               {section.label}
             </div>
             <ul className="space-y-0.5">
@@ -77,10 +77,10 @@ export function AccountSidebar({
                     <Link
                       href={item.href}
                       onClick={onClose}
-                      className={`group flex items-center gap-3 rounded-xl px-4 py-2.5 transition-all duration-200 ${
+                      className={`group flex items-center gap-3 px-4 py-2.5 transition-all duration-200 ${
                         active
-                          ? "bg-[#163F78] text-white"
-                          : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
+                          ? "rounded-sm bg-[#163F78] text-white"
+                          : "rounded-xl text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                       }`}
                     >
                       <Icon
@@ -103,7 +103,7 @@ export function AccountSidebar({
           </div>
         ))}
 
-        <div className="mt-4 border-t border-[#E5EAF2] pt-4">
+        <div className="mt-2 border-t border-[#E5EAF2] pt-2">
           <button
             type="button"
             onClick={handleLogout}

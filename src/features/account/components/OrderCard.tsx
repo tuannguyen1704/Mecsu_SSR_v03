@@ -1,10 +1,13 @@
 import React from "react";
 import { Calendar } from "lucide-react";
+import { cn } from "@/lib/utils";
 import type { AccountOrder, AccountOrderStatus } from "../types/account";
 import { OrderCardStatusBar } from "./OrderCardStatusBar";
 
 interface OrderCardProps {
   order: AccountOrder;
+  variant?: "card" | "row";
+  className?: string;
   onViewDetails?: (orderId: string) => void;
   onReview?: (orderId: string) => void;
   reviewed?: boolean;
@@ -28,12 +31,32 @@ const STATUS_BADGE_CLASS: Record<AccountOrderStatus, string> = {
 
 export function OrderCard({
   order,
+  variant = "card",
+  className,
   onViewDetails,
   onReview,
   reviewed = false,
 }: OrderCardProps) {
   function formatDate(dateStr: string) {
+    if (!dateStr) return "--/--/----";
+
+    const vietnameseDateMatch = dateStr.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+    if (vietnameseDateMatch) {
+      const [, day, month, year] = vietnameseDateMatch;
+      const parsedDate = new Date(Number(year), Number(month) - 1, Number(day));
+      const isValid =
+        parsedDate.getFullYear() === Number(year) &&
+        parsedDate.getMonth() === Number(month) - 1 &&
+        parsedDate.getDate() === Number(day);
+
+      return isValid
+        ? `${day.padStart(2, "0")}/${month.padStart(2, "0")}/${year}`
+        : "--/--/----";
+    }
+
     const date = new Date(dateStr);
+    if (Number.isNaN(date.getTime())) return "--/--/----";
+
     return date.toLocaleDateString("vi-VN", {
       day: "2-digit",
       month: "2-digit",
@@ -52,11 +75,23 @@ export function OrderCard({
           onViewDetails?.(order.id);
         }
       }}
-      className="group w-full cursor-pointer overflow-hidden rounded-2xl border border-[#E5EAF2] bg-white text-left shadow-sm transition-all duration-300 hover:border-navy/20 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-navy/20 focus:border-navy"
+      className={cn(
+        "group w-full cursor-pointer overflow-hidden bg-white text-left transition-all duration-300 focus:border-navy focus:outline-none focus:ring-2 focus:ring-navy/20",
+        variant === "card"
+          ? "rounded-2xl border border-[#E5EAF2] shadow-sm hover:border-navy/20 hover:shadow-lg"
+          : "hover:bg-slate-50/70",
+        className,
+      )}
     >
       {/* Card Header */}
-      <div className="border-b border-[#E5EAF2] bg-linear-to-r from-slate-50/80 to-white p-4 lg:p-5">
-        <div className="flex items-start justify-between gap-4">
+      <div
+        className={cn(
+          variant === "card"
+            ? "border-b border-[#E5EAF2] bg-linear-to-r from-slate-50/80 to-white p-4 lg:p-5"
+            : "px-4 py-5 lg:px-6",
+        )}
+      >
+        <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
           {/* Left side: Order info */}
           <div className="flex min-w-0 flex-col gap-1">
             {/* Order code with label on same line */}
@@ -91,8 +126,8 @@ export function OrderCard({
             </div>
           </div>
 
-          {/* Right side: Status progress bar (desktop) */}
-          <div className="hidden lg:flex items-center gap-3 shrink-0 pt-1">
+          {/* Right side: Status progress bar */}
+          <div className="flex shrink-0 items-center justify-start pt-1 lg:justify-end">
             <OrderCardStatusBar
               status={order.status}
               onReview={

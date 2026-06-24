@@ -11,14 +11,16 @@ export function BrandRelatedCategories({
 }: {
   brandSlug: string;
   currentPath: string[];
-  children: BrandCatalogNode[];
+  children?: BrandCatalogNode[];
 }) {
-  if (children.length === 0) return null;
+  const childCategories = children ?? [];
+
+  if (childCategories.length === 0) return null;
 
   return (
     <section className="mb-8 min-w-0 overflow-hidden">
       <div className="no-scrollbar flex snap-x gap-6 overflow-x-auto py-3">
-        {children.map((child) => (
+        {childCategories.map((child) => (
           <Link
             key={child.slug}
             href={buildBrandChildUrl(brandSlug, currentPath, child.slug)}

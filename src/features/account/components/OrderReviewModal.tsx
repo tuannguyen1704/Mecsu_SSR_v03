@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import Image from "next/image";
 import { X, ImagePlus, Star, ThumbsUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { AccountOrder } from "../types/account";
@@ -108,9 +109,11 @@ const ProductReviewCard: React.FC<{
       <div className="flex items-center gap-4 mb-5">
         <div className="w-16 h-16 rounded-[14px] bg-[#F5F7FB] border border-[#EDF1F7] overflow-hidden flex-shrink-0">
           {item.image ? (
-            <img
+            <Image
               src={item.image}
               alt={item.name}
+              width={64}
+              height={64}
               className="w-full h-full object-cover"
             />
           ) : (
@@ -153,7 +156,14 @@ const ProductReviewCard: React.FC<{
                 key={idx}
                 className="relative w-16 h-16 rounded-lg overflow-hidden border border-[#E2E8F0]"
               >
-                <img src={preview} alt="" className="w-full h-full object-cover" />
+                <Image
+                  src={preview}
+                  alt=""
+                  fill
+                  unoptimized
+                  sizes="64px"
+                  className="w-full h-full object-cover"
+                />
                 <button
                   type="button"
                   onClick={() => removeImage(idx)}
@@ -241,30 +251,6 @@ export const OrderReviewModal: React.FC<OrderReviewModalProps> = ({
     }
   }, [order, isOpen]);
 
-  useEffect(() => {
-    const body = document.body;
-    if (isOpen) {
-      const scrollY = window.scrollY;
-      body.classList.add("modal-open");
-      body.style.position = "fixed";
-      body.style.top = `-${scrollY}px`;
-      body.style.width = "100%";
-    } else {
-      const scrollY = parseInt(body.style.top || "0", 10) * -1;
-      body.classList.remove("modal-open");
-      body.style.position = "";
-      body.style.top = "";
-      body.style.width = "";
-      window.scrollTo(0, scrollY);
-    }
-    return () => {
-      body.classList.remove("modal-open");
-      body.style.position = "";
-      body.style.top = "";
-      body.style.width = "";
-    };
-  }, [isOpen]);
-
   if (!isOpen || !order) return null;
 
   const handleProductReviewChange = (index: number, review: ProductReview) => {
@@ -291,6 +277,9 @@ export const OrderReviewModal: React.FC<OrderReviewModalProps> = ({
   return (
     <div
       className="fixed inset-0 z-[400] overflow-hidden"
+      role="dialog"
+      aria-modal="true"
+      data-modal-scroll-lock="true"
       style={{ backgroundColor: "rgba(15, 23, 42, 0.38)", backdropFilter: "blur(6px)" }}
       onClick={(e) => {
         if (e.target === e.currentTarget) onClose();

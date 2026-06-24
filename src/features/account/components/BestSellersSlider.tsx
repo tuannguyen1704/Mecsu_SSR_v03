@@ -1,6 +1,7 @@
 "use client";
 
-import { useRef, useState, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Product } from "@/features/products/types/product";
@@ -24,7 +25,7 @@ export const BestSellersSlider: React.FC<BestSellersSliderProps> = ({
   const visibleCards = 4;
   const totalPages = Math.ceil(products.length / visibleCards);
 
-  const checkScroll = () => {
+  const checkScroll = useCallback(() => {
     if (scrollContainerRef.current) {
       const { scrollLeft, scrollWidth, clientWidth } = scrollContainerRef.current;
       setCanScrollLeft(scrollLeft > 0);
@@ -33,7 +34,7 @@ export const BestSellersSlider: React.FC<BestSellersSliderProps> = ({
       const newPage = Math.round(scrollLeft / ((cardWidth + cardGap) * visibleCards)) + 1;
       setCurrentPage(Math.min(Math.max(newPage, 1), totalPages));
     }
-  };
+  }, [totalPages]);
 
   useEffect(() => {
     checkScroll();
@@ -48,7 +49,7 @@ export const BestSellersSlider: React.FC<BestSellersSliderProps> = ({
       }
       window.removeEventListener("resize", checkScroll);
     };
-  }, [products, totalPages]);
+  }, [checkScroll, products]);
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
@@ -119,10 +120,12 @@ export const BestSellersSlider: React.FC<BestSellersSliderProps> = ({
             >
               <div className="relative aspect-square bg-slate-50 p-3 lg:p-4 flex items-center justify-center overflow-hidden min-w-0">
                 {product.image ? (
-                  <img
+                  <Image
                     src={product.image}
                     alt={product.name}
-                    className="max-h-full max-w-full transition-transform duration-500 group-hover:scale-110 object-contain"
+                    fill
+                    sizes="(min-width: 1024px) 280px, 240px"
+                    className="object-contain transition-transform duration-500 group-hover:scale-110"
                   />
                 ) : (
                   <div className="w-20 h-20 lg:w-24 lg:h-24 bg-slate-200 rounded-lg" />

@@ -73,6 +73,7 @@ export default function MobileHeader({
               className="fixed inset-0 z-[501] flex w-screen max-w-none flex-col bg-white shadow-2xl"
               role="dialog"
               aria-modal="true"
+              data-modal-scroll-lock="true"
             >
               <div className="flex h-16 items-center justify-between border-b border-slate-200 px-4 sm:h-20 sm:px-5">
                 <Link href="/" onClick={() => onOpenChange(false)}>

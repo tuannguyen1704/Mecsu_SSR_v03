@@ -74,12 +74,14 @@ export default function HeaderCategoryMenu({
               exit={{ opacity: 0 }}
               onClick={onClose}
               className="fixed inset-0 z-[195] bg-slate-900/40 backdrop-blur-[2px]"
+              data-modal-scroll-lock="true"
             />
             <motion.div
               initial={{ opacity: 0, y: -10, x: "-50%" }}
               animate={{ opacity: 1, y: 0, x: "-50%" }}
               exit={{ opacity: 0, y: -10, x: "-50%" }}
               className="fixed left-1/2 top-[84px] z-[196] hidden h-[520px] w-[calc(100%-2rem)] max-w-7xl overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] lg:flex"
+              data-modal-scroll-lock="true"
             >
               <div className="no-scrollbar w-[280px] overflow-y-auto border-r border-slate-200 bg-slate-50 py-6">
                 {categories.map((category, index) => {
@@ -159,7 +161,10 @@ export default function HeaderCategoryMenu({
 
       <AnimatePresence>
         {isLocationModalOpen && (
-          <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4">
+          <div
+            className="fixed inset-0 z-[1000] flex items-center justify-center p-4"
+            data-modal-scroll-lock="true"
+          >
             <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

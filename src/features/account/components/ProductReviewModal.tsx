@@ -1,4 +1,5 @@
 import { useState } from "react";
+import Image from "next/image";
 import { X, ImagePlus, Star } from "lucide-react";
 
 interface Product {
@@ -81,6 +82,7 @@ export function ProductReviewModal({
       className="fixed inset-0 z-[400] flex items-center justify-center"
       role="dialog"
       aria-modal="true"
+      data-modal-scroll-lock="true"
       style={{
         backgroundColor: "rgba(15, 23, 42, 0.38)",
         backdropFilter: "blur(6px)",
@@ -115,9 +117,11 @@ export function ProductReviewModal({
           <div className="flex items-center gap-4 rounded-xl border border-[#E5EAF2] bg-slate-50 p-4">
             <div className="h-16 w-16 shrink-0 overflow-hidden rounded-lg bg-white">
               {product.image ? (
-                <img
+                <Image
                   src={product.image}
                   alt={product.name}
+                  width={64}
+                  height={64}
                   className="h-full w-full object-cover"
                 />
               ) : (
@@ -194,9 +198,12 @@ export function ProductReviewModal({
                   key={idx}
                   className="relative h-16 w-16 overflow-hidden rounded-lg border border-[#E2E8F0]"
                 >
-                  <img
+                  <Image
                     src={preview}
                     alt=""
+                    fill
+                    unoptimized
+                    sizes="64px"
                     className="h-full w-full object-cover"
                   />
                   <button

@@ -12,6 +12,7 @@ import {
   getCurrentUser,
   logout,
 } from "@/features/auth/services/mock-auth-service";
+import { clearBodyScrollLock } from "@/components/shared/ModalScrollLock";
 import type { MockAuthUser } from "@/features/auth/types/auth";
 import type { HeaderCategory } from "@/features/categories/data/header-categories";
 import { useCart } from "@/features/cart";
@@ -134,14 +135,6 @@ export default function HeaderClient({
   }, [isHomePage]);
 
   useEffect(() => {
-    document.body.style.overflow =
-      isCategoryOpen || isMobileOpen ? "hidden" : "unset";
-    return () => {
-      document.body.style.overflow = "unset";
-    };
-  }, [isCategoryOpen, isMobileOpen]);
-
-  useEffect(() => {
     const handlePromotionPanelOpen = () => {
       setIsCategoryOpen(false);
     };
@@ -155,6 +148,18 @@ export default function HeaderClient({
       );
     };
   }, []);
+
+  useEffect(() => {
+    const frameId = window.requestAnimationFrame(() => {
+      setIsCategoryOpen(false);
+      setIsMobileOpen(false);
+      setIsProfileOpen(false);
+      setIsLoginModalOpen(false);
+      clearBodyScrollLock();
+    });
+
+    return () => window.cancelAnimationFrame(frameId);
+  }, [pathname]);
 
   const headerPosition =
     isAccountPage || isSubcategoryPage || isSearchPage || isBrandPage

@@ -4,7 +4,7 @@ import { useMemo, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { matchesKeyword } from "@/lib/routing";
 import { toSlug } from "@/lib/routing";
-import type { Category, CategorySubcategory } from "../types/category";
+import type { Category } from "../types/category";
 import { SubcategoryCarouselItem } from "./subcategory-lower/SubcategoryCarouselItem";
 
 interface RelatedSubcategoryCarouselProps {

@@ -21,6 +21,7 @@ export const accountNavigationSections: AccountNavigationSection[] = [
       { id: "orders", label: "Đơn hàng", href: "/tai-khoan/don-hang", icon: "orders" },
       { id: "quotes", label: "Yêu cầu báo giá", href: "/tai-khoan/bao-gia", icon: "quotes" },
       { id: "wishlist", label: "Danh sách yêu thích", href: "/tai-khoan/danh-sach", icon: "wishlist" },
+      { id: "stock-alerts", label: "Nhắc hàng", href: "/tai-khoan/nhac-hang", icon: "stockAlerts" },
     ],
   },
   {
@@ -30,7 +31,6 @@ export const accountNavigationSections: AccountNavigationSection[] = [
       { id: "addresses", label: "Địa chỉ giao hàng", href: "/tai-khoan/dia-chi", icon: "addresses" },
       { id: "payment", label: "Phương thức thanh toán", href: "/tai-khoan/phuong-thuc-thanh-toan", icon: "payment" },
       { id: "user", label: "Thông tin tài khoản", href: "/tai-khoan/thong-tin-ca-nhan", icon: "user" },
-      { id: "stock-alerts", label: "Nhắc hàng", href: "/tai-khoan/nhac-hang", icon: "stockAlerts" },
     ],
   },
   {

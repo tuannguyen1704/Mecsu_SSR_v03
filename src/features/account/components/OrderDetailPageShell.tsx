@@ -10,7 +10,6 @@ import {
   FileText,
   MapPin,
   Phone,
-  Printer,
   RotateCcw,
   Star,
   Truck,
@@ -18,28 +17,10 @@ import {
 } from "lucide-react";
 import type { AccountOrderDetail, AccountOrderItem } from "../types/account";
 import { OrderStatusBar } from "./OrderStatusBar";
-import { ProductReviewModal, type ProductReviewInput } from "./ProductReviewModal";
+import { ProductReviewModal } from "./ProductReviewModal";
 
 function formatCurrency(value: number) {
   return new Intl.NumberFormat("vi-VN").format(value) + " đ";
-}
-
-interface InfoRowProps {
-  label: string;
-  value: string;
-}
-
-function InfoRow({ label, value }: InfoRowProps) {
-  return (
-    <div>
-      <p className="text-xs font-medium tracking-wide text-slate-400 uppercase">
-        {label}
-      </p>
-      <p className="mt-1 text-sm font-semibold leading-6 text-slate-800">
-        {value}
-      </p>
-    </div>
-  );
 }
 
 interface OrderDetailPageShellProps {
@@ -61,7 +42,7 @@ export function OrderDetailPageShell({ order }: OrderDetailPageShellProps) {
     setReviewModalProduct(null);
   };
 
-  const handleSubmitReview = (_review: ProductReviewInput) => {
+  const handleSubmitReview = () => {
     if (reviewModalProduct) {
       setReviewedProductIds((prev) => new Set(prev).add(reviewModalProduct.id));
     }
