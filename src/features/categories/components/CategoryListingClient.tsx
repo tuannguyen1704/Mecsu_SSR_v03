@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import type { Product } from "@/features/products/types/product";
@@ -25,6 +25,14 @@ interface CategoryListingClientProps {
   emptyStateQuery?: string;
 }
 
+const FALLBACK_BRAND_FILTERS = ["3M", "Bosch", "SKF", "SATA", "PISCO"].map(
+  (brand) => ({
+    id: brand,
+    label: brand,
+    count: 0,
+  }),
+);
+
 export function CategoryListingClient({
   title,
   products,
@@ -42,13 +50,7 @@ export function CategoryListingClient({
   const brandFilters = useMemo(() => {
     const filters = getBrandFilters(products);
 
-    return filters.length > 0
-      ? filters
-      : ["3M", "Bosch", "SKF", "SATA", "PISCO"].map((brand) => ({
-          id: brand,
-          label: brand,
-          count: 0,
-        }));
+    return filters.length > 0 ? filters : FALLBACK_BRAND_FILTERS;
   }, [products]);
 
   const filteredProducts = useMemo(
@@ -80,33 +82,45 @@ export function CategoryListingClient({
     [currentPage, filteredProducts],
   );
 
-  const handlePageChange = (page: number) => {
+  const handlePageChange = useCallback((page: number) => {
     setCurrentPage(page);
     productListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  };
+  }, []);
 
-  const handleSortChange = (value: string) => {
+  const handleSortChange = useCallback((value: string) => {
     setSortValue(value);
     setCurrentPage(1);
-  };
+  }, []);
 
-  const toggleBrand = (brand: string) => {
+  const handleViewModeChange = useCallback((value: "grid" | "list") => {
+    setViewMode(value);
+  }, []);
+
+  const openMobileFilter = useCallback(() => {
+    setIsMobileFilterOpen(true);
+  }, []);
+
+  const closeMobileFilter = useCallback(() => {
+    setIsMobileFilterOpen(false);
+  }, []);
+
+  const toggleBrand = useCallback((brand: string) => {
     setSelectedBrands((current) =>
       current.includes(brand)
         ? current.filter((item) => item !== brand)
         : [...current, brand],
     );
     setCurrentPage(1);
-  };
+  }, []);
 
-  const toggleAvailability = (value: string) => {
+  const toggleAvailability = useCallback((value: string) => {
     setSelectedAvailability((current) =>
       current.includes(value)
         ? current.filter((item) => item !== value)
         : [...current, value],
     );
     setCurrentPage(1);
-  };
+  }, []);
 
   useEffect(() => {
     if (!isMobileFilterOpen) return;
@@ -116,7 +130,7 @@ export function CategoryListingClient({
 
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
-        setIsMobileFilterOpen(false);
+        closeMobileFilter();
       }
     };
 
@@ -126,16 +140,19 @@ export function CategoryListingClient({
       document.body.style.overflow = previousOverflow;
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isMobileFilterOpen]);
+  }, [closeMobileFilter, isMobileFilterOpen]);
 
-  const desktopFilterSidebar = (
-    <ProductFilterSidebar
-      brandFilters={brandFilters}
-      selectedBrands={selectedBrands}
-      selectedAvailability={selectedAvailability}
-      onBrandToggle={toggleBrand}
-      onAvailabilityToggle={toggleAvailability}
-    />
+  const desktopFilterSidebar = useMemo(
+    () => (
+      <ProductFilterSidebar
+        brandFilters={brandFilters}
+        selectedBrands={selectedBrands}
+        selectedAvailability={selectedAvailability}
+        onBrandToggle={toggleBrand}
+        onAvailabilityToggle={toggleAvailability}
+      />
+    ),
+    [brandFilters, selectedAvailability, selectedBrands, toggleAvailability, toggleBrand],
   );
 
   return (
@@ -153,8 +170,8 @@ export function CategoryListingClient({
             sortValue={sortValue}
             viewMode={viewMode}
             onSortChange={handleSortChange}
-            onViewModeChange={setViewMode}
-            onOpenFilters={() => setIsMobileFilterOpen(true)}
+            onViewModeChange={handleViewModeChange}
+            onOpenFilters={openMobileFilter}
           />
 
           <div
@@ -192,7 +209,7 @@ export function CategoryListingClient({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              onClick={() => setIsMobileFilterOpen(false)}
+              onClick={closeMobileFilter}
               className="fixed inset-0 z-[400] bg-black/60"
             />
             <motion.div
@@ -209,7 +226,7 @@ export function CategoryListingClient({
                 <h3 className="text-lg font-black tracking-tight uppercase">Bộ lọc</h3>
                 <button
                   type="button"
-                  onClick={() => setIsMobileFilterOpen(false)}
+                  onClick={closeMobileFilter}
                   className="flex h-10 w-10 items-center justify-center text-slate-400 transition-colors hover:bg-slate-100 hover:text-slate-700"
                   aria-label="Đóng bộ lọc"
                 >

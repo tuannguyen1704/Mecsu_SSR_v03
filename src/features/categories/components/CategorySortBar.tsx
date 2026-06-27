@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import { Filter, Grid2X2, List } from "lucide-react";
 
 type ViewMode = "grid" | "list";
@@ -15,7 +16,7 @@ interface CategorySortBarProps {
   onOpenFilters: () => void;
 }
 
-export function CategorySortBar({
+export const CategorySortBar = memo(function CategorySortBar({
   productCount,
   productCountLabel,
   title,
@@ -90,4 +91,4 @@ export function CategorySortBar({
       </div>
     </div>
   );
-}
+});

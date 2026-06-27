@@ -1,28 +1,34 @@
 "use client";
 
+import { memo, useMemo } from "react";
+
 interface ProductPaginationProps {
   currentPage: number;
   totalPages: number;
   onPageChange: (page: number) => void;
 }
 
-export function ProductPagination({
+export const ProductPagination = memo(function ProductPagination({
   currentPage,
   totalPages,
   onPageChange,
 }: ProductPaginationProps) {
+  const visiblePages = useMemo(
+    () =>
+      Array.from({ length: totalPages })
+        .map((_, index) => index + 1)
+        .filter(
+          (page) =>
+            page === 1 ||
+            page === totalPages ||
+            Math.abs(page - currentPage) <= 1,
+        ),
+    [currentPage, totalPages],
+  );
+
   if (totalPages <= 1) {
     return null;
   }
-
-  const visiblePages = Array.from({ length: totalPages })
-    .map((_, index) => index + 1)
-    .filter(
-      (page) =>
-        page === 1 ||
-        page === totalPages ||
-        Math.abs(page - currentPage) <= 1,
-    );
 
   return (
     <div className="flex flex-wrap items-center justify-center gap-2 py-8 font-sans">
@@ -99,4 +105,4 @@ export function ProductPagination({
       </button>
     </div>
   );
-}
+});

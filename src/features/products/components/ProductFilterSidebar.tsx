@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { memo, useMemo, useState } from "react";
 import { ChevronDown, Filter, Minus, Plus, Search, Star, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 
@@ -43,7 +43,7 @@ const AVAILABILITY_FILTERS: FilterItem[] = [
   { id: "preorder", label: "Đặt hàng (7-14 ngày)" },
 ];
 
-export function ProductFilterSidebar({
+export const ProductFilterSidebar = memo(function ProductFilterSidebar({
   brandFilters,
   selectedBrands,
   onBrandToggle,
@@ -154,7 +154,7 @@ export function ProductFilterSidebar({
       </div>
     </aside>
   );
-}
+});
 
 function FilterGroup({
   title,

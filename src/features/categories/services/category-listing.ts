@@ -33,21 +33,31 @@ export function getFilteredProducts({
   selectedBrands: string[];
   sortValue: string;
 }): Product[] {
-  let nextProducts = [...products];
+  const selectedBrandSet =
+    selectedBrands.length > 0 ? new Set(selectedBrands) : null;
+  const availabilitySet =
+    selectedAvailability.length > 0 ? new Set(selectedAvailability) : null;
+  const requiresInStock = availabilitySet?.has("in_stock") ?? false;
+  const requiresPreorder = availabilitySet?.has("preorder") ?? false;
 
-  if (selectedBrands.length > 0) {
-    nextProducts = nextProducts.filter((product) =>
-      selectedBrands.includes(product.brand),
-    );
-  }
+  const nextProducts =
+    selectedBrandSet || availabilitySet
+      ? products.filter((product) => {
+          if (selectedBrandSet && !selectedBrandSet.has(product.brand)) {
+            return false;
+          }
 
-  if (selectedAvailability.includes("in_stock")) {
-    nextProducts = nextProducts.filter((product) => product.stock > 0);
-  }
+          if (requiresInStock && product.stock <= 0) {
+            return false;
+          }
 
-  if (selectedAvailability.includes("preorder")) {
-    nextProducts = nextProducts.filter((product) => product.stock <= 0);
-  }
+          if (requiresPreorder && product.stock > 0) {
+            return false;
+          }
+
+          return true;
+        })
+      : [...products];
 
   if (sortValue === "price-asc") {
     nextProducts.sort((a, b) => a.price - b.price);
