@@ -26,7 +26,7 @@ export function StockAlertCard({ alert }: { alert: StockAlert }) {
   const productHref = `/san-pham/${alert.productId}`;
 
   return (
-    <article className="flex h-full flex-col rounded-2xl border border-[#E2E8F0] bg-white p-5 transition-colors hover:border-[#163F78]/35">
+    <article className="flex h-full flex-col rounded-sm border border-[#E2E8F0] bg-white p-5 transition-colors hover:border-[#163F78]/35">
       <div className="flex items-start gap-4">
         <div className="relative h-[88px] w-[88px] shrink-0 overflow-hidden rounded-xl border border-[#E2E8F0] bg-white">
           <Image

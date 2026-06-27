@@ -101,7 +101,7 @@ const services = [
     description:
       "Tiếp nhận yêu cầu mua hàng doanh nghiệp và phản hồi báo giá phù hợp theo số lượng.",
     link: "Yêu cầu báo giá",
-    href: "/tai-khoan/bao-gia",
+    href: "/dich-vu-khach-hang",
   },
   {
     label: "Kỹ thuật",

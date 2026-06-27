@@ -11,4 +11,5 @@ export interface CategorySubcategory {
   name: string;
   slug: string;
   href: string;
+  count?: number;
 }

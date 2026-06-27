@@ -6,6 +6,7 @@ import { AnimatePresence, motion } from "motion/react";
 import type { Product } from "@/features/products/types/product";
 import { ProductFilterSidebar } from "@/features/products/components/ProductFilterSidebar";
 import { ProductGrid } from "@/features/products/components/ProductGrid";
+import { ProductList } from "@/features/products/components/ProductList";
 import { ProductPagination } from "@/features/products/components/ProductPagination";
 import {
   CATEGORY_LISTING_ITEMS_PER_PAGE,
@@ -32,6 +33,7 @@ export function CategoryListingClient({
 }: CategoryListingClientProps) {
   const [currentPage, setCurrentPage] = useState(1);
   const [sortValue, setSortValue] = useState("featured");
+  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
@@ -60,14 +62,22 @@ export function CategoryListingClient({
     [products, selectedAvailability, selectedBrands, sortValue],
   );
 
-  const totalPages = getTotalProductPages(
-    filteredProducts,
-    CATEGORY_LISTING_ITEMS_PER_PAGE,
+  const totalPages = useMemo(
+    () =>
+      getTotalProductPages(
+        filteredProducts,
+        CATEGORY_LISTING_ITEMS_PER_PAGE,
+      ),
+    [filteredProducts],
   );
-  const paginatedProducts = getPaginatedProducts(
-    filteredProducts,
-    currentPage,
-    CATEGORY_LISTING_ITEMS_PER_PAGE,
+  const paginatedProducts = useMemo(
+    () =>
+      getPaginatedProducts(
+        filteredProducts,
+        currentPage,
+        CATEGORY_LISTING_ITEMS_PER_PAGE,
+      ),
+    [currentPage, filteredProducts],
   );
 
   const handlePageChange = (page: number) => {
@@ -141,7 +151,9 @@ export function CategoryListingClient({
             productCount={filteredProducts.length}
             productCountLabel={productCountLabel}
             sortValue={sortValue}
+            viewMode={viewMode}
             onSortChange={handleSortChange}
+            onViewModeChange={setViewMode}
             onOpenFilters={() => setIsMobileFilterOpen(true)}
           />
 
@@ -154,6 +166,8 @@ export function CategoryListingClient({
           >
             {paginatedProducts.length === 0 && emptyStateQuery ? (
               <SearchNoResultsPanel query={emptyStateQuery} />
+            ) : viewMode === "list" ? (
+              <ProductList products={paginatedProducts} />
             ) : (
               <ProductGrid products={paginatedProducts} />
             )}
@@ -179,7 +193,7 @@ export function CategoryListingClient({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsMobileFilterOpen(false)}
-              className="fixed inset-0 z-[400] bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-[400] bg-black/60"
             />
             <motion.div
               initial={{ x: "-100%" }}

@@ -4,32 +4,50 @@ import { useMemo, useRef } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { matchesKeyword } from "@/lib/routing";
 import { toSlug } from "@/lib/routing";
+import { subcategoryCountsBySlug } from "../../data/subcategory-counts";
 import type { Category, CategorySubcategory } from "../../types/category";
 import { SubcategoryCarouselItem } from "./SubcategoryCarouselItem";
 
 interface SubcategoryCarouselProps {
   category: Category;
   currentSubcategory: CategorySubcategory;
+  parentSubcategory?: CategorySubcategory;
 }
 
-export function SubcategoryCarousel({ category, currentSubcategory }: SubcategoryCarouselProps) {
+export function SubcategoryCarousel({
+  category,
+  currentSubcategory,
+  parentSubcategory,
+}: SubcategoryCarouselProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const subcategories = useMemo(() => {
+    const parentSlug = parentSubcategory?.slug ?? currentSubcategory.slug;
+    const shouldUseNestedHref = parentSlug === "bulong";
+
     return category.subcategories
-      .map((name) => ({
-        id: toSlug(name),
-        name,
-        slug: toSlug(name),
-        href: `/danh-muc/${category.slug}/${toSlug(name)}`,
-      }))
+      .map((name) => {
+        const slug = toSlug(name);
+        const href = shouldUseNestedHref
+          ? `/danh-muc/${category.slug}/${parentSlug}/${slug}`
+          : `/danh-muc/${category.slug}/${slug}`;
+
+        return {
+          id: slug,
+          name,
+          slug,
+          href,
+          count: subcategoryCountsBySlug[slug],
+        };
+      })
       .filter(
         (item) =>
           matchesKeyword(item.name, "bulong") &&
+          item.slug !== parentSlug &&
           item.slug !== currentSubcategory.slug &&
           item.slug !== toSlug(currentSubcategory.name),
       );
-  }, [category.subcategories, category.slug, currentSubcategory]);
+  }, [category.subcategories, category.slug, currentSubcategory, parentSubcategory]);
 
   const scroll = (direction: "left" | "right") => {
     const el = scrollRef.current;

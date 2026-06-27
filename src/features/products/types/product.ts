@@ -11,6 +11,9 @@ export interface Product {
   discount?: number;
   stock: number;
   unit?: string;
+  minOrderQuantity?: number;
+  orderStep?: number;
+  lowQuantityFee?: number;
   image?: string;
   images?: string[];
   rating?: number;

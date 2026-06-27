@@ -335,7 +335,7 @@ function CategoryFaqContent({
           </div>
           <div className="border-t border-slate-100 p-3">
             <Link
-              href="/tai-khoan/bao-gia"
+              href="/dich-vu-khach-hang"
               className="mb-2 flex items-center gap-2 rounded-lg px-3 py-2 text-[12px] text-slate-600 transition-colors hover:bg-slate-50 hover:text-[#163F78]"
             >
               <FileCheck size={13} />
@@ -433,7 +433,7 @@ function CategoryFaqContent({
                   Liên hệ hỗ trợ
                 </a>
                 <Link
-                  href="/tai-khoan/bao-gia"
+                  href="/dich-vu-khach-hang"
                   className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white px-4 py-2 text-[12px] font-medium text-slate-700 transition-colors hover:border-[#163F78] hover:text-[#163F78]"
                 >
                   <FileCheck size={13} />

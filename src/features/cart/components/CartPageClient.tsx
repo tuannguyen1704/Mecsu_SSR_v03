@@ -1,9 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Building2, ShoppingBag, X } from "lucide-react";
-import type { QuotationRequestItem } from "@/features/quotations";
 import { getSeededPlaceholder } from "@/lib/image-placeholders";
 import { getProductByIdOrSlug } from "@/features/products/services/product-service";
 import { useCart } from "../hooks/useCart";
@@ -12,28 +10,9 @@ import { CartCommerceSections, CartEmptyState } from "./CartEmptyState";
 import { CartQuantityControl } from "./CartQuantityControl";
 
 export function CartPageClient() {
-  const router = useRouter();
   const { items, subtotal, removeItem, updateQuantity } = useCart();
   const vat = subtotal * 0.1;
   const grandTotal = subtotal + vat;
-
-  const handleRequestQuotationFromCart = () => {
-    const quotationItems: QuotationRequestItem[] = items.map((item) => ({
-      id: `cart-${item.productId}`,
-      productName: item.name,
-      productCode: item.sku,
-      quantity: item.quantity,
-      unit: "cái",
-      notes: "",
-    }));
-
-    sessionStorage.setItem(
-      "mecsu-cart-rfq-items",
-      JSON.stringify(quotationItems),
-    );
-    sessionStorage.setItem("mecsu-cart-rfq-name", "Báo giá từ giỏ hàng");
-    router.push("/tai-khoan/bao-gia?openQuotation=cart");
-  };
 
   if (items.length === 0) {
     return <CartEmptyState />;
@@ -122,6 +101,9 @@ export function CartPageClient() {
                       <CartQuantityControl
                         quantity={item.quantity}
                         stock={item.stock}
+                        minOrderQuantity={item.minOrderQuantity}
+                        orderStep={item.orderStep}
+                        unit={item.unit}
                         onChange={(quantity) => updateQuantity(item.productId, quantity)}
                       />
                       <div className="min-w-0 text-right sm:min-w-[120px]">
@@ -169,13 +151,6 @@ export function CartPageClient() {
                 <Building2 size={20} />
                 Chuyển tới thanh toán
               </Link>
-              <button
-                type="button"
-                onClick={handleRequestQuotationFromCart}
-                className="mt-4 w-full rounded border-2 border-[#005da4] py-3 font-semibold text-[#005da4] transition-colors hover:bg-[#005da4]/5"
-              >
-                Yêu cầu báo giá
-              </button>
             </aside>
           </div>
         </div>

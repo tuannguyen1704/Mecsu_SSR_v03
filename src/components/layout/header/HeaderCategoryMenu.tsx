@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import {
   ArrowUpCircle,
@@ -63,6 +63,30 @@ export default function HeaderCategoryMenu({
   const [hoveredCategoryIdx, setHoveredCategoryIdx] = useState<number | null>(null);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const preventBackgroundScroll = (event: WheelEvent | TouchEvent) => {
+      const target = event.target instanceof Element ? event.target : null;
+
+      if (target?.closest("[data-category-menu-panel='true']")) return;
+
+      event.preventDefault();
+    };
+
+    document.addEventListener("wheel", preventBackgroundScroll, {
+      passive: false,
+    });
+    document.addEventListener("touchmove", preventBackgroundScroll, {
+      passive: false,
+    });
+
+    return () => {
+      document.removeEventListener("wheel", preventBackgroundScroll);
+      document.removeEventListener("touchmove", preventBackgroundScroll);
+    };
+  }, [isOpen]);
+
   return (
     <>
       <AnimatePresence>
@@ -73,15 +97,14 @@ export default function HeaderCategoryMenu({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={onClose}
-              className="fixed inset-0 z-[195] bg-slate-900/40 backdrop-blur-[2px]"
-              data-modal-scroll-lock="true"
+              className="fixed inset-x-0 top-[80px] bottom-0 z-[195] bg-slate-900/45"
             />
             <motion.div
               initial={{ opacity: 0, y: -10, x: "-50%" }}
               animate={{ opacity: 1, y: 0, x: "-50%" }}
               exit={{ opacity: 0, y: -10, x: "-50%" }}
-              className="fixed left-1/2 top-[84px] z-[196] hidden h-[520px] w-[calc(100%-2rem)] max-w-7xl overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] lg:flex"
-              data-modal-scroll-lock="true"
+              className="fixed left-1/2 top-[80px] z-[196] hidden h-[520px] w-[calc(100%-2rem)] max-w-7xl overflow-hidden rounded-md border border-slate-200 bg-white shadow-[0_32px_64px_-16px_rgba(0,0,0,0.2)] lg:flex"
+              data-category-menu-panel="true"
             >
               <div className="no-scrollbar w-[280px] overflow-y-auto border-r border-slate-200 bg-slate-50 py-6">
                 {categories.map((category, index) => {
@@ -170,7 +193,7 @@ export default function HeaderCategoryMenu({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsLocationModalOpen(false)}
-              className="absolute inset-0 bg-slate-900/60 backdrop-blur-md"
+              className="absolute inset-0 bg-slate-950/60"
             />
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}

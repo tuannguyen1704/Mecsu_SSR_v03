@@ -90,7 +90,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
           data-modal-scroll-lock="true"
         >
           <div
-            className="absolute inset-0 bg-slate-950/70 backdrop-blur-sm"
+            className="absolute inset-0 bg-slate-950/70"
             onClick={onClose}
             aria-hidden="true"
           />

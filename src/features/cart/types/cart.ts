@@ -6,6 +6,9 @@ export interface CartItem {
   price: number;
   quantity: number;
   stock: number;
+  minOrderQuantity?: number;
+  orderStep?: number;
+  unit?: string;
   slug?: string;
 }
 

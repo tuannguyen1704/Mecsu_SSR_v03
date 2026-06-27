@@ -252,7 +252,7 @@ export function PublicCustomerServicePage() {
     {
       iconKey: "quote",
       title: "Yêu cầu báo giá",
-      href: "/tai-khoan/bao-gia",
+      href: "/dich-vu-khach-hang",
       highlighted: true,
     },
     {

@@ -63,7 +63,7 @@ export default function MobileHeader({
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => onOpenChange(false)}
-              className="fixed inset-0 z-[500] bg-slate-900/50 backdrop-blur-[2px]"
+              className="fixed inset-0 z-[500] bg-slate-950/60"
             />
             <motion.aside
               initial={{ x: "100%" }}

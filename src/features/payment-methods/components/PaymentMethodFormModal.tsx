@@ -58,7 +58,7 @@ export function PaymentMethodFormModal({
       <button
         type="button"
         aria-label="Đóng form phương thức thanh toán"
-        className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-950/60"
         onClick={onClose}
       />
 

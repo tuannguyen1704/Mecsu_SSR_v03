@@ -181,7 +181,7 @@ export function OrdersListClient({ orders }: OrdersListClientProps) {
 
   return (
     <div className="space-y-3">
-      <div className="overflow-hidden rounded-2xl border border-[#E5EAF2] bg-white shadow-sm">
+      <div className="overflow-hidden rounded-sm border border-[#E5EAF2] bg-white shadow-sm">
         <div className="border-b border-[#E5EAF2] p-4 lg:p-5">
           <div className="grid grid-cols-1 gap-3 lg:grid-cols-[minmax(0,1fr)_18rem_13.75rem] lg:items-center">
             <div className="relative flex-1">

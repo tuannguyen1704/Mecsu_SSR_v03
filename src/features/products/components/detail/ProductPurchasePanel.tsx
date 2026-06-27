@@ -1,11 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronDown, Minus, Plus, ShoppingCart, Star } from "lucide-react";
+import { ChevronDown, ShoppingCart, Star } from "lucide-react";
 import { useCart } from "@/features/cart";
 import { notifyCartItemAdded } from "@/features/cart/services/cart-feedback";
 import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import type { Product } from "../../types/product";
+import {
+  getInitialOrderQuantity,
+  getMinOrderQuantity,
+  getOrderStep,
+} from "../../utils/orderQuantity";
+import { QuantityStepper } from "../QuantityStepper";
 import { ProductRatingPopover } from "./ProductRatingPopover";
 
 interface ProductPurchasePanelProps {
@@ -17,12 +23,15 @@ export function ProductPurchasePanel({
   product,
   shortDescription,
 }: ProductPurchasePanelProps) {
-  const maxQuantity = Math.max(1, product.stock);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(() =>
+    getInitialOrderQuantity(product),
+  );
   const [wasAdded, setWasAdded] = useState(false);
   const [isRatingPopoverOpen, setIsRatingPopoverOpen] = useState(false);
   const { addItem } = useCart();
   const isOutOfStock = product.stock <= 0;
+  const minOrderQuantity = getMinOrderQuantity(product);
+  const orderStep = getOrderStep(product);
   const productImage =
     product.image || product.images?.[0] || getSeededCategoryImage(product.id);
 
@@ -43,10 +52,6 @@ export function ProductPurchasePanel({
       window.removeEventListener("keydown", handleKeyDown);
     };
   }, [isRatingPopoverOpen]);
-
-  const updateQuantity = (nextQuantity: number) => {
-    setQuantity(Math.min(maxQuantity, Math.max(1, nextQuantity)));
-  };
 
   const handleAddToCart = () => {
     if (!isOutOfStock) {
@@ -167,35 +172,14 @@ export function ProductPurchasePanel({
       </div>
 
       <div className="mb-2 flex flex-col gap-4 sm:flex-row sm:items-stretch">
-        <div className="flex h-11 w-fit items-center border border-slate-300">
-          <button
-            type="button"
-            onClick={() => updateQuantity(quantity - 1)}
-            className="h-full px-3 text-slate-500 transition-colors hover:bg-slate-50"
-            aria-label="Giảm số lượng"
-          >
-            <Minus size={14} />
-          </button>
-          <input
-            type="number"
-            min={1}
-            max={maxQuantity}
-            value={quantity}
-            onChange={(event) =>
-              updateQuantity(Number(event.target.value) || 1)
-            }
-            className="h-full w-14 border-x border-slate-300 text-center text-[14px] font-medium outline-none"
-            aria-label="Số lượng"
-          />
-          <button
-            type="button"
-            onClick={() => updateQuantity(quantity + 1)}
-            className="h-full px-3 text-slate-500 transition-colors hover:bg-slate-50"
-            aria-label="Tăng số lượng"
-          >
-            <Plus size={14} />
-          </button>
-        </div>
+        <QuantityStepper
+          value={quantity}
+          minOrderQuantity={minOrderQuantity}
+          orderStep={orderStep}
+          unit={product.unit}
+          onChange={setQuantity}
+          className="w-[150px]"
+        />
 
         <button
           type="button"

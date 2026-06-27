@@ -44,7 +44,7 @@ export function StockAlertSummary({ alerts }: { alerts: StockAlert[] }) {
         return (
           <div
             key={card.id}
-            className="flex h-[86px] items-center gap-4 rounded-2xl border border-[#E2E8F0] bg-white p-4"
+            className="flex h-[86px] items-center gap-4 rounded-sm border border-[#E2E8F0] bg-white p-4"
           >
             <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-xl ${card.tone}`}>
               <Icon size={20} />

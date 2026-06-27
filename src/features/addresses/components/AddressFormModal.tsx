@@ -75,7 +75,7 @@ export function AddressFormModal({
       <button
         type="button"
         aria-label="Đóng form địa chỉ"
-        className="absolute inset-0 bg-slate-900/30 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-950/60"
         onClick={onClose}
       />
 

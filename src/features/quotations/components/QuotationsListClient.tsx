@@ -225,96 +225,108 @@ export function QuotationsListClient() {
 
       <QuotationStats quotations={quotations} />
 
-      <div className="rounded-2xl border border-[#E5EAF2] bg-white p-3 lg:p-4">
-        <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
-          <div className="relative md:col-span-2 lg:col-span-1">
-            <Search
-              size={18}
-              className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
-            />
-            <input
-              type="text"
-              placeholder="Tìm theo mã báo giá, sản phẩm..."
-              value={searchQuery}
-              onChange={(event) => {
-                setSearchQuery(event.target.value);
-                resetPage();
-              }}
-              className="w-full rounded-xl border border-[#E5EAF2] bg-slate-50 py-2.5 pl-10 pr-4 text-sm transition-all focus:border-[#3D82C4] focus:outline-none focus:ring-2 focus:ring-[#3D82C4]/20"
-            />
-          </div>
-
-          <SelectWrap>
-            <select
-              value={statusFilter}
-              onChange={(event) => {
-                setStatusFilter(event.target.value as FilterStatus);
-                resetPage();
-              }}
-              className={selectClass}
-            >
-              {filterOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </SelectWrap>
-
-          <DateRangePicker
-            value={pendingDateRange}
-            onChange={setPendingDateRange}
-            onApply={(range) => {
-              setAppliedDateRange(range);
-              resetPage();
-            }}
-          />
-
-          <SelectWrap>
-            <select
-              value={sortBy}
-              onChange={(event) => setSortBy(event.target.value as SortOption)}
-              className={selectClass}
-            >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-          </SelectWrap>
-        </div>
-      </div>
-
-      {paginatedQuotations.length > 0 ? (
-        <>
-          <div className="space-y-3">
-            {paginatedQuotations.map((quotation) => (
-              <QuotationCard
-                key={quotation.id}
-                quotation={quotation}
-                onViewDetails={(item) => router.push(`/tai-khoan/bao-gia/${item.id}`)}
-                onDownload={handleDownload}
+      <div className="overflow-hidden rounded-sm border border-[#E5EAF2] bg-white">
+        <div className="border-b border-[#E5EAF2] p-4 lg:p-5">
+          <div className="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-4">
+            <div className="relative md:col-span-2 lg:col-span-1">
+              <Search
+                size={18}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400"
               />
-            ))}
-          </div>
+              <input
+                type="text"
+                placeholder="Tìm theo mã báo giá, sản phẩm..."
+                value={searchQuery}
+                onChange={(event) => {
+                  setSearchQuery(event.target.value);
+                  resetPage();
+                }}
+                className="w-full rounded-xl border border-[#E5EAF2] bg-slate-50 py-2.5 pl-10 pr-4 text-sm transition-all focus:border-[#3D82C4] focus:outline-none focus:ring-2 focus:ring-[#3D82C4]/20"
+              />
+            </div>
 
-          {filteredQuotations.length > itemsPerPage ? (
-            <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#E5EAF2] bg-white px-4 py-3 lg:px-5">
-              <p className="text-sm text-slate-500">
-                Hiển thị {(currentPage - 1) * itemsPerPage + 1} -{" "}
-                {Math.min(currentPage * itemsPerPage, filteredQuotations.length)} của{" "}
-                {filteredQuotations.length} báo giá
-              </p>
-              <div className="flex items-center gap-2">
-                <PaginationButton
-                  disabled={currentPage === 1}
-                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+            <SelectWrap>
+              <select
+                value={statusFilter}
+                onChange={(event) => {
+                  setStatusFilter(event.target.value as FilterStatus);
+                  resetPage();
+                }}
+                className={selectClass}
+              >
+                {filterOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </SelectWrap>
+
+            <DateRangePicker
+              value={pendingDateRange}
+              onChange={setPendingDateRange}
+              onApply={(range) => {
+                setAppliedDateRange(range);
+                resetPage();
+              }}
+            />
+
+            <SelectWrap>
+              <select
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value as SortOption)}
+                className={selectClass}
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </SelectWrap>
+          </div>
+        </div>
+
+        {paginatedQuotations.length > 0 ? (
+          <>
+            <div>
+              {paginatedQuotations.map((quotation, index) => (
+                <div
+                  key={quotation.id}
+                  className={cn(
+                    "border-[#E5EAF2]",
+                    index < paginatedQuotations.length - 1 ? "border-b" : "",
+                  )}
                 >
-                  <ChevronLeft size={20} />
-                </PaginationButton>
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                  (page) => (
+                  <QuotationCard
+                    quotation={quotation}
+                    onViewDetails={() => router.push("/tai-khoan")}
+                    onDownload={handleDownload}
+                  />
+                </div>
+              ))}
+            </div>
+
+            {filteredQuotations.length > itemsPerPage ? (
+              <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#E5EAF2] px-4 py-4 lg:px-5">
+                <p className="text-sm text-slate-500">
+                  Hiển thị {(currentPage - 1) * itemsPerPage + 1} -{" "}
+                  {Math.min(currentPage * itemsPerPage, filteredQuotations.length)}{" "}
+                  của {filteredQuotations.length} báo giá
+                </p>
+                <div className="flex items-center gap-2">
+                  <PaginationButton
+                    disabled={currentPage === 1}
+                    onClick={() =>
+                      setCurrentPage((page) => Math.max(1, page - 1))
+                    }
+                  >
+                    <ChevronLeft size={20} />
+                  </PaginationButton>
+                  {Array.from(
+                    { length: totalPages },
+                    (_unused, index) => index + 1,
+                  ).map((page) => (
                     <button
                       key={page}
                       type="button"
@@ -328,23 +340,23 @@ export function QuotationsListClient() {
                     >
                       {page}
                     </button>
-                  ),
-                )}
-                <PaginationButton
-                  disabled={currentPage === totalPages}
-                  onClick={() =>
-                    setCurrentPage((page) => Math.min(totalPages, page + 1))
-                  }
-                >
-                  <ChevronRight size={20} />
-                </PaginationButton>
+                  ))}
+                  <PaginationButton
+                    disabled={currentPage === totalPages}
+                    onClick={() =>
+                      setCurrentPage((page) => Math.min(totalPages, page + 1))
+                    }
+                  >
+                    <ChevronRight size={20} />
+                  </PaginationButton>
+                </div>
               </div>
-            </div>
-          ) : null}
-        </>
-      ) : (
-        <QuotationEmptyState onCreate={openCreateModal} />
-      )}
+            ) : null}
+          </>
+        ) : (
+          <QuotationEmptyState onCreate={openCreateModal} />
+        )}
+      </div>
 
       <RequestQuotationModal
         isOpen={isModalOpen}

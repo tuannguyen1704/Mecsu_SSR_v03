@@ -25,7 +25,7 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[650] bg-slate-950/55 backdrop-blur-[2px]"
+            className="fixed inset-0 z-[650] bg-slate-950/60"
           />
           <motion.aside
             initial={{ x: "100%" }}
@@ -114,6 +114,9 @@ export function CartDrawer({ isOpen, onClose }: CartDrawerProps) {
                         <CartQuantityControl
                           quantity={item.quantity}
                           stock={item.stock}
+                          minOrderQuantity={item.minOrderQuantity}
+                          orderStep={item.orderStep}
+                          unit={item.unit}
                           onChange={(quantity) => updateQuantity(item.productId, quantity)}
                         />
                         <div className="text-right text-[14px] font-black text-[#1a1a1a]">

@@ -3,10 +3,13 @@ import { notFound } from "next/navigation";
 import { ProductDetailShell } from "@/features/products/components/detail/ProductDetailShell";
 import {
   getProduct,
+  getProductHref,
+  getProductImages,
   getProductPageData,
   getProductRouteParams,
   getProductShortDescription,
 } from "@/features/products/services/product-service";
+import { buildAbsoluteUrl } from "@/features/products/utils/share";
 
 interface ProductDetailPageProps {
   params: Promise<{
@@ -28,9 +31,36 @@ export async function generateMetadata({
     notFound();
   }
 
+  const description = getProductShortDescription(product);
+  const productUrl = buildAbsoluteUrl(getProductHref(product));
+  const productImages = getProductImages(product);
+  const imageUrl = buildAbsoluteUrl(
+    product.image || productImages[0] || "/mecsu_logo.png",
+  );
+
   return {
     title: product.name,
-    description: getProductShortDescription(product),
+    description,
+    openGraph: {
+      title: product.name,
+      description,
+      url: productUrl,
+      images: [
+        {
+          url: imageUrl,
+          width: 1200,
+          height: 630,
+          alt: product.name,
+        },
+      ],
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: product.name,
+      description,
+      images: [imageUrl],
+    },
   };
 }
 

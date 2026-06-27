@@ -2,16 +2,22 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { Share2 } from "lucide-react";
 import { getSeededCategoryImage } from "@/lib/image-placeholders";
+import { ProductShareLinks } from "../ProductShareLinks";
 
 interface ProductGalleryProps {
   images: string[];
   productName: string;
   productId: string;
+  productUrl: string;
 }
 
-export function ProductGallery({ images, productName, productId }: ProductGalleryProps) {
+export function ProductGallery({
+  images,
+  productName,
+  productId,
+  productUrl,
+}: ProductGalleryProps) {
   const galleryImages = images.length > 0 ? images : [getSeededCategoryImage(productId)];
   const [activeImage, setActiveImage] = useState(0);
   const currentImage = galleryImages[activeImage] || galleryImages[0];
@@ -26,16 +32,6 @@ export function ProductGallery({ images, productName, productId }: ProductGaller
           sizes="(min-width: 1024px) 33vw, 100vw"
           className="cursor-zoom-in object-contain p-4"
         />
-
-        <div className="absolute top-0 right-0">
-          <button
-            type="button"
-            className="p-2 text-slate-500 transition-colors hover:text-slate-700"
-            aria-label="Chia sẻ sản phẩm"
-          >
-            <Share2 size={24} />
-          </button>
-        </div>
 
         <div className="absolute right-0 bottom-4 left-0 text-center">
           <span className="text-[13px] text-[#565959]">Click to see full view</span>
@@ -68,6 +64,12 @@ export function ProductGallery({ images, productName, productId }: ProductGaller
           </button>
         ))}
       </div>
+
+      <ProductShareLinks
+        productName={productName}
+        productUrl={productUrl}
+        imageUrl={currentImage}
+      />
     </div>
   );
 }

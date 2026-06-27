@@ -1,6 +1,7 @@
 import type { Product } from "../../types/product";
 import {
   getProductDescription,
+  getProductHref,
   getProductImages,
   getProductShortDescription,
 } from "../../services/product-service";
@@ -27,6 +28,7 @@ export function ProductDetailShell({
   const shortDescription = getProductShortDescription(product);
   const description = getProductDescription(product);
   const images = getProductImages(product);
+  const productUrl = getProductHref(product);
 
   return (
     <main className="min-h-screen bg-white pb-20">
@@ -43,6 +45,7 @@ export function ProductDetailShell({
               images={images}
               productName={product.name}
               productId={product.id}
+              productUrl={productUrl}
             />
           </div>
 

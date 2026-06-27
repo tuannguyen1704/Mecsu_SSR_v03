@@ -26,7 +26,7 @@ export function CreateReturnModal({ isOpen, onClose }: CreateReturnModalProps) {
       <button
         type="button"
         aria-label="Đóng tạo yêu cầu đổi trả"
-        className="absolute inset-0 bg-slate-900/20 backdrop-blur-md"
+        className="absolute inset-0 bg-slate-950/60"
         onClick={onClose}
       />
 

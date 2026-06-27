@@ -153,7 +153,7 @@ export function StockReminderModal({
       <button
         type="button"
         aria-label="Đóng popup nhắc hàng"
-        className="absolute inset-0 bg-slate-950/55 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-950/60"
         onClick={onClose}
       />
 

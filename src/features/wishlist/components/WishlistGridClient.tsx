@@ -69,7 +69,7 @@ function StatCard({
   bgColor: string;
 }) {
   return (
-    <div className="rounded-2xl border border-[#E5EAF2] bg-white p-4 transition-shadow hover:shadow-md">
+    <div className="rounded-sm border border-[#E5EAF2] bg-white p-4 transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between">
         <div>
           <p className={cn("mb-1 text-3xl font-bold", accentColor)}>{value}</p>
@@ -245,7 +245,7 @@ export function WishlistGridClient() {
   };
 
   const handleRequestQuote = () => {
-    router.push("/tai-khoan/bao-gia");
+    router.push("/dich-vu-khach-hang");
   };
 
   const handleAddAllToCart = () => {
@@ -367,171 +367,173 @@ export function WishlistGridClient() {
         />
       </div>
 
-      <div className="rounded-2xl border border-[#E5EAF2] bg-white p-3 lg:p-4">
-        <div className="flex flex-col gap-3 lg:flex-row">
-          <div className="relative flex-1">
-            <Search
-              size={16}
-              className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
-            />
-            <input
-              type="text"
-              placeholder="Tìm kiếm sản phẩm yêu thích..."
-              value={searchQuery}
-              onChange={(event) => {
-                setSearchQuery(event.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full rounded-xl border border-[#E5EAF2] bg-slate-50 py-2.5 pr-4 pl-10 text-sm transition-all focus:border-[#3d82c4] focus:ring-2 focus:ring-[#3d82c4]/20 focus:outline-none"
-            />
-          </div>
-
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
-            {filterChips.map((chip) => {
-              const isActive = filterChip === chip.value;
-
-              return (
-                <button
-                  key={chip.value}
-                  type="button"
-                  onClick={() => {
-                    setFilterChip(chip.value);
-                    setCurrentPage(1);
-                  }}
-                  className={cn(
-                    "whitespace-nowrap rounded-xl px-3 py-2 text-xs font-medium transition-colors",
-                    isActive
-                      ? "bg-[#173E75] text-white"
-                      : "bg-gray-100 text-gray-700 hover:bg-gray-200",
-                  )}
-                >
-                  {chip.label}
-                </button>
-              );
-            })}
-          </div>
-
-          <div className="relative min-w-[160px]">
-            <select
-              value={sortBy}
-              onChange={(event) => setSortBy(event.target.value as SortOption)}
-              className="w-full cursor-pointer appearance-none rounded-xl border border-[#E5EAF2] bg-slate-50 px-4 py-2.5 pr-10 text-sm transition-all focus:border-[#3d82c4] focus:ring-2 focus:ring-[#3d82c4]/20 focus:outline-none"
-            >
-              {sortOptions.map((option) => (
-                <option key={option.value} value={option.value}>
-                  {option.label}
-                </option>
-              ))}
-            </select>
-            <ChevronDown
-              size={14}
-              className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-slate-400"
-            />
-          </div>
-        </div>
-      </div>
-
-      {filteredItems.length > 0 ? (
-        <>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            {paginatedItems.map((item) => (
-              <WishlistProductCard
-                key={item.id}
-                item={item}
-                isSelected={selectedIds.has(item.productId)}
-                multiSelectMode={multiSelectMode}
-                onSelect={handleSelectItem}
-                onRemove={handleRemove}
-                onAddToCart={handleAddToCart}
-                onRequestQuote={handleRequestQuote}
+      <div className="overflow-hidden rounded-sm border border-[#D6DFEC] bg-white">
+        <div className="border-b border-[#E5EAF2] p-3 lg:p-4">
+          <div className="flex flex-col gap-3 lg:flex-row">
+            <div className="relative flex-1">
+              <Search
+                size={16}
+                className="absolute top-1/2 left-3.5 -translate-y-1/2 text-slate-400"
               />
-            ))}
-          </div>
-
-          {totalPages > 1 ? (
-            <div className="flex flex-wrap items-center justify-between gap-4 rounded-2xl border border-[#E5EAF2] bg-white px-4 py-3 lg:px-5">
-              <p className="text-sm text-slate-500">
-                Hiển thị {(currentPage - 1) * itemsPerPage + 1} -{" "}
-                {Math.min(currentPage * itemsPerPage, filteredItems.length)} của{" "}
-                {filteredItems.length} sản phẩm
-              </p>
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
-                  disabled={currentPage === 1}
-                  className="rounded-lg p-2 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
-                  aria-label="Trang trước"
-                >
-                  <ChevronLeft size={20} className="text-slate-600" />
-                </button>
-                {Array.from({ length: totalPages }, (_, index) => index + 1).map(
-                  (page) => (
-                    <button
-                      key={page}
-                      type="button"
-                      onClick={() => setCurrentPage(page)}
-                      className={cn(
-                        "h-10 w-10 rounded-lg border text-sm font-medium transition-colors",
-                        currentPage === page
-                          ? "border-[#D9E5F6] bg-[#173E75] text-white"
-                          : "border-transparent text-slate-600 hover:bg-slate-100",
-                      )}
-                    >
-                      {page}
-                    </button>
-                  ),
-                )}
-                <button
-                  type="button"
-                  onClick={() =>
-                    setCurrentPage((page) => Math.min(totalPages, page + 1))
-                  }
-                  disabled={currentPage === totalPages}
-                  className="rounded-lg p-2 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
-                  aria-label="Trang tiếp"
-                >
-                  <ChevronRight size={20} className="text-slate-600" />
-                </button>
-              </div>
+              <input
+                type="text"
+                placeholder="Tìm kiếm sản phẩm yêu thích..."
+                value={searchQuery}
+                onChange={(event) => {
+                  setSearchQuery(event.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full rounded-xl border border-[#E5EAF2] bg-slate-50 py-2.5 pr-4 pl-10 text-sm transition-all focus:border-[#3d82c4] focus:ring-2 focus:ring-[#3d82c4]/20 focus:outline-none"
+              />
             </div>
-          ) : null}
-        </>
-      ) : (
-        <div className="rounded-2xl border border-[#E5EAF2] bg-white p-10 text-center lg:p-12">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
-            <Heart size={32} className="text-slate-400" />
+
+            <div className="flex items-center gap-2 overflow-x-auto pb-1 lg:pb-0">
+              {filterChips.map((chip) => {
+                const isActive = filterChip === chip.value;
+
+                return (
+                  <button
+                    key={chip.value}
+                    type="button"
+                    onClick={() => {
+                      setFilterChip(chip.value);
+                      setCurrentPage(1);
+                    }}
+                    className={cn(
+                      "whitespace-nowrap rounded-xl px-3 py-2 text-xs font-medium transition-colors",
+                      isActive
+                        ? "bg-[#173E75] text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200",
+                    )}
+                  >
+                    {chip.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="relative min-w-[160px]">
+              <select
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value as SortOption)}
+                className="w-full cursor-pointer appearance-none rounded-xl border border-[#E5EAF2] bg-slate-50 px-4 py-2.5 pr-10 text-sm transition-all focus:border-[#3d82c4] focus:ring-2 focus:ring-[#3d82c4]/20 focus:outline-none"
+              >
+                {sortOptions.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown
+                size={14}
+                className="pointer-events-none absolute top-1/2 right-3 -translate-y-1/2 text-slate-400"
+              />
+            </div>
           </div>
-          <h3 className="mb-2 text-lg font-bold text-slate-700">
-            {showEmptyWishlist ? "Bạn chưa có sản phẩm yêu thích" : "Không tìm thấy sản phẩm"}
-          </h3>
-          <p className="mx-auto mb-6 max-w-md text-sm text-slate-500">
-            {showEmptyWishlist
-              ? "Lưu sản phẩm để theo dõi giá, tồn kho và gửi báo giá nhanh hơn."
-              : "Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc."}
-          </p>
-          {showEmptyWishlist ? (
-            <Link
-              href="/"
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-[#173E75] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1a4a8a]"
-            >
-              Khám phá sản phẩm
-            </Link>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                setSearchQuery("");
-                setFilterChip("all");
-                setCurrentPage(1);
-              }}
-              className="inline-flex h-11 items-center justify-center rounded-xl bg-[#173E75] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1a4a8a]"
-            >
-              Xóa bộ lọc
-            </button>
-          )}
         </div>
-      )}
+
+        {filteredItems.length > 0 ? (
+          <>
+            <div className="grid grid-cols-1 gap-4 bg-[#F8FAFC] p-4 md:grid-cols-2">
+              {paginatedItems.map((item) => (
+                <WishlistProductCard
+                  key={item.id}
+                  item={item}
+                  isSelected={selectedIds.has(item.productId)}
+                  multiSelectMode={multiSelectMode}
+                  onSelect={handleSelectItem}
+                  onRemove={handleRemove}
+                  onAddToCart={handleAddToCart}
+                  onRequestQuote={handleRequestQuote}
+                />
+              ))}
+            </div>
+
+            {totalPages > 1 ? (
+              <div className="flex flex-wrap items-center justify-between gap-4 border-t border-[#E5EAF2] px-4 py-3 lg:px-5">
+                <p className="text-sm text-slate-500">
+                  Hiển thị {(currentPage - 1) * itemsPerPage + 1} -{" "}
+                  {Math.min(currentPage * itemsPerPage, filteredItems.length)} của{" "}
+                  {filteredItems.length} sản phẩm
+                </p>
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+                    disabled={currentPage === 1}
+                    className="rounded-lg p-2 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label="Trang trước"
+                  >
+                    <ChevronLeft size={20} className="text-slate-600" />
+                  </button>
+                  {Array.from({ length: totalPages }, (_, index) => index + 1).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        type="button"
+                        onClick={() => setCurrentPage(page)}
+                        className={cn(
+                          "h-10 w-10 rounded-lg border text-sm font-medium transition-colors",
+                          currentPage === page
+                            ? "border-[#D9E5F6] bg-[#173E75] text-white"
+                            : "border-transparent text-slate-600 hover:bg-slate-100",
+                        )}
+                      >
+                        {page}
+                      </button>
+                    ),
+                  )}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setCurrentPage((page) => Math.min(totalPages, page + 1))
+                    }
+                    disabled={currentPage === totalPages}
+                    className="rounded-lg p-2 transition-colors hover:bg-slate-100 disabled:cursor-not-allowed disabled:opacity-50"
+                    aria-label="Trang tiếp"
+                  >
+                    <ChevronRight size={20} className="text-slate-600" />
+                  </button>
+                </div>
+              </div>
+            ) : null}
+          </>
+        ) : (
+          <div className="rounded-sm border border-[#E5EAF2] bg-white p-10 text-center lg:p-12">
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-slate-100">
+              <Heart size={32} className="text-slate-400" />
+            </div>
+            <h3 className="mb-2 text-lg font-bold text-slate-700">
+              {showEmptyWishlist ? "Bạn chưa có sản phẩm yêu thích" : "Không tìm thấy sản phẩm"}
+            </h3>
+            <p className="mx-auto mb-6 max-w-md text-sm text-slate-500">
+              {showEmptyWishlist
+                ? "Lưu sản phẩm để theo dõi giá, tồn kho và gửi báo giá nhanh hơn."
+                : "Thử thay đổi từ khóa tìm kiếm hoặc bộ lọc."}
+            </p>
+            {showEmptyWishlist ? (
+              <Link
+                href="/"
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-[#173E75] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1a4a8a]"
+              >
+                Khám phá sản phẩm
+              </Link>
+            ) : (
+              <button
+                type="button"
+                onClick={() => {
+                  setSearchQuery("");
+                  setFilterChip("all");
+                  setCurrentPage(1);
+                }}
+                className="inline-flex h-11 items-center justify-center rounded-xl bg-[#173E75] px-6 text-sm font-medium text-white transition-colors hover:bg-[#1a4a8a]"
+              >
+                Xóa bộ lọc
+              </button>
+            )}
+          </div>
+        )}
+      </div>
 
       {multiSelectMode && selectedIds.size > 0 ? (
         <StickyActionBar

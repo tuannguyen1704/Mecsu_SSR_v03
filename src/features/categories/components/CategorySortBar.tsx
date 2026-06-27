@@ -1,13 +1,17 @@
 "use client";
 
-import { Filter } from "lucide-react";
+import { Filter, Grid2X2, List } from "lucide-react";
+
+type ViewMode = "grid" | "list";
 
 interface CategorySortBarProps {
   productCount: number;
   productCountLabel?: string;
   title: string;
   sortValue: string;
+  viewMode?: ViewMode;
   onSortChange: (value: string) => void;
+  onViewModeChange?: (value: ViewMode) => void;
   onOpenFilters: () => void;
 }
 
@@ -16,7 +20,9 @@ export function CategorySortBar({
   productCountLabel,
   title,
   sortValue,
+  viewMode,
   onSortChange,
+  onViewModeChange,
   onOpenFilters,
 }: CategorySortBarProps) {
   return (
@@ -50,6 +56,37 @@ export function CategorySortBar({
           <option value="newest">Mới nhất</option>
           <option value="best-selling">Bán chạy</option>
         </select>
+
+        {viewMode && onViewModeChange ? (
+          <div className="flex overflow-hidden rounded-sm border border-slate-300 bg-white">
+            <button
+              type="button"
+              onClick={() => onViewModeChange("grid")}
+              className={`flex h-10 w-10 items-center justify-center transition-colors ${
+                viewMode === "grid"
+                  ? "bg-[#163F78] text-white"
+                  : "text-slate-600 hover:bg-slate-50"
+              }`}
+              aria-label="Hiển thị dạng lưới"
+              aria-pressed={viewMode === "grid"}
+            >
+              <Grid2X2 size={16} />
+            </button>
+            <button
+              type="button"
+              onClick={() => onViewModeChange("list")}
+              className={`flex h-10 w-10 items-center justify-center border-l border-slate-300 transition-colors ${
+                viewMode === "list"
+                  ? "bg-[#163F78] text-white"
+                  : "text-slate-600 hover:bg-slate-50"
+              }`}
+              aria-label="Hiển thị dạng danh sách"
+              aria-pressed={viewMode === "list"}
+            >
+              <List size={17} />
+            </button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

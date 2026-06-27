@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CheckCircle2, ChevronDown, Factory, Menu } from "lucide-react";
 import { motion } from "motion/react";
 import dynamic from "next/dynamic";
@@ -61,9 +61,6 @@ export default function HeaderClient({
   const pathname = usePathname();
   const router = useRouter();
   const isHomePage = pathname === "/";
-  const pathSegments = pathname.split("/").filter(Boolean);
-  const isSubcategoryPage =
-    pathSegments[0] === "danh-muc" && pathSegments.length >= 3;
   const isSearchPage = pathname === "/search";
   const isBrandPage = pathname.startsWith("/thuong-hieu");
   const [isCategoryOpen, setIsCategoryOpen] = useState(false);
@@ -71,6 +68,7 @@ export default function HeaderClient({
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
   const [mockUser, setMockUser] = useState<MockAuthUser | null>(null);
   const [isScrolled, setIsScrolled] = useState(false);
+  const isScrolledRef = useRef(false);
   const [isHomepageSearchSticky, setIsHomepageSearchSticky] = useState(false);
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(
@@ -103,10 +101,32 @@ export default function HeaderClient({
   const isAccountPage = pathname.startsWith("/tai-khoan");
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > 20);
+    let frameId = 0;
+
+    const updateScrollState = () => {
+      frameId = 0;
+      const nextIsScrolled = window.scrollY > 20;
+
+      if (isScrolledRef.current !== nextIsScrolled) {
+        isScrolledRef.current = nextIsScrolled;
+        setIsScrolled(nextIsScrolled);
+      }
+    };
+
+    const handleScroll = () => {
+      if (frameId) return;
+      frameId = window.requestAnimationFrame(updateScrollState);
+    };
+
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    return () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+      }
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   useEffect(() => {
@@ -162,7 +182,7 @@ export default function HeaderClient({
   }, [pathname]);
 
   const headerPosition =
-    isAccountPage || isSubcategoryPage || isSearchPage || isBrandPage
+    isAccountPage || isSearchPage || isBrandPage
       ? "relative"
       : "sticky top-0";
 
@@ -171,7 +191,7 @@ export default function HeaderClient({
       className={`z-[300] flex w-full flex-col ${headerPosition}`}
     >
       <div
-        className={`border-b border-slate-200 transition-all duration-300 ${
+        className={`relative z-[220] border-b border-slate-200 transition-all duration-300 ${
           isScrolled
             ? "bg-white/95 shadow-sm xl:backdrop-blur-md"
             : "bg-white"

@@ -43,7 +43,7 @@ export function AddToCartPopup() {
   const productImage = item.productImage || getSeededPlaceholder(item.productName);
 
   return (
-    <div className="absolute top-[90px] right-4 z-[5000] w-[min(390px,calc(100vw-2rem))] rounded-md border border-slate-200 bg-white p-4 shadow-[0_12px_30px_rgba(15,23,42,0.18)] sm:right-6 lg:right-10">
+    <div className="fixed top-[90px] right-4 z-[5000] w-[min(390px,calc(100vw-2rem))] rounded-md border border-slate-200 bg-white p-4 shadow-[0_12px_30px_rgba(15,23,42,0.18)] sm:right-6 lg:right-10">
       <div className="flex items-center gap-3">
         <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-emerald-50 text-emerald-600">
           <CheckCircle2 size={21} />

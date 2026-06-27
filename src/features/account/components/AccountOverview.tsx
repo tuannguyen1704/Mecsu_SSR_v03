@@ -4,10 +4,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import {
   ArrowRight,
+  BellRing,
   CheckCircle,
   DollarSign,
   Eye,
-  FileText,
   HeadphonesIcon,
   Heart,
   Package,
@@ -55,13 +55,6 @@ const moduleCards = [
     tone: "red" as const,
   },
   {
-    title: "Báo giá",
-    description: "Quản lý yêu cầu báo giá",
-    href: "/tai-khoan/bao-gia",
-    icon: FileText,
-    tone: "blue" as const,
-  },
-  {
     title: "Đổi trả",
     description: "Yêu cầu đổi trả sản phẩm",
     href: "/tai-khoan/doi-tra",
@@ -101,17 +94,17 @@ const quickActions: QuickAction[] = [
     variant: "secondary",
   },
   {
-    label: "Yêu cầu báo giá",
-    subtitle: "Nhận báo giá cho sản phẩm",
-    href: "/tai-khoan/bao-gia",
-    icon: FileText,
-    variant: "secondary",
-  },
-  {
     label: "Tải hóa đơn VAT",
     subtitle: "Xuất hóa đơn điện tử",
     href: "/tai-khoan/don-hang",
     icon: Receipt,
+    variant: "secondary",
+  },
+  {
+    label: "Nhắc hàng",
+    subtitle: "Theo dõi sản phẩm có hàng",
+    href: "/tai-khoan/nhac-hang",
+    icon: BellRing,
     variant: "secondary",
   },
   {
@@ -188,7 +181,6 @@ export function AccountOverview() {
     ["pending", "processing", "shipping"].includes(order.status),
   );
   const totalOrderValue = orders.reduce((sum, order) => sum + order.totalAmount, 0);
-  const quotationCount = 6;
 
   const uniqueOrderItems = useMemo(() => {
     const seen = new Set<string>();
@@ -215,12 +207,12 @@ export function AccountOverview() {
           Tài khoản của tôi
         </h1>
         <p className="text-slate-500 mt-1">
-          Quản lý đơn hàng, báo giá, địa chỉ giao hàng và thông tin doanh nghiệp.
+          Quản lý đơn hàng, nhắc hàng, địa chỉ giao hàng và thông tin doanh nghiệp.
         </p>
       </div>
 
       {/* Stats Overview Row */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-5">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard
           icon={Package}
           value={processingOrders.length}
@@ -238,12 +230,6 @@ export function AccountOverview() {
           value={wishlistCount}
           label="Sản phẩm yêu thích"
           iconColor="red"
-        />
-        <StatCard
-          icon={FileText}
-          value={quotationCount}
-          label="Báo giá"
-          iconColor="blue"
         />
         <StatCard
           icon={DollarSign}
@@ -315,9 +301,10 @@ export function AccountOverview() {
 
         <div className="space-y-3">
           {recentOrders.map((order) => (
-            <div
+            <Link
               key={order.id}
-              className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#E5EAF2] p-4 transition-all hover:border-[#163F78]/30"
+              href={`/tai-khoan/don-hang/${order.id}`}
+              className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-[#E5EAF2] p-4 transition-all hover:border-[#163F78]/30 hover:bg-slate-50/60"
             >
               <div className="flex min-w-0 items-center gap-4">
                 <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-slate-100">
@@ -340,15 +327,14 @@ export function AccountOverview() {
                 <span className="text-lg font-bold text-[#163F78]">
                   {formatPrice(order.totalAmount)}
                 </span>
-                <Link
-                  href={`/don-hang/${order.id}`}
+                <span
                   className="flex items-center gap-1 rounded-xl bg-slate-100 px-4 py-2 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-200"
                 >
                   <Eye size={16} />
                   Chi tiết
-                </Link>
+                </span>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
       </div>
@@ -452,11 +438,9 @@ export function AccountOverview() {
                         ? "bg-[#FFC72C]/20 text-[#B8941F]"
                         : module.tone === "green"
                           ? "bg-green-100 text-green-600"
-                          : module.tone === "blue"
-                            ? "bg-blue-100 text-blue-600"
-                            : module.tone === "purple"
-                              ? "bg-purple-100 text-purple-600"
-                              : "bg-red-100 text-red-600"
+                          : module.tone === "purple"
+                            ? "bg-purple-100 text-purple-600"
+                            : "bg-red-100 text-red-600"
                   }`}
                 >
                   <Icon size={20} />

@@ -26,7 +26,7 @@ export function QuotationCard({
 }: QuotationCardProps) {
   return (
     <article
-      className="group cursor-pointer rounded-2xl border border-[#E5EAF2] bg-white p-5 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg"
+      className="group cursor-pointer px-4 py-4 transition-colors duration-200 hover:bg-slate-50 lg:px-5"
       onClick={() => onViewDetails(quotation)}
     >
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-[1fr_auto]">
@@ -46,7 +46,7 @@ export function QuotationCard({
             </span>
           </div>
 
-          <div className="mt-4 flex items-center gap-3 border-t border-slate-100 pt-3">
+          <div className="mt-4 flex items-center gap-3 pt-3">
             <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#E8F1FB]">
               <Users size={14} className="text-[#163F78]" />
             </div>

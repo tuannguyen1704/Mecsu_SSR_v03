@@ -1087,7 +1087,7 @@ function CheckoutAddressPicker({
   const addressCount = address ? 1 : 0;
 
   return (
-    <div className="fixed inset-0 z-[99999] bg-black/50 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[99999] bg-black/55 p-4">
       <div className="flex min-h-dvh items-center justify-center">
         <div className="flex max-h-[calc(100dvh-32px)] w-full max-w-lg flex-col overflow-hidden rounded-sm bg-white shadow-2xl">
           <div className="flex items-start justify-between border-b border-slate-200 px-6 py-5">
@@ -1221,7 +1221,7 @@ function ShippingAddressModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[99999] flex items-start justify-center overflow-hidden bg-black/50 px-4 pb-4 pt-[6vh] backdrop-blur-sm">
+    <div className="fixed inset-0 z-[99999] flex items-start justify-center overflow-hidden bg-black/55 px-4 pb-4 pt-[6vh]">
       <div className="flex w-full justify-center">
         <form
           onSubmit={handleSubmit}

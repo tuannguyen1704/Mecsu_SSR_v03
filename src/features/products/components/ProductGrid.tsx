@@ -1,7 +1,12 @@
+import { memo } from "react";
 import type { Product } from "../types/product";
 import { ProductCard } from "./ProductCard";
 
-export function ProductGrid({ products }: { products: Product[] }) {
+export const ProductGrid = memo(function ProductGrid({
+  products,
+}: {
+  products: Product[];
+}) {
   if (products.length === 0) {
     return (
       <div className="flex min-h-[360px] items-center justify-center rounded-sm bg-[#ededed] p-10 text-center">
@@ -24,4 +29,4 @@ export function ProductGrid({ products }: { products: Product[] }) {
       ))}
     </div>
   );
-}
+});

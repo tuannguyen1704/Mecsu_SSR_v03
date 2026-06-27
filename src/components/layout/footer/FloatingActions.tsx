@@ -62,7 +62,7 @@ function ContactMenu() {
         whileHover={{ scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
         onClick={() => setOpen((prev) => !prev)}
-        className="flex h-11 w-11 items-center justify-center gap-2 rounded-xl border border-white/10 bg-[#D32F2F] p-0 text-sm font-bold text-white shadow-xl hover:bg-[#B71C1C] sm:h-auto sm:w-auto sm:rounded-2xl sm:px-5 sm:py-2.5"
+        className="flex h-11 w-11 items-center justify-center gap-2 rounded-xl bg-[#163F78] p-0 text-sm font-bold text-white shadow-[0_8px_20px_rgba(22,63,120,0.22)] transition-colors hover:bg-[#123462] sm:h-auto sm:w-auto sm:rounded-2xl sm:px-5 sm:py-2.5"
         ref={buttonRef}
       >
         <span className="hidden tracking-tight sm:inline">Liên hệ</span>
@@ -112,15 +112,35 @@ function ContactMenu() {
 
 export function FloatingActions() {
   const [showScroll, setShowScroll] = useState(false);
+  const showScrollRef = useRef(false);
 
   useEffect(() => {
+    let frameId = 0;
+
+    const updateScrollState = () => {
+      frameId = 0;
+      const nextShowScroll = window.scrollY > 300;
+
+      if (showScrollRef.current !== nextShowScroll) {
+        showScrollRef.current = nextShowScroll;
+        setShowScroll(nextShowScroll);
+      }
+    };
+
     const handleScroll = () => {
-      setShowScroll(window.scrollY > 300);
+      if (frameId) return;
+      frameId = window.requestAnimationFrame(updateScrollState);
     };
 
     handleScroll();
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
+
+    return () => {
+      if (frameId) {
+        window.cancelAnimationFrame(frameId);
+      }
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   const scrollToTop = () => {
@@ -139,7 +159,7 @@ export function FloatingActions() {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={scrollToTop}
-            className="group flex h-11 w-11 items-center justify-center gap-2 overflow-hidden rounded-xl border border-white/10 bg-brand-secondary p-0 text-white shadow-xl sm:h-auto sm:w-auto sm:rounded-2xl sm:px-5 sm:py-2.5"
+            className="group flex h-11 w-11 items-center justify-center gap-2 overflow-hidden rounded-xl bg-[#163F78] p-0 text-white shadow-[0_8px_20px_rgba(22,63,120,0.22)] transition-colors hover:bg-[#123462] sm:h-auto sm:w-auto sm:rounded-2xl sm:px-5 sm:py-2.5"
           >
             <span className="hidden text-sm font-bold tracking-tight sm:inline">
               Lên đầu

@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { CategoryPageShell } from "@/features/categories/components/CategoryPageShell";
 import {
   getCategory,
   getCategoryRouteParams,
+  getSubcategoryRedirectHref,
 } from "@/features/categories/services/category-service";
 
 interface CategoryRouteProps {
@@ -11,6 +12,8 @@ interface CategoryRouteProps {
     categoryId: string;
   }>;
 }
+
+export const dynamicParams = true;
 
 export async function generateStaticParams() {
   return getCategoryRouteParams();
@@ -39,6 +42,12 @@ export default async function CategoryPage({ params }: CategoryRouteProps) {
   const category = await getCategory(categoryId);
 
   if (!category) {
+    const redirectHref = getSubcategoryRedirectHref(categoryId);
+
+    if (redirectHref) {
+      redirect(redirectHref);
+    }
+
     notFound();
   }
 

@@ -1,10 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Heart } from "lucide-react";
 import { useCart } from "@/features/cart";
 import { notifyCartItemAdded } from "@/features/cart/services/cart-feedback";
 import type { Product } from "../types/product";
+import {
+  getInitialOrderQuantity,
+  getMinOrderQuantity,
+  getOrderStep,
+} from "../utils/orderQuantity";
+import { QuantityStepper } from "./QuantityStepper";
 import { StockReminderModal } from "./StockReminderModal";
 
 interface ProductCardActionsProps {
@@ -13,16 +19,36 @@ interface ProductCardActionsProps {
   productImage: string;
 }
 
-export function ProductCardActions({
+export const ProductCardActions = memo(function ProductCardActions({
   isOutOfStock,
   product,
   productImage,
 }: ProductCardActionsProps) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [wasAdded, setWasAdded] = useState(false);
+  const [quantity, setQuantity] = useState(() => getInitialOrderQuantity(product));
   const [isReminderOpen, setIsReminderOpen] = useState(false);
   const [reminderSession, setReminderSession] = useState(0);
   const { addItem } = useCart();
+  const minOrderQuantity = getMinOrderQuantity(product);
+  const orderStep = getOrderStep(product);
+
+  const handleAddToCart = () => {
+    if (isOutOfStock) {
+      setReminderSession((current) => current + 1);
+      setIsReminderOpen(true);
+      return;
+    }
+
+    addItem(product, quantity);
+    notifyCartItemAdded({
+      productImage,
+      productName: product.name,
+      quantity,
+    });
+    setWasAdded(true);
+    window.setTimeout(() => setWasAdded(false), 1200);
+  };
 
   return (
     <>
@@ -40,24 +66,20 @@ export function ProductCardActions({
         />
       </button>
 
+      {!isOutOfStock ? (
+        <QuantityStepper
+          value={quantity}
+          minOrderQuantity={minOrderQuantity}
+          orderStep={orderStep}
+          unit={product.unit}
+          onChange={setQuantity}
+          className="mt-2 sm:mt-3"
+        />
+      ) : null}
+
       <button
         type="button"
-        onClick={() => {
-          if (isOutOfStock) {
-            setReminderSession((current) => current + 1);
-            setIsReminderOpen(true);
-            return;
-          }
-
-          addItem(product, 1);
-          notifyCartItemAdded({
-            productImage,
-            productName: product.name,
-            quantity: 1,
-          });
-          setWasAdded(true);
-          window.setTimeout(() => setWasAdded(false), 1200);
-        }}
+        onClick={handleAddToCart}
         className={`mt-2 w-full rounded-sm border px-1 py-2 text-[11px] font-bold tracking-tight uppercase transition-all sm:mt-3 sm:px-0 sm:py-2.5 sm:text-sm ${
           isOutOfStock
             ? "border-slate-800 bg-white text-slate-800 hover:bg-slate-800 hover:text-white"
@@ -68,7 +90,7 @@ export function ProductCardActions({
           ? "Nhắc tôi sau"
           : wasAdded
             ? "Đã thêm vào giỏ hàng"
-            : "Thêm giỏ hàng"}
+            : "THÊM GIỎ HÀNG"}
       </button>
 
       {isReminderOpen ? (
@@ -81,4 +103,4 @@ export function ProductCardActions({
       ) : null}
     </>
   );
-}
+});

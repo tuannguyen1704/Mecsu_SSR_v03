@@ -16,7 +16,7 @@ export function SubcategoryCarouselItem({
   categorySlug,
   isActive = false,
 }: SubcategoryCarouselItemProps) {
-  const href = `/danh-muc/${categorySlug}/${subcategory.slug}`;
+  const href = subcategory.href || `/danh-muc/${categorySlug}/${subcategory.slug}`;
 
   return (
     <Link
@@ -42,6 +42,9 @@ export function SubcategoryCarouselItem({
         `}
       >
         {subcategory.name}
+        {typeof subcategory.count === "number" ? (
+          <span className="ml-1 text-slate-500">({subcategory.count})</span>
+        ) : null}
       </span>
     </Link>
   );

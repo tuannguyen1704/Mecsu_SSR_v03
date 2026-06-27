@@ -47,7 +47,7 @@ export function BrandListingPage({
 
   const handleQuotationClick = () => {
     if (getCurrentUser()) {
-      router.push("/tai-khoan/bao-gia");
+      router.push("/dich-vu-khach-hang");
       return;
     }
 
@@ -253,7 +253,7 @@ export function BrandListingPage({
           onClose={() => setIsAuthModalOpen(false)}
           onSuccess={() => {
             setIsAuthModalOpen(false);
-            router.push("/tai-khoan/bao-gia");
+            router.push("/dich-vu-khach-hang");
           }}
         />
       ) : null}

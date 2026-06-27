@@ -1,4 +1,9 @@
 import type { Product } from "@/features/products/types/product";
+import {
+  getMinOrderQuantity,
+  getOrderStep,
+  normalizeOrderQuantity,
+} from "@/features/products/utils/orderQuantity";
 import type { CartItem, CartSnapshot } from "../types/cart";
 
 export const CART_STORAGE_KEY = "mecsu-cart";
@@ -12,20 +17,33 @@ function isBrowser() {
   return typeof window !== "undefined";
 }
 
-function normalizeQuantity(quantity: number, stock: number) {
-  const maxQuantity = Math.max(1, stock);
-  return Math.min(maxQuantity, Math.max(1, Math.floor(quantity || 1)));
+function normalizeQuantity(
+  quantity: number,
+  minOrderQuantity = 1,
+  orderStep = minOrderQuantity,
+) {
+  return normalizeOrderQuantity(
+    Math.floor(quantity || minOrderQuantity),
+    Math.max(1, minOrderQuantity),
+    Math.max(1, orderStep || minOrderQuantity),
+  );
 }
 
 function productToCartItem(product: Product, quantity = 1): CartItem {
+  const minOrderQuantity = getMinOrderQuantity(product);
+  const orderStep = getOrderStep(product);
+
   return {
     productId: product.id,
     sku: product.sku,
     name: product.name,
     image: product.image,
     price: product.price,
-    quantity: normalizeQuantity(quantity, product.stock),
+    quantity: normalizeQuantity(quantity, minOrderQuantity, orderStep),
     stock: product.stock,
+    minOrderQuantity,
+    orderStep,
+    unit: product.unit,
     slug: product.slug,
   };
 }
@@ -72,7 +90,11 @@ export function loadCart(): CartSnapshot {
         .filter((item) => item && item.productId && item.quantity > 0)
         .map((item) => ({
           ...item,
-          quantity: normalizeQuantity(item.quantity, item.stock),
+          quantity: normalizeQuantity(
+            item.quantity,
+            item.minOrderQuantity,
+            item.orderStep,
+          ),
         })),
     };
 
@@ -96,13 +118,23 @@ export function addItem(product: Product, quantity = 1) {
   const existingItem = cart.items.find((item) => item.productId === product.id);
 
   if (existingItem) {
+    const minOrderQuantity = getMinOrderQuantity(product);
+    const orderStep = getOrderStep(product);
+
     saveCart({
       items: cart.items.map((item) =>
         item.productId === product.id
           ? {
               ...item,
-              quantity: normalizeQuantity(item.quantity + quantity, product.stock),
+              quantity: normalizeQuantity(
+                item.quantity + quantity,
+                minOrderQuantity,
+                orderStep,
+              ),
               stock: product.stock,
+              minOrderQuantity,
+              orderStep,
+              unit: product.unit,
               price: product.price,
               image: product.image,
               slug: product.slug,
@@ -129,7 +161,14 @@ export function updateQuantity(productId: string, quantity: number) {
   saveCart({
     items: cart.items.map((item) =>
       item.productId === productId
-        ? { ...item, quantity: normalizeQuantity(quantity, item.stock) }
+        ? {
+            ...item,
+            quantity: normalizeQuantity(
+              quantity,
+              item.minOrderQuantity,
+              item.orderStep,
+            ),
+          }
         : item,
     ),
   });
@@ -138,13 +177,13 @@ export function updateQuantity(productId: string, quantity: number) {
 export function increaseQuantity(productId: string) {
   const item = loadCart().items.find((cartItem) => cartItem.productId === productId);
   if (!item) return;
-  updateQuantity(productId, item.quantity + 1);
+  updateQuantity(productId, item.quantity + (item.orderStep ?? item.minOrderQuantity ?? 1));
 }
 
 export function decreaseQuantity(productId: string) {
   const item = loadCart().items.find((cartItem) => cartItem.productId === productId);
   if (!item) return;
-  updateQuantity(productId, item.quantity - 1);
+  updateQuantity(productId, item.quantity - (item.orderStep ?? item.minOrderQuantity ?? 1));
 }
 
 export function clearCart() {

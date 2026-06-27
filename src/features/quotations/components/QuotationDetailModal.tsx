@@ -44,7 +44,7 @@ export function QuotationDetailModal({
       <button
         type="button"
         aria-label="Đóng chi tiết báo giá"
-        className="absolute inset-0 bg-slate-950/45 backdrop-blur-sm"
+        className="absolute inset-0 bg-slate-950/60"
         onClick={onClose}
       />
       <div className="relative z-10 flex min-h-dvh items-center justify-center p-4">

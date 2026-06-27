@@ -66,7 +66,7 @@ export const BestSellersSlider: React.FC<BestSellersSliderProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-[#E5EAF2] p-4 lg:p-6 w-full max-w-full overflow-hidden">
+    <div className="bg-white rounded-sm border border-[#E5EAF2] p-4 lg:p-6 w-full max-w-full overflow-hidden">
       <div className="flex items-center justify-between mb-4 lg:mb-6">
         <div className="flex items-center gap-2 lg:gap-3">
           <Star size={20} className="text-[#FFC72C] fill-[#FFC72C] flex-shrink-0" />

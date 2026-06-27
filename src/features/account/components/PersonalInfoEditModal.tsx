@@ -85,7 +85,7 @@ export function PersonalInfoEditModal({
     <>
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-[400] bg-black/50 backdrop-blur-sm transition-opacity"
+        className="fixed inset-0 z-[400] bg-black/55 transition-opacity"
         onClick={onClose}
       />
 

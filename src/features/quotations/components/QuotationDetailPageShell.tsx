@@ -129,7 +129,7 @@ export function QuotationDetailPageShell({
           Yêu cầu báo giá này không tồn tại hoặc đã bị xoá khỏi dữ liệu tạm.
         </p>
         <Link
-          href="/tai-khoan/bao-gia"
+          href="/tai-khoan"
           className="mt-5 inline-flex rounded-xl bg-[#163F78] px-5 py-2.5 font-semibold text-white"
         >
           Quay lại danh sách
@@ -180,7 +180,7 @@ export function QuotationDetailPageShell({
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div>
           <Link
-            href="/tai-khoan/bao-gia"
+            href="/tai-khoan"
             className="inline-flex items-center gap-2 text-sm font-semibold text-slate-500 transition-colors hover:text-[#163F78]"
           >
             <ArrowLeft size={18} />
@@ -581,7 +581,7 @@ export function QuotationDetailPageShell({
             </ActionButton>
             <ActionButton
               variant="primary"
-              onClick={() => router.push("/tai-khoan/bao-gia")}
+              onClick={() => router.push("/tai-khoan")}
               icon={<ShoppingBag size={16} />}
             >
               Tạo báo giá mới
@@ -660,7 +660,7 @@ function ModalShell({
   footer: React.ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/45 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-slate-950/60 p-4">
       <div className="relative z-[10000] w-full max-w-xl rounded-[24px] bg-white shadow-[0_20px_50px_rgba(15,23,42,0.16)]">
         <div className="flex items-start justify-between gap-4 border-b border-[#E5EAF2] px-6 py-5">
           <div>

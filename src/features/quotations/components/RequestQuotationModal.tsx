@@ -399,11 +399,11 @@ export function RequestQuotationModal({
               type="button"
               onClick={() => {
                 onClose();
-                router.push("/tai-khoan/bao-gia");
+                router.push("/tai-khoan");
               }}
               className="h-11 flex-1 rounded-[14px] border border-[#E8B93A] bg-[#F4C84A] font-extrabold text-[#173E75] transition-colors hover:bg-[#E8B93A]"
             >
-              Xem danh sách
+              Về tài khoản
             </button>
             <button
               type="button"
@@ -842,7 +842,7 @@ function ModalFrame({
       <button
         type="button"
         aria-label="Đóng modal"
-        className="absolute inset-0 bg-slate-950/45 backdrop-blur-md"
+        className="absolute inset-0 bg-slate-950/60"
         onClick={onBackdropClick}
       />
       <div className="relative z-10 flex min-h-dvh items-center justify-center p-4">

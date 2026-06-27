@@ -9,34 +9,43 @@ interface SubcategoryPageShellProps {
   category: Category;
   subcategory: CategorySubcategory;
   products: Product[];
+  parentSubcategory?: CategorySubcategory;
 }
 
 export function SubcategoryPageShell({
   category,
   subcategory,
   products,
+  parentSubcategory,
 }: SubcategoryPageShellProps) {
-  return (
-    <main className="mx-auto max-w-[1600px] px-6 py-8 lg:px-12">
-      <SubcategoryBreadcrumb category={category} subcategory={subcategory} />
+  const parentName = parentSubcategory?.name ?? category.name;
 
-      <section className="mb-8">
-        <h1 className="mb-3 text-3xl font-black tracking-tight text-[#1a1a1a] md:text-4xl">
+  return (
+    <main className="mx-auto max-w-[1600px] px-6 py-5 lg:px-12">
+      <SubcategoryBreadcrumb
+        category={category}
+        subcategory={subcategory}
+        parentSubcategory={parentSubcategory}
+      />
+
+      <section className="mb-5">
+        <h1 className="mb-2 text-2xl font-bold tracking-tight text-[#1a1a1a] md:text-3xl">
           {subcategory.name}
         </h1>
-        <p className="max-w-3xl text-base leading-relaxed font-medium text-slate-600 md:text-lg">
-          Khám phá sản phẩm {subcategory.name} thuộc danh mục {category.name},
+        <p className="max-w-3xl text-sm leading-6 font-normal text-slate-600 md:text-lg">
+          Khám phá sản phẩm {subcategory.name} thuộc danh mục {parentName},
           được tuyển chọn cho nhu cầu mua vật tư công nghiệp, công trình và sản
           xuất.
         </p>
       </section>
 
-      <SubcategoryCarousel category={category} currentSubcategory={subcategory} />
-
-      <CategoryListingClient
-        title={subcategory.name}
-        products={products}
+      <SubcategoryCarousel
+        category={category}
+        currentSubcategory={subcategory}
+        parentSubcategory={parentSubcategory}
       />
+
+      <CategoryListingClient title={subcategory.name} products={products} />
       <SubcategoryLowerSections
         category={category}
         subcategory={subcategory}

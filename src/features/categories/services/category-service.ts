@@ -1,4 +1,8 @@
 import { CATEGORIES } from "../data/categories";
+import {
+  bulongChildSubcategorySlugs,
+  subcategoryCountsBySlug,
+} from "../data/subcategory-counts";
 import { toSlug } from "@/lib/routing";
 import type { Category, CategorySubcategory } from "../types/category";
 
@@ -17,6 +21,13 @@ const categoryAdapter = {
     subSlug: string,
   ): Promise<CategorySubcategory | undefined> {
     return getSubcategoryBySlug(category, subSlug);
+  },
+  async getSubcategoryChildBySlug(
+    category: Category,
+    parentSlug: string,
+    childSlug: string,
+  ): Promise<CategorySubcategory | undefined> {
+    return getSubcategoryChildBySlug(category, parentSlug, childSlug);
   },
 };
 
@@ -44,6 +55,7 @@ export function getCategorySubcategories(category: Category): CategorySubcategor
       name: subcategory,
       slug,
       href: `/danh-muc/${category.slug}/${slug}`,
+      count: subcategoryCountsBySlug[slug],
     };
   });
 }
@@ -57,6 +69,39 @@ export function getSubcategoryBySlug(
   return getCategorySubcategories(category).find(
     (subcategory) => subcategory.slug === decodedSubSlug,
   );
+}
+
+export function getSubcategoryChildBySlug(
+  category: Category,
+  parentSlug: string,
+  childSlug: string,
+): CategorySubcategory | undefined {
+  const decodedParentSlug = decodeURIComponent(parentSlug);
+  const decodedChildSlug = decodeURIComponent(childSlug);
+  const parentSubcategory = getSubcategoryBySlug(category, decodedParentSlug);
+
+  if (!parentSubcategory || parentSubcategory.slug !== "bulong") {
+    return undefined;
+  }
+
+  if (!bulongChildSubcategorySlugs.includes(decodedChildSlug)) {
+    return undefined;
+  }
+
+  const childSubcategory = getCategorySubcategories(category).find(
+    (subcategory) =>
+      subcategory.slug === decodedChildSlug &&
+      subcategory.slug !== parentSubcategory.slug,
+  );
+
+  if (!childSubcategory) {
+    return undefined;
+  }
+
+  return {
+    ...childSubcategory,
+    href: `/danh-muc/${category.slug}/${parentSubcategory.slug}/${childSubcategory.slug}`,
+  };
 }
 
 export function getCategoryTrailBySearchQuery(query: string): {
@@ -86,6 +131,36 @@ export function getCategoryTrailBySearchQuery(query: string): {
   return category ? { category } : null;
 }
 
+export function getSubcategoryRedirectHref(subcategorySlug: string): string | undefined {
+  const normalizedSubcategorySlug = toSlug(decodeURIComponent(subcategorySlug));
+
+  if (!normalizedSubcategorySlug) {
+    return undefined;
+  }
+
+  for (const category of CATEGORIES) {
+    const subcategory = getCategorySubcategories(category).find(
+      (item) => item.slug === normalizedSubcategorySlug,
+    );
+
+    if (!subcategory) {
+      continue;
+    }
+
+    if (
+      normalizedSubcategorySlug !== "bulong" &&
+      bulongChildSubcategorySlugs.includes(normalizedSubcategorySlug) &&
+      getSubcategoryBySlug(category, "bulong")
+    ) {
+      return `/danh-muc/${category.slug}/bulong/${normalizedSubcategorySlug}`;
+    }
+
+    return `/danh-muc/${category.slug}/${normalizedSubcategorySlug}`;
+  }
+
+  return undefined;
+}
+
 export async function listCategories(): Promise<Category[]> {
   return categoryAdapter.listCategories();
 }
@@ -109,6 +184,18 @@ export async function getSubcategory(
   return categoryAdapter.getSubcategoryBySlug(category, subSlug);
 }
 
+export async function getSubcategoryChild(
+  category: Category,
+  parentSlug: string,
+  childSlug: string,
+): Promise<CategorySubcategory | undefined> {
+  return categoryAdapter.getSubcategoryChildBySlug(
+    category,
+    parentSlug,
+    childSlug,
+  );
+}
+
 export async function getCategoryRouteParams(): Promise<{ categoryId: string }[]> {
   const categories = await listCategories();
 
@@ -128,4 +215,28 @@ export async function getSubcategoryRouteParams(): Promise<
       subSlug: subcategory.slug,
     })),
   );
+}
+
+export async function getNestedSubcategoryRouteParams(): Promise<
+  { categoryId: string; subSlug: string; childSlug: string }[]
+> {
+  const categories = await listCategories();
+
+  return categories.flatMap((category) => {
+    const parentSubcategory = getSubcategoryBySlug(category, "bulong");
+
+    if (!parentSubcategory) {
+      return [];
+    }
+
+    return getCategorySubcategories(category)
+      .filter((subcategory) =>
+        bulongChildSubcategorySlugs.includes(subcategory.slug),
+      )
+      .map((subcategory) => ({
+        categoryId: category.slug,
+        subSlug: parentSubcategory.slug,
+        childSlug: subcategory.slug,
+      }));
+  });
 }

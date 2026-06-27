@@ -18,7 +18,7 @@ const toneClasses = {
 
 function StatCard({ icon, value, label, tone }: StatCardProps) {
   return (
-    <div className="rounded-2xl border border-[#E5EAF2] bg-white p-4 transition-shadow hover:shadow-md">
+    <div className="rounded-sm border border-[#E5EAF2] bg-white p-4 transition-shadow hover:shadow-md">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="mb-1 text-3xl font-bold text-[#163F78]">{value}</p>
