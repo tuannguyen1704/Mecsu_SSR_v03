@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import {
   ArrowUpCircle,
@@ -42,8 +42,43 @@ const ICON_MAP = {
   Factory,
 };
 
+type VisibleSubcategoryItem = {
+  name: string;
+  apiId?: number;
+  href?: string;
+};
+
+function HeaderSubcategoryImage({
+  imageSrc,
+  alt,
+}: {
+  imageSrc?: string;
+  alt: string;
+}) {
+  const [failedSrc, setFailedSrc] = useState<string | null>(null);
+  const src = imageSrc && failedSrc !== imageSrc ? imageSrc : null;
+
+  if (!src) {
+    return null;
+  }
+
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      fill
+      sizes="56px"
+      className="object-cover transition-transform group-hover:scale-110"
+      onError={() => {
+        setFailedSrc(src);
+      }}
+    />
+  );
+}
+
 interface HeaderCategoryMenuProps {
   categories: HeaderCategory[];
+  catalogApiEnabled: boolean;
   isOpen: boolean;
   locations: string[];
   selectedLocation: string;
@@ -53,6 +88,7 @@ interface HeaderCategoryMenuProps {
 
 export default function HeaderCategoryMenu({
   categories,
+  catalogApiEnabled,
   isOpen,
   locations,
   selectedLocation,
@@ -62,6 +98,23 @@ export default function HeaderCategoryMenu({
   const router = useRouter();
   const [hoveredCategoryIdx, setHoveredCategoryIdx] = useState<number | null>(null);
   const [isLocationModalOpen, setIsLocationModalOpen] = useState(false);
+  const [thumbnailCache, setThumbnailCache] = useState<Record<number, string>>({});
+
+  const visibleSubcategories = useMemo<VisibleSubcategoryItem[]>(() => {
+    if (hoveredCategoryIdx === null) {
+      return [];
+    }
+
+    const category = categories[hoveredCategoryIdx];
+
+    return (
+      category.subcategoryItems ??
+      category.subcategories.map((name) => ({
+        name,
+        href: category.subcategoryHrefs?.[name],
+      }))
+    );
+  }, [categories, hoveredCategoryIdx]);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -86,6 +139,77 @@ export default function HeaderCategoryMenu({
       document.removeEventListener("touchmove", preventBackgroundScroll);
     };
   }, [isOpen]);
+
+  useEffect(() => {
+    if (!isOpen || !catalogApiEnabled || visibleSubcategories.length === 0) {
+      return;
+    }
+
+    const missingIds = Array.from(
+      new Set(
+        visibleSubcategories
+          .map((item) => item.apiId)
+          .filter(
+            (id): id is number =>
+              typeof id === "number" && id > 0 && !thumbnailCache[id],
+          ),
+      ),
+    );
+
+    if (missingIds.length === 0) {
+      return;
+    }
+
+    const controller = new AbortController();
+    const timeoutId = window.setTimeout(async () => {
+      try {
+        console.info("[catalog-api] Loading category thumbnails", missingIds);
+
+        const response = await fetch(
+          `/api/catalog/category-thumbnails?ids=${missingIds.join(",")}`,
+          {
+            signal: controller.signal,
+          },
+        );
+
+        if (!response.ok) {
+          throw new Error(`Thumbnail request failed with ${response.status}`);
+        }
+
+        const data = (await response.json()) as {
+          items?: { id: number; imageUrl: string }[];
+        };
+        const items = data.items ?? [];
+
+        console.info("[catalog-api] Category thumbnails loaded", items.length);
+
+        if (items.length === 0) {
+          return;
+        }
+
+        setThumbnailCache((current) => {
+          const next = { ...current };
+
+          items.forEach((item) => {
+            next[item.id] = item.imageUrl;
+          });
+
+          return next;
+        });
+      } catch (error) {
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        console.warn("[catalog-api] Category thumbnails fallback", error);
+      }
+    }, 150);
+
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeoutId);
+    };
+  }, [catalogApiEnabled, isOpen, thumbnailCache, visibleSubcategories]);
 
   return (
     <>
@@ -141,28 +265,34 @@ export default function HeaderCategoryMenu({
               <div className="flex-1 overflow-y-auto p-10">
                 {hoveredCategoryIdx !== null ? (
                   <div className="grid grid-cols-4 gap-x-8 gap-y-8">
-                    {categories[hoveredCategoryIdx].subcategories.map((subcategory) => (
+                    {visibleSubcategories.map((subcategory) => (
                       <button
-                        key={subcategory}
+                        key={`${subcategory.apiId ?? subcategory.name}-${subcategory.name}`}
                         onClick={() => {
                           const category = categories[hoveredCategoryIdx];
+                          const href =
+                            subcategory.href ??
+                            category.subcategoryHrefs?.[subcategory.name] ??
+                            `${category.href ?? generateCategoryUrl(category)}/${toSlug(subcategory.name)}`;
+
                           onClose();
-                          router.push(`${generateCategoryUrl(category)}/${toSlug(subcategory)}`);
+                          router.push(href);
                         }}
                         className="group flex items-start gap-3 text-left"
                       >
-                        <div className="relative flex h-14 w-14 items-center justify-center overflow-hidden rounded border border-slate-200 bg-white p-0 transition-all group-hover:border-brand-primary group-hover:shadow-lg group-hover:shadow-blue-500/10">
-                          <Image
-                            src={getSeededCategoryImage(subcategory)}
-                            alt={subcategory}
-                            fill
-                            sizes="56px"
-                            className="object-cover transition-transform group-hover:scale-110"
+                        <div className="relative flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded border border-slate-200 bg-white p-0 transition-all group-hover:border-brand-primary group-hover:shadow-lg group-hover:shadow-blue-500/10">
+                          <HeaderSubcategoryImage
+                            imageSrc={
+                              catalogApiEnabled && subcategory.apiId
+                                ? thumbnailCache[subcategory.apiId]
+                                : getSeededCategoryImage(subcategory.name)
+                            }
+                            alt={subcategory.name}
                           />
                         </div>
-                        <div className="flex flex-col gap-0.5">
-                          <span className="text-[12px] font-bold leading-tight tracking-tight text-slate-800 transition-colors group-hover:text-brand-secondary">
-                            {subcategory}
+                        <div className="min-w-0 flex-1 overflow-hidden">
+                          <span className="line-clamp-2 max-w-full text-[12px] leading-tight font-bold tracking-tight break-words text-slate-800 transition-colors group-hover:text-brand-secondary">
+                            {subcategory.name}
                           </span>
                           <span className="text-[9px] font-medium capitalize tracking-widest text-slate-400">
                             Sẵn kho

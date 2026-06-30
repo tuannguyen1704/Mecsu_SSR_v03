@@ -3,16 +3,23 @@ import { notFound } from "next/navigation";
 import { SubcategoryPageShell } from "@/features/categories/components/SubcategoryPageShell";
 import {
   getCategory,
+  getCategoryDetailByPath,
   getSubcategory,
   getSubcategoryRouteParams,
 } from "@/features/categories/services/category-service";
-import { listProductsForSubcategory } from "@/features/products/services/product-service";
+import { stripHtml } from "@/features/categories/services/catalog-category-detail-mapper";
+import {
+  listProductsForCategoryPath,
+  parseCatalogProductsQuery,
+  type ProductListingSearchParams,
+} from "@/features/products/services/product-service";
 
 interface SubcategoryRouteProps {
   params: Promise<{
     categoryId: string;
     subSlug: string;
   }>;
+  searchParams?: Promise<ProductListingSearchParams>;
 }
 
 export async function generateStaticParams() {
@@ -24,6 +31,7 @@ export async function generateMetadata({
 }: SubcategoryRouteProps): Promise<Metadata> {
   const { categoryId, subSlug } = await params;
   const category = await getCategory(categoryId);
+  const categoryDetail = await getCategoryDetailByPath(`${categoryId}/${subSlug}`);
 
   if (!category) {
     return {
@@ -39,15 +47,36 @@ export async function generateMetadata({
     };
   }
 
+  const description =
+    stripHtml(categoryDetail?.description || categoryDetail?.longDescription)
+      .slice(0, 160) ||
+    `Mua ${subcategory.name} thuộc danh mục ${category.name} tại MECsu. Xem giá, tình trạng hàng và lựa chọn sản phẩm phù hợp.`;
+
   return {
-    title: `${subcategory.name} | ${category.name} | MECsu`,
-    description: `Mua ${subcategory.name} thuộc danh mục ${category.name} tại MECsu. Xem giá, tình trạng hàng và lựa chọn sản phẩm phù hợp.`,
+    title: `${categoryDetail?.name ?? subcategory.name} | ${category.name} | MECsu`,
+    description,
+    alternates: categoryDetail?.canonical || categoryDetail?.href
+      ? {
+          canonical: categoryDetail.canonical || categoryDetail.href,
+        }
+      : undefined,
+    openGraph: categoryDetail?.imageUrl
+      ? {
+          images: [categoryDetail.imageUrl],
+        }
+      : undefined,
   };
 }
 
-export default async function SubcategoryPage({ params }: SubcategoryRouteProps) {
+export default async function SubcategoryPage({
+  params,
+  searchParams,
+}: SubcategoryRouteProps) {
   const { categoryId, subSlug } = await params;
+  const query = parseCatalogProductsQuery(await searchParams);
   const category = await getCategory(categoryId);
+  const categoryPath = `${categoryId}/${subSlug}`;
+  const categoryDetail = await getCategoryDetailByPath(categoryPath);
 
   if (!category) {
     notFound();
@@ -59,13 +88,20 @@ export default async function SubcategoryPage({ params }: SubcategoryRouteProps)
     notFound();
   }
 
-  const products = await listProductsForSubcategory(category, subcategory);
+  const productListing = await listProductsForCategoryPath(
+    categoryPath,
+    category,
+    subcategory,
+    query,
+  );
 
   return (
     <SubcategoryPageShell
       category={category}
       subcategory={subcategory}
-      products={products}
+      products={productListing.products}
+      categoryDetail={categoryDetail}
+      productCount={productListing.total || categoryDetail?.productCount}
     />
   );
 }

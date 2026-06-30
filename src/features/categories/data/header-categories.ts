@@ -1,8 +1,19 @@
+export interface HeaderSubcategoryItem {
+  name: string;
+  apiId?: number;
+  href?: string;
+}
+
 export interface HeaderCategory {
   id: string;
+  apiId?: number;
   name: string;
+  slug?: string;
+  href?: string;
   icon: string;
   subcategories: string[];
+  subcategoryItems?: HeaderSubcategoryItem[];
+  subcategoryHrefs?: Record<string, string>;
 }
 
 export const HEADER_CATEGORIES: HeaderCategory[] = [

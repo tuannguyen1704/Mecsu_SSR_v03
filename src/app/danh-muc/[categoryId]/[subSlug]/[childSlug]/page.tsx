@@ -3,11 +3,17 @@ import { notFound } from "next/navigation";
 import { SubcategoryPageShell } from "@/features/categories/components/SubcategoryPageShell";
 import {
   getCategory,
+  getCategoryDetailByPath,
   getNestedSubcategoryRouteParams,
   getSubcategory,
   getSubcategoryChild,
 } from "@/features/categories/services/category-service";
-import { listProductsForSubcategory } from "@/features/products/services/product-service";
+import { stripHtml } from "@/features/categories/services/catalog-category-detail-mapper";
+import {
+  listProductsForCategoryPath,
+  parseCatalogProductsQuery,
+  type ProductListingSearchParams,
+} from "@/features/products/services/product-service";
 
 interface NestedSubcategoryRouteProps {
   params: Promise<{
@@ -15,6 +21,7 @@ interface NestedSubcategoryRouteProps {
     subSlug: string;
     childSlug: string;
   }>;
+  searchParams?: Promise<ProductListingSearchParams>;
 }
 
 export async function generateStaticParams() {
@@ -26,6 +33,9 @@ export async function generateMetadata({
 }: NestedSubcategoryRouteProps): Promise<Metadata> {
   const { categoryId, subSlug, childSlug } = await params;
   const category = await getCategory(categoryId);
+  const categoryDetail = await getCategoryDetailByPath(
+    `${categoryId}/${subSlug}/${childSlug}`,
+  );
 
   if (!category) {
     return {
@@ -46,17 +56,36 @@ export async function generateMetadata({
     };
   }
 
+  const description =
+    stripHtml(categoryDetail?.description || categoryDetail?.longDescription)
+      .slice(0, 160) ||
+    `Mua ${childSubcategory.name} thuộc danh mục ${parentSubcategory.name} tại MECsu. Xem giá, tình trạng hàng và lựa chọn sản phẩm phù hợp.`;
+
   return {
-    title: `${childSubcategory.name} | ${parentSubcategory.name} | ${category.name} | MECsu`,
-    description: `Mua ${childSubcategory.name} thuộc danh mục ${parentSubcategory.name} tại MECsu. Xem giá, tình trạng hàng và lựa chọn sản phẩm phù hợp.`,
+    title: `${categoryDetail?.name ?? childSubcategory.name} | ${parentSubcategory.name} | ${category.name} | MECsu`,
+    description,
+    alternates: categoryDetail?.canonical || categoryDetail?.href
+      ? {
+          canonical: categoryDetail.canonical || categoryDetail.href,
+        }
+      : undefined,
+    openGraph: categoryDetail?.imageUrl
+      ? {
+          images: [categoryDetail.imageUrl],
+        }
+      : undefined,
   };
 }
 
 export default async function NestedSubcategoryPage({
   params,
+  searchParams,
 }: NestedSubcategoryRouteProps) {
   const { categoryId, subSlug, childSlug } = await params;
+  const query = parseCatalogProductsQuery(await searchParams);
+  const categoryPath = `${categoryId}/${subSlug}/${childSlug}`;
   const category = await getCategory(categoryId);
+  const categoryDetail = await getCategoryDetailByPath(categoryPath);
 
   if (!category) {
     notFound();
@@ -73,14 +102,21 @@ export default async function NestedSubcategoryPage({
     notFound();
   }
 
-  const products = await listProductsForSubcategory(category, childSubcategory);
+  const productListing = await listProductsForCategoryPath(
+    categoryPath,
+    category,
+    childSubcategory,
+    query,
+  );
 
   return (
     <SubcategoryPageShell
       category={category}
       subcategory={childSubcategory}
-      products={products}
+      products={productListing.products}
       parentSubcategory={parentSubcategory}
+      categoryDetail={categoryDetail}
+      productCount={productListing.total || categoryDetail?.productCount}
     />
   );
 }

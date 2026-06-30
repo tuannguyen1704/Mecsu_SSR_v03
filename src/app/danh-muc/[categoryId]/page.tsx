@@ -3,9 +3,11 @@ import { notFound, redirect } from "next/navigation";
 import { CategoryPageShell } from "@/features/categories/components/CategoryPageShell";
 import {
   getCategory,
+  getCategoryDetailByPath,
   getCategoryRouteParams,
   getSubcategoryRedirectHref,
 } from "@/features/categories/services/category-service";
+import { stripHtml } from "@/features/categories/services/catalog-category-detail-mapper";
 
 interface CategoryRouteProps {
   params: Promise<{
@@ -24,6 +26,7 @@ export async function generateMetadata({
 }: CategoryRouteProps): Promise<Metadata> {
   const { categoryId } = await params;
   const category = await getCategory(categoryId);
+  const categoryDetail = await getCategoryDetailByPath(categoryId);
 
   if (!category) {
     return {
@@ -31,15 +34,31 @@ export async function generateMetadata({
     };
   }
 
+  const description =
+    stripHtml(categoryDetail?.description || categoryDetail?.longDescription)
+      .slice(0, 160) ||
+    `Khám phá danh mục ${category.name} với các sản phẩm vật tư công nghiệp chất lượng cao tại MECsu.`;
+
   return {
-    title: `${category.name} | MECsu`,
-    description: `Khám phá danh mục ${category.name} với các sản phẩm vật tư công nghiệp chất lượng cao tại MECsu.`,
+    title: `${categoryDetail?.name ?? category.name} | MECsu`,
+    description,
+    alternates: categoryDetail?.canonical || categoryDetail?.href
+      ? {
+          canonical: categoryDetail.canonical || categoryDetail.href,
+        }
+      : undefined,
+    openGraph: categoryDetail?.imageUrl
+      ? {
+          images: [categoryDetail.imageUrl],
+        }
+      : undefined,
   };
 }
 
 export default async function CategoryPage({ params }: CategoryRouteProps) {
   const { categoryId } = await params;
   const category = await getCategory(categoryId);
+  const categoryDetail = await getCategoryDetailByPath(categoryId);
 
   if (!category) {
     const redirectHref = getSubcategoryRedirectHref(categoryId);
@@ -51,5 +70,5 @@ export default async function CategoryPage({ params }: CategoryRouteProps) {
     notFound();
   }
 
-  return <CategoryPageShell category={category} />;
+  return <CategoryPageShell category={category} categoryDetail={categoryDetail} />;
 }

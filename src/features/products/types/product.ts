@@ -1,16 +1,21 @@
 export interface Product {
   id: string;
+  apiId?: number;
   sku: string;
   name: string;
   slug?: string;
   category: string;
+  apiCategoryId?: number;
   categorySlug?: string;
   brand: string;
+  brandId?: number;
   price: number;
   originalPrice?: number;
   discount?: number;
   stock: number;
+  status?: number;
   unit?: string;
+  origin?: string;
   minOrderQuantity?: number;
   orderStep?: number;
   lowQuantityFee?: number;

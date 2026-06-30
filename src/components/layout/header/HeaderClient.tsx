@@ -37,6 +37,7 @@ const HeaderCategoryMenu = dynamic(() => import("./HeaderCategoryMenu"), {
 
 interface HeaderClientProps {
   categories: HeaderCategory[];
+  catalogApiEnabled: boolean;
   locations: string[];
   suggestions: SearchSuggestionItem[];
 }
@@ -55,6 +56,7 @@ const mockNotifications = [
 
 export default function HeaderClient({
   categories,
+  catalogApiEnabled,
   locations,
   suggestions,
 }: HeaderClientProps) {
@@ -297,6 +299,7 @@ export default function HeaderClient({
       {isCategoryOpen ? (
         <HeaderCategoryMenu
           categories={categories}
+          catalogApiEnabled={catalogApiEnabled}
           isOpen={isCategoryOpen}
           locations={locations}
           selectedLocation={selectedLocation}

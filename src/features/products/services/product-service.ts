@@ -4,15 +4,28 @@ import type { SearchSuggestionItem } from "./search-products";
 import type { Category } from "@/features/categories/types/category";
 import type { CategorySubcategory } from "@/features/categories/types/category";
 import {
+  findCategoryByPath,
   getAllCategories,
   getCategorySubcategories,
+  getIsCatalogApiEnabled,
 } from "@/features/categories/services/category-service";
 import { toSlug } from "@/lib/routing";
+import { fetchCatalogCategoryProducts } from "./catalog-category-products-api";
+import {
+  mapCatalogCategoryProductsResponse,
+  type ProductListingResult,
+} from "./catalog-product-mapper";
+import type { CatalogCategoryProductsQuery } from "../types/catalog-category-products-api";
 
 export interface ProductPageData {
   product: Product;
   compatibleProducts: Product[];
 }
+
+export type ProductListingSearchParams = Record<
+  string,
+  string | string[] | undefined
+>;
 
 const productAdapter = {
   async listProducts(): Promise<Product[]> {
@@ -81,6 +94,127 @@ function toSearchSuggestionItem(product: Product): SearchSuggestionItem {
     image: product.image,
     tags: product.tags,
   };
+}
+
+function shouldThrowCatalogProductsApiError() {
+  return process.env.NODE_ENV === "production";
+}
+
+function getFirstSearchParamValue(
+  searchParams: ProductListingSearchParams | undefined,
+  key: string,
+) {
+  const value = searchParams?.[key];
+
+  return Array.isArray(value) ? value[0] : value;
+}
+
+function parsePositiveInteger(value: string | undefined) {
+  if (!value) {
+    return undefined;
+  }
+
+  const parsedValue = Number(value);
+
+  if (!Number.isFinite(parsedValue) || parsedValue < 1) {
+    return undefined;
+  }
+
+  return Math.floor(parsedValue);
+}
+
+function parseBooleanParam(value: string | undefined) {
+  if (value === "true" || value === "1") {
+    return true;
+  }
+
+  if (value === "false" || value === "0") {
+    return false;
+  }
+
+  return undefined;
+}
+
+export function parseCatalogProductsQuery(
+  searchParams?: ProductListingSearchParams,
+): CatalogCategoryProductsQuery {
+  const page = parsePositiveInteger(getFirstSearchParamValue(searchParams, "page"));
+  const pageSize = parsePositiveInteger(
+    getFirstSearchParamValue(searchParams, "pageSize"),
+  );
+  const brandId = parsePositiveInteger(
+    getFirstSearchParamValue(searchParams, "brandId"),
+  );
+  const instock = parseBooleanParam(
+    getFirstSearchParamValue(searchParams, "instock"),
+  );
+  const keyword = getFirstSearchParamValue(searchParams, "keyword")?.trim();
+
+  return {
+    ...(page ? { page } : {}),
+    ...(pageSize ? { pageSize: Math.min(100, pageSize) } : {}),
+    ...(keyword ? { keyword } : {}),
+    ...(brandId ? { brandId } : {}),
+    ...(typeof instock === "boolean" ? { instock } : {}),
+  };
+}
+
+function createMockProductListingResult(
+  products: Product[],
+  query?: CatalogCategoryProductsQuery,
+): ProductListingResult {
+  const page = Math.max(1, Math.floor(query?.page ?? 1));
+  const pageSize = Math.max(1, Math.min(100, Math.floor(query?.pageSize ?? 20)));
+
+  return {
+    products,
+    total: products.length,
+    page,
+    pageSize,
+    totalPages: Math.max(1, Math.ceil(products.length / pageSize)),
+    hasPreviousPage: page > 1,
+    hasNextPage: page < Math.max(1, Math.ceil(products.length / pageSize)),
+  };
+}
+
+export async function listProductsForCategoryPath(
+  path: string,
+  category: Category,
+  subcategory: CategorySubcategory,
+  query?: CatalogCategoryProductsQuery,
+): Promise<ProductListingResult> {
+  const mockProducts = getProductsForSubcategory(category, subcategory);
+
+  if (!getIsCatalogApiEnabled()) {
+    return createMockProductListingResult(mockProducts, query);
+  }
+
+  try {
+    const routeNode = await findCategoryByPath(path);
+
+    if (!routeNode) {
+      return createMockProductListingResult(mockProducts, query);
+    }
+
+    const response = await fetchCatalogCategoryProducts(routeNode.apiId, query);
+    const result = mapCatalogCategoryProductsResponse(response);
+
+    console.info("[catalog-api] Category products loaded from API", routeNode.apiId, {
+      total: result.total,
+      page: result.page,
+      pageSize: result.pageSize,
+    });
+
+    return result;
+  } catch (error) {
+    if (shouldThrowCatalogProductsApiError()) {
+      throw error;
+    }
+
+    console.warn("[catalog-api] Category products fallback to mock", error);
+
+    return createMockProductListingResult(mockProducts, query);
+  }
 }
 
 export function getProductStaticParams(): { productId: string }[] {
