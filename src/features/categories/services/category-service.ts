@@ -15,6 +15,10 @@ import {
 } from "./catalog-category-detail-mapper";
 import { buildCategoryRouteIndex } from "./catalog-category-mapper";
 import { toSlug } from "@/lib/routing";
+import {
+  shouldThrowCatalogApiError,
+  warnCatalogApiFallback,
+} from "@/lib/api/catalog-api-fallback";
 import type { Category, CategorySubcategory } from "../types/category";
 import type { CategoryRouteIndex, CategoryRouteNode } from "../types/category-route";
 
@@ -22,7 +26,6 @@ const DEFAULT_CATEGORY_ICON = "Blocks";
 
 let catalogRouteIndexPromise: Promise<CategoryRouteIndex> | undefined;
 let mockRouteIndex: CategoryRouteIndex | undefined;
-let hasWarnedCatalogApiFallback = false;
 
 function isCatalogApiEnabled() {
   return process.env.MECSU_CATALOG_API_ENABLED === "true";
@@ -30,22 +33,6 @@ function isCatalogApiEnabled() {
 
 export function getIsCatalogApiEnabled() {
   return isCatalogApiEnabled();
-}
-
-function shouldThrowCatalogApiError() {
-  return process.env.NODE_ENV === "production";
-}
-
-function warnCatalogApiFallback(context: string, error: unknown) {
-  if (hasWarnedCatalogApiFallback) {
-    return;
-  }
-
-  hasWarnedCatalogApiFallback = true;
-  console.warn(
-    `[catalog] ${context} failed. Falling back to mock categories in development.`,
-    error,
-  );
 }
 
 function normalizeRoutePath(path: string) {
@@ -259,7 +246,11 @@ export async function getCategoryRouteIndex(): Promise<CategoryRouteIndex> {
       throw error;
     }
 
-    warnCatalogApiFallback("Catalog category API", error);
+    warnCatalogApiFallback(
+      "Catalog category API",
+      error,
+      "mock category route index",
+    );
     return buildMockRouteIndex();
   }
 }
@@ -306,7 +297,7 @@ export async function getCategoryDetailByApiId(
       throw error;
     }
 
-    warnCatalogApiFallback("Category detail API", error);
+    warnCatalogApiFallback("Category detail API", error, "mock category detail");
     return getMockCategoryDetailByApiId(id);
   }
 }
@@ -333,7 +324,11 @@ export async function getCategoryDetailByPath(
       throw error;
     }
 
-    warnCatalogApiFallback("Category detail by path API", error);
+    warnCatalogApiFallback(
+      "Category detail by path API",
+      error,
+      "mock category detail by path",
+    );
     return getMockCategoryDetailByPath(normalizedPath);
   }
 }
@@ -359,7 +354,7 @@ export async function getHeaderCategories(): Promise<HeaderCategory[]> {
       throw error;
     }
 
-    warnCatalogApiFallback("Header category API", error);
+    warnCatalogApiFallback("Header category API", error, "mock header categories");
     console.info("[catalog-api] Header categories using mock fallback");
 
     return HEADER_CATEGORIES;
