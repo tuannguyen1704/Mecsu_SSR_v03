@@ -10,6 +10,10 @@ import {
   getIsCatalogApiEnabled,
 } from "@/features/categories/services/category-service";
 import {
+  shouldThrowCatalogApiError,
+  warnCatalogApiFallback,
+} from "@/lib/api/catalog-api-fallback";
+import {
   createCategoryBrandMap,
   mapCatalogCategoryBrandsResponse,
   mapCategoryBrandsToFilterItems,
@@ -106,10 +110,6 @@ function toSearchSuggestionItem(product: Product): SearchSuggestionItem {
     image: product.image,
     tags: product.tags,
   };
-}
-
-function shouldThrowCatalogProductsApiError() {
-  return process.env.NODE_ENV === "production";
 }
 
 function getFirstSearchParamValue(
@@ -253,20 +253,28 @@ export async function listProductsForCategoryPath(
     const [productsResponse, brandsResponse, filtersResponse] = await Promise.all([
       fetchCatalogCategoryProducts(routeNode.apiId, query),
       fetchCatalogCategoryBrands(routeNode.apiId, query).catch((error) => {
-        if (shouldThrowCatalogProductsApiError()) {
+        if (shouldThrowCatalogApiError()) {
           throw error;
         }
 
-        console.warn("[catalog-api] Category brands fallback to product filters", error);
+        warnCatalogApiFallback(
+          "Category brands API",
+          error,
+          "derived product brand filters",
+        );
 
         return undefined;
       }),
       fetchCatalogProductFilters().catch((error) => {
-        if (shouldThrowCatalogProductsApiError()) {
+        if (shouldThrowCatalogApiError()) {
           throw error;
         }
 
-        console.warn("[catalog-api] Product filters fallback to constants", error);
+        warnCatalogApiFallback(
+          "Product filters API",
+          error,
+          "fallback product filter constants",
+        );
 
         return undefined;
       }),
@@ -304,11 +312,11 @@ export async function listProductsForCategoryPath(
 
     return result;
   } catch (error) {
-    if (shouldThrowCatalogProductsApiError()) {
+    if (shouldThrowCatalogApiError()) {
       throw error;
     }
 
-    console.warn("[catalog-api] Category products fallback to mock", error);
+    warnCatalogApiFallback("Category products API", error, "mock products");
 
     return createMockProductListingResult(mockProducts, query);
   }

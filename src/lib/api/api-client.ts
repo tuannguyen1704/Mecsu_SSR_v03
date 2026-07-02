@@ -8,6 +8,7 @@ interface ApiGetOptions {
 }
 
 const DEFAULT_API_BASE_URL = "https://web-dev.mecsu.vn";
+const DEFAULT_API_TIMEOUT_MS = 10_000;
 
 function getApiBaseUrl() {
   return (process.env.MECSU_API_BASE_URL || DEFAULT_API_BASE_URL).replace(/\/+$/, "");
@@ -28,6 +29,24 @@ function buildApiUrl(path: string, query?: Record<string, QueryValue>) {
   return url;
 }
 
+function getApiTimeoutMs() {
+  const timeoutMs = Number(process.env.MECSU_API_TIMEOUT_MS);
+
+  if (!Number.isFinite(timeoutMs) || timeoutMs <= 0) {
+    return DEFAULT_API_TIMEOUT_MS;
+  }
+
+  return timeoutMs;
+}
+
+function getFetchErrorMessage(error: unknown) {
+  if (error instanceof Error) {
+    return `${error.name}: ${error.message}`;
+  }
+
+  return String(error);
+}
+
 export class ApiClientError extends Error {
   constructor(
     message: string,
@@ -44,20 +63,38 @@ export async function apiGet<T>(
   { query, cache, revalidate, signal }: ApiGetOptions = {},
 ): Promise<T> {
   const url = buildApiUrl(path, query);
-  const response = await fetch(url, {
-    method: "GET",
-    headers: {
-      Accept: "application/json",
-    },
-    cache,
-    next:
-      cache !== "no-store" && typeof revalidate === "number"
-        ? {
-            revalidate,
-          }
-        : undefined,
-    signal,
-  });
+  const timeoutController = signal ? undefined : new AbortController();
+  const timeoutId = timeoutController
+    ? setTimeout(() => timeoutController.abort(), getApiTimeoutMs())
+    : undefined;
+  let response: Response;
+
+  try {
+    response = await fetch(url, {
+      method: "GET",
+      headers: {
+        Accept: "application/json",
+      },
+      cache,
+      next:
+        cache !== "no-store" && typeof revalidate === "number"
+          ? {
+              revalidate,
+            }
+          : undefined,
+      signal: signal ?? timeoutController?.signal,
+    });
+  } catch (error) {
+    throw new ApiClientError(
+      `GET ${url.pathname} failed: ${getFetchErrorMessage(error)}`,
+      undefined,
+      url.toString(),
+    );
+  } finally {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+  }
 
   if (!response.ok) {
     throw new ApiClientError(
