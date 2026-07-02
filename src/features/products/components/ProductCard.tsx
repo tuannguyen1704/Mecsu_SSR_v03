@@ -5,15 +5,28 @@ import { Star } from "lucide-react";
 import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import type { Product } from "../types/product";
 import { getProductHref } from "../services/product-service";
+import { getProductDisplayId } from "../utils/productDisplayId";
 import { ProductCardActions } from "./ProductCardActions";
 
 interface ProductCardProps {
   product: Product;
 }
 
-export const ProductCard = memo(function ProductCard({ product }: ProductCardProps) {
+export const ProductCard = memo(function ProductCard({
+  product,
+}: ProductCardProps) {
   const isOutOfStock = product.stock <= 0;
   const productImage = product.image || getSeededCategoryImage(product.id);
+  const productDisplayId = getProductDisplayId(product);
+  const stockLabel = isOutOfStock
+    ? "Hàng đang về"
+    : `${product.stock.toLocaleString("vi-VN")} có sẵn`;
+  const unit = product.unit || "cái";
+  const hasOriginalPrice =
+    typeof product.originalPrice === "number" &&
+    product.originalPrice > product.price;
+  const hasDiscount =
+    typeof product.discount === "number" && product.discount > 0;
   const mobileProductName = product.name.replace(
     /\s*\(50\s*Cái\/Bịch\)\s*$/i,
     "",
@@ -35,10 +48,10 @@ export const ProductCard = memo(function ProductCard({ product }: ProductCardPro
         <div className="flex flex-1 flex-col">
           <div className="mb-1 flex items-center justify-between gap-2 text-[11px] sm:text-[13px]">
             <span className="min-w-0 truncate font-bold text-[#1a1a1a]">
-              {product.brand}
+              {productDisplayId}
             </span>
             <span className="shrink-0 text-[10px] font-medium tracking-tight text-slate-500 sm:text-[12px]">
-              {product.sku || "Đang cập nhật"}
+              {product.brand || "Đang cập nhật"}
             </span>
           </div>
           <span className="mb-1 line-clamp-3 block text-[13px] leading-[1.25] font-medium text-[#2071a7] sm:line-clamp-2 sm:text-[15px] sm:leading-tight">
@@ -64,20 +77,49 @@ export const ProductCard = memo(function ProductCard({ product }: ProductCardPro
             </span>
           </div>
 
-          <div className="mt-1 flex items-center justify-between gap-3">
-            <span className="text-[16px] font-semibold text-[#1a1a1a] sm:text-[18px]">
-              {product.price > 0
-                ? `${product.price.toLocaleString("vi-VN")} đ / cái`
-                : "Liên hệ"}
-            </span>
-            <span
-              className={`shrink-0 text-[11px] font-bold sm:text-[13px] ${
-                isOutOfStock ? "text-slate-900" : "text-green-700"
-              }`}
-            >
-              {isOutOfStock ? "Hàng đang về" : "Sẵn hàng"}
-            </span>
-          </div>
+          {hasOriginalPrice ? (
+            <div className="mt-1">
+              <div className="flex items-center justify-between gap-3">
+                <div className="min-w-0 flex flex-wrap items-center gap-1.5">
+                  <span className="text-[12px] leading-tight font-medium text-slate-400 line-through sm:text-[13px]">
+                    {product.originalPrice?.toLocaleString("vi-VN")} đ
+                  </span>
+                  {hasDiscount ? (
+                    <span className="rounded-sm bg-red-50 px-1.5 py-0.5 text-[10px] leading-none font-bold text-red-600 sm:text-[11px]">
+                      -{product.discount}%
+                    </span>
+                  ) : null}
+                </div>
+                <span
+                  className={`shrink-0 whitespace-nowrap text-[14px] font-bold ${
+                    isOutOfStock ? "text-slate-900" : "text-green-700"
+                  }`}
+                >
+                  {stockLabel}
+                </span>
+              </div>
+              <div className="mt-0.5 text-[15px] leading-tight font-semibold text-red-600">
+                {product.price > 0
+                  ? `${product.price.toLocaleString("vi-VN")} đ / ${unit}`
+                  : "Liên hệ"}
+              </div>
+            </div>
+          ) : (
+            <div className="mt-1 flex items-start justify-between gap-3">
+              <div className="min-w-0 text-[15px] leading-tight font-semibold text-[#1a1a1a]">
+                {product.price > 0
+                  ? `${product.price.toLocaleString("vi-VN")} đ / ${unit}`
+                  : "Liên hệ"}
+              </div>
+              <span
+                className={`shrink-0 whitespace-nowrap text-[14px] font-bold ${
+                  isOutOfStock ? "text-slate-900" : "text-green-700"
+                }`}
+              >
+                {stockLabel}
+              </span>
+            </div>
+          )}
         </div>
       </Link>
 

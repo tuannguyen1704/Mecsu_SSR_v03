@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import type { Product } from "@/features/products/types/product";
@@ -8,12 +9,14 @@ import { ProductFilterSidebar } from "@/features/products/components/ProductFilt
 import { ProductGrid } from "@/features/products/components/ProductGrid";
 import { ProductList } from "@/features/products/components/ProductList";
 import { ProductPagination } from "@/features/products/components/ProductPagination";
+import type { ProductFilterGroup } from "@/features/products/types/product-filter-group";
 import {
   CATEGORY_LISTING_ITEMS_PER_PAGE,
   getBrandFilters,
   getFilteredProducts,
   getPaginatedProducts,
   getTotalProductPages,
+  type ProductFilterOption,
 } from "../services/category-listing";
 import { CategorySortBar } from "./CategorySortBar";
 import { SearchNoResultsPanel } from "@/features/search/components/SearchNoResultsPanel";
@@ -21,8 +24,20 @@ import { SearchNoResultsPanel } from "@/features/search/components/SearchNoResul
 interface CategoryListingClientProps {
   title: string;
   products: Product[];
+  pagination?: CategoryListingPagination;
+  brandFilters?: ProductFilterOption[];
+  filterGroups?: ProductFilterGroup[];
   productCountLabel?: string;
   emptyStateQuery?: string;
+}
+
+export interface CategoryListingPagination {
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
+  hasPreviousPage: boolean;
+  hasNextPage: boolean;
 }
 
 const FALLBACK_BRAND_FILTERS = ["3M", "Bosch", "SKF", "SATA", "PISCO"].map(
@@ -33,25 +48,76 @@ const FALLBACK_BRAND_FILTERS = ["3M", "Bosch", "SKF", "SATA", "PISCO"].map(
   }),
 );
 
+type ViewMode = "grid" | "list";
+type SortBy = "featured" | "price_asc" | "price_desc" | "name_asc" | "name_desc";
+
+function parseViewMode(value: string | null): ViewMode {
+  return value === "list" ? "list" : "grid";
+}
+
+function parseSortBy(value: string | null): SortBy {
+  if (
+    value === "price_asc" ||
+    value === "price_desc" ||
+    value === "name_asc" ||
+    value === "name_desc"
+  ) {
+    return value;
+  }
+
+  return "featured";
+}
+
 export function CategoryListingClient({
   title,
   products,
+  pagination,
+  brandFilters: apiBrandFilters,
+  filterGroups = [],
   productCountLabel,
   emptyStateQuery,
 }: CategoryListingClientProps) {
-  const [currentPage, setCurrentPage] = useState(1);
-  const [sortValue, setSortValue] = useState("featured");
-  const [viewMode, setViewMode] = useState<"grid" | "list">("grid");
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [selectedAvailability, setSelectedAvailability] = useState<string[]>([]);
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const hasServerPagination = typeof pagination === "object";
+  const [clientCurrentPage, setClientCurrentPage] = useState(1);
+  const [clientSelectedBrands, setClientSelectedBrands] = useState<string[]>([]);
   const [isMobileFilterOpen, setIsMobileFilterOpen] = useState(false);
   const productListRef = useRef<HTMLDivElement>(null);
+  const viewMode = parseViewMode(searchParams.get("view"));
+  const sortValue = parseSortBy(searchParams.get("sortBy"));
+  const selectedBrandId = searchParams.get("brandId");
+  const selectedBrands = useMemo(
+    () =>
+      hasServerPagination && selectedBrandId
+        ? [selectedBrandId]
+        : hasServerPagination
+          ? []
+          : clientSelectedBrands,
+    [clientSelectedBrands, hasServerPagination, selectedBrandId],
+  );
+  const selectedFilterValues = useMemo(
+    () => getSelectedFilterValues(searchParams),
+    [searchParams],
+  );
+  const selectedAvailability = useMemo(
+    () =>
+      hasServerPagination
+        ? []
+        : selectedFilterValues.availability || [],
+    [hasServerPagination, selectedFilterValues],
+  );
 
   const brandFilters = useMemo(() => {
+    if (apiBrandFilters && apiBrandFilters.length > 0) {
+      return apiBrandFilters;
+    }
+
     const filters = getBrandFilters(products);
 
     return filters.length > 0 ? filters : FALLBACK_BRAND_FILTERS;
-  }, [products]);
+  }, [apiBrandFilters, products]);
 
   const filteredProducts = useMemo(
     () =>
@@ -60,41 +126,103 @@ export function CategoryListingClient({
         selectedAvailability,
         selectedBrands,
         sortValue,
+        applyClientSort: !hasServerPagination || sortValue !== "featured",
       }),
-    [products, selectedAvailability, selectedBrands, sortValue],
+    [hasServerPagination, products, selectedAvailability, selectedBrands, sortValue],
   );
 
-  const totalPages = useMemo(
-    () =>
-      getTotalProductPages(
-        filteredProducts,
-        CATEGORY_LISTING_ITEMS_PER_PAGE,
-      ),
-    [filteredProducts],
-  );
+  const serverTotalPages = pagination
+    ? Math.max(
+        1,
+        pagination.totalPages ||
+          Math.ceil(pagination.total / Math.max(1, pagination.pageSize)),
+      )
+    : undefined;
+  const currentPage = hasServerPagination ? pagination.page : clientCurrentPage;
+  const totalPages = hasServerPagination
+    ? (serverTotalPages ?? 1)
+    : getTotalProductPages(filteredProducts, CATEGORY_LISTING_ITEMS_PER_PAGE);
+  const listingProductCount = hasServerPagination
+    ? pagination.total
+    : filteredProducts.length;
+  const listingProductCountLabel = hasServerPagination
+    ? `${pagination.total.toLocaleString("vi-VN")} sản phẩm`
+    : productCountLabel;
+  const hasPaginationProducts = hasServerPagination
+    ? pagination.total > 0
+    : filteredProducts.length > 0;
+  // Temporary limitation: availability filters are still client-side and only
+  // apply to the currently loaded API page until catalog filter APIs are wired.
+  // sortBy is sent to the products API, but the backend currently returns the
+  // same order for price_asc/price_desc. Keep a current-page fallback sort
+  // without paginating the API products again until server sorting is reliable.
   const paginatedProducts = useMemo(
     () =>
-      getPaginatedProducts(
-        filteredProducts,
-        currentPage,
-        CATEGORY_LISTING_ITEMS_PER_PAGE,
-      ),
-    [currentPage, filteredProducts],
+      hasServerPagination
+        ? filteredProducts
+        : getPaginatedProducts(
+            filteredProducts,
+            clientCurrentPage,
+            CATEGORY_LISTING_ITEMS_PER_PAGE,
+          ),
+    [clientCurrentPage, filteredProducts, hasServerPagination],
   );
 
   const handlePageChange = useCallback((page: number) => {
-    setCurrentPage(page);
+    if (hasServerPagination) {
+      const nextSearchParams = new URLSearchParams(searchParams.toString());
+
+      if (page <= 1) {
+        nextSearchParams.delete("page");
+      } else {
+        nextSearchParams.set("page", String(page));
+      }
+
+      const queryString = nextSearchParams.toString();
+      router.push(queryString ? `${pathname}?${queryString}` : pathname);
+    } else {
+      setClientCurrentPage(page);
+    }
+
     productListRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, []);
+  }, [hasServerPagination, pathname, router, searchParams]);
 
   const handleSortChange = useCallback((value: string) => {
-    setSortValue(value);
-    setCurrentPage(1);
-  }, []);
+    const nextSortBy = parseSortBy(value);
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
 
-  const handleViewModeChange = useCallback((value: "grid" | "list") => {
-    setViewMode(value);
-  }, []);
+    nextSearchParams.delete("page");
+
+    if (nextSortBy === "featured") {
+      nextSearchParams.delete("sortBy");
+    } else {
+      nextSearchParams.set("sortBy", nextSortBy);
+    }
+
+    const queryString = nextSearchParams.toString();
+
+    if (hasServerPagination) {
+      router.push(queryString ? `${pathname}?${queryString}` : pathname, {
+        scroll: false,
+      });
+    } else {
+      router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+        scroll: false,
+      });
+      setClientCurrentPage(1);
+    }
+  }, [hasServerPagination, pathname, router, searchParams]);
+
+  const handleViewModeChange = useCallback((value: ViewMode) => {
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+
+    nextSearchParams.set("view", value);
+
+    const queryString = nextSearchParams.toString();
+    router.replace(queryString ? `${pathname}?${queryString}` : pathname, {
+      scroll: false,
+    });
+  }, [pathname, router, searchParams]);
 
   const openMobileFilter = useCallback(() => {
     setIsMobileFilterOpen(true);
@@ -105,22 +233,50 @@ export function CategoryListingClient({
   }, []);
 
   const toggleBrand = useCallback((brand: string) => {
-    setSelectedBrands((current) =>
+    if (hasServerPagination) {
+      const nextSearchParams = new URLSearchParams(searchParams.toString());
+      const isSelected = nextSearchParams.get("brandId") === brand;
+
+      nextSearchParams.delete("page");
+
+      if (isSelected) {
+        nextSearchParams.delete("brandId");
+      } else {
+        nextSearchParams.set("brandId", brand);
+      }
+
+      const queryString = nextSearchParams.toString();
+      router.push(queryString ? `${pathname}?${queryString}` : pathname, {
+        scroll: false,
+      });
+      return;
+    }
+
+    setClientSelectedBrands((current) =>
       current.includes(brand)
         ? current.filter((item) => item !== brand)
         : [...current, brand],
     );
-    setCurrentPage(1);
-  }, []);
+    setClientCurrentPage(1);
+  }, [hasServerPagination, pathname, router, searchParams]);
 
-  const toggleAvailability = useCallback((value: string) => {
-    setSelectedAvailability((current) =>
-      current.includes(value)
-        ? current.filter((item) => item !== value)
-        : [...current, value],
-    );
-    setCurrentPage(1);
-  }, []);
+  const toggleFilter = useCallback((queryKey: string, value: string) => {
+    const nextSearchParams = new URLSearchParams(searchParams.toString());
+
+    nextSearchParams.delete("page");
+    toggleFilterQueryValue(nextSearchParams, queryKey, value);
+
+    const queryString = nextSearchParams.toString();
+    const nextHref = queryString ? `${pathname}?${queryString}` : pathname;
+
+    if (hasServerPagination) {
+      router.push(nextHref, { scroll: false });
+      return;
+    }
+
+    router.replace(nextHref, { scroll: false });
+    setClientCurrentPage(1);
+  }, [hasServerPagination, pathname, router, searchParams]);
 
   useEffect(() => {
     if (!isMobileFilterOpen) return;
@@ -147,12 +303,20 @@ export function CategoryListingClient({
       <ProductFilterSidebar
         brandFilters={brandFilters}
         selectedBrands={selectedBrands}
-        selectedAvailability={selectedAvailability}
         onBrandToggle={toggleBrand}
-        onAvailabilityToggle={toggleAvailability}
+        filterGroups={filterGroups}
+        selectedFilterValues={selectedFilterValues}
+        onFilterToggle={toggleFilter}
       />
     ),
-    [brandFilters, selectedAvailability, selectedBrands, toggleAvailability, toggleBrand],
+    [
+      brandFilters,
+      filterGroups,
+      selectedBrands,
+      selectedFilterValues,
+      toggleBrand,
+      toggleFilter,
+    ],
   );
 
   return (
@@ -165,8 +329,8 @@ export function CategoryListingClient({
         <div className="min-w-0 flex-1">
           <CategorySortBar
             title={title}
-            productCount={filteredProducts.length}
-            productCountLabel={productCountLabel}
+            productCount={listingProductCount}
+            productCountLabel={listingProductCountLabel}
             sortValue={sortValue}
             viewMode={viewMode}
             onSortChange={handleSortChange}
@@ -190,7 +354,7 @@ export function CategoryListingClient({
             )}
           </div>
 
-          {filteredProducts.length > 0 ? (
+          {hasPaginationProducts ? (
             <div className="mt-8 rounded-sm border border-slate-200 bg-white">
               <ProductPagination
                 currentPage={currentPage}
@@ -238,9 +402,10 @@ export function CategoryListingClient({
                   variant="mobile"
                   brandFilters={brandFilters}
                   selectedBrands={selectedBrands}
-                  selectedAvailability={selectedAvailability}
                   onBrandToggle={toggleBrand}
-                  onAvailabilityToggle={toggleAvailability}
+                  filterGroups={filterGroups}
+                  selectedFilterValues={selectedFilterValues}
+                  onFilterToggle={toggleFilter}
                 />
               </div>
             </motion.div>
@@ -249,4 +414,67 @@ export function CategoryListingClient({
       </AnimatePresence>
     </section>
   );
+}
+
+function getSelectedFilterValues(searchParams: URLSearchParams) {
+  const selectedValues: Record<string, string[]> = {};
+
+  if (searchParams.get("instock") === "true") {
+    selectedValues.availability = [
+      ...(selectedValues.availability || []),
+      "instock:true",
+    ];
+  }
+
+  if (searchParams.get("instockVendor") === "true") {
+    selectedValues.availability = [
+      ...(selectedValues.availability || []),
+      "instockVendor:true",
+    ];
+  }
+
+  if (searchParams.get("nextDayShipping") === "true") {
+    selectedValues.availability = [
+      ...(selectedValues.availability || []),
+      "nextDayShipping:true",
+    ];
+  }
+
+  ["stockLevel", "partType", "material", "origin"].forEach((key) => {
+    const value = searchParams.get(key);
+
+    if (value) {
+      selectedValues[key] = [value];
+    }
+  });
+
+  return selectedValues;
+}
+
+function toggleFilterQueryValue(
+  searchParams: URLSearchParams,
+  queryKey: string,
+  value: string,
+) {
+  if (queryKey === "availability") {
+    const [booleanKey, booleanValue] = value.split(":");
+
+    if (!booleanKey || booleanValue !== "true") {
+      return;
+    }
+
+    if (searchParams.get(booleanKey) === "true") {
+      searchParams.delete(booleanKey);
+    } else {
+      searchParams.set(booleanKey, "true");
+    }
+
+    return;
+  }
+
+  if (searchParams.get(queryKey) === value) {
+    searchParams.delete(queryKey);
+  } else {
+    searchParams.set(queryKey, value);
+  }
 }

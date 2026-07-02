@@ -32,6 +32,10 @@ function buildProductListingQuery(query?: CatalogCategoryProductsQuery) {
     normalizedQuery.keyword = keyword;
   }
 
+  if (query?.sortBy) {
+    normalizedQuery.sortBy = query.sortBy;
+  }
+
   if (typeof query?.brandId === "number" && Number.isFinite(query.brandId)) {
     normalizedQuery.brandId = Math.floor(query.brandId);
   }
@@ -39,6 +43,28 @@ function buildProductListingQuery(query?: CatalogCategoryProductsQuery) {
   if (typeof query?.instock === "boolean") {
     normalizedQuery.instock = query.instock;
   }
+
+  [
+    "instockVendor",
+    "nextDayShipping",
+    "discountForApp",
+    "partWebSellable",
+    "partSellable",
+  ].forEach((key) => {
+    const value = query?.[key as keyof CatalogCategoryProductsQuery];
+
+    if (typeof value === "boolean") {
+      normalizedQuery[key] = value;
+    }
+  });
+
+  ["partType", "stockLevel"].forEach((key) => {
+    const value = query?.[key as keyof CatalogCategoryProductsQuery];
+
+    if (typeof value === "string" && value.trim()) {
+      normalizedQuery[key] = value.trim();
+    }
+  });
 
   return normalizedQuery;
 }

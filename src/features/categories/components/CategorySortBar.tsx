@@ -52,10 +52,10 @@ export const CategorySortBar = memo(function CategorySortBar({
           aria-label="Sắp xếp sản phẩm"
         >
           <option value="featured">Sắp xếp nổi bật</option>
-          <option value="price-asc">Giá tăng dần</option>
-          <option value="price-desc">Giá giảm dần</option>
-          <option value="newest">Mới nhất</option>
-          <option value="best-selling">Bán chạy</option>
+          <option value="price_asc">Giá tăng dần</option>
+          <option value="price_desc">Giá giảm dần</option>
+          <option value="name_asc">Tên A-Z</option>
+          <option value="name_desc">Tên Z-A</option>
         </select>
 
         {viewMode && onViewModeChange ? (

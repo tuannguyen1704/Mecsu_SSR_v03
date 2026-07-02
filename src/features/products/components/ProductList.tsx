@@ -9,6 +9,7 @@ import { notifyCartItemAdded } from "@/features/cart/services/cart-feedback";
 import { getSeededCategoryImage } from "@/lib/image-placeholders";
 import { getProductHref } from "../services/product-service";
 import type { Product } from "../types/product";
+import { getProductDisplayId } from "../utils/productDisplayId";
 import {
   getInitialOrderQuantity,
   getMinOrderQuantity,
@@ -57,7 +58,9 @@ function formatUnit(unit?: string) {
   return normalizedUnit.charAt(0).toUpperCase() + normalizedUnit.slice(1);
 }
 
-export const ProductList = memo(function ProductList({ products }: ProductListProps) {
+export const ProductList = memo(function ProductList({
+  products,
+}: ProductListProps) {
   if (products.length === 0) {
     return (
       <div className="flex min-h-[360px] items-center justify-center rounded-sm bg-[#ededed] p-10 text-center">
@@ -82,16 +85,23 @@ export const ProductList = memo(function ProductList({ products }: ProductListPr
   );
 });
 
-const ProductListItem = memo(function ProductListItem({ product }: { product: Product }) {
+const ProductListItem = memo(function ProductListItem({
+  product,
+}: {
+  product: Product;
+}) {
   const [isWishlisted, setIsWishlisted] = useState(false);
   const [wasAdded, setWasAdded] = useState(false);
-  const [quantity, setQuantity] = useState(() => getInitialOrderQuantity(product));
+  const [quantity, setQuantity] = useState(() =>
+    getInitialOrderQuantity(product),
+  );
   const [isReminderOpen, setIsReminderOpen] = useState(false);
   const [reminderSession, setReminderSession] = useState(0);
   const { addItem } = useCart();
   const isOutOfStock = product.stock <= 0;
   const productImage = product.image || getSeededCategoryImage(product.id);
   const productHref = getProductHref(product);
+  const productDisplayId = getProductDisplayId(product);
   const description = product.shortDescription || product.description;
   const unit = formatUnit(product.unit);
   const taxAmount = getIncludedTaxAmount(product);
@@ -146,15 +156,17 @@ const ProductListItem = memo(function ProductListItem({ product }: { product: Pr
         </div>
 
         <div className="min-w-0 lg:self-center">
-          <div className="text-[11px] font-bold tracking-wide text-slate-500 uppercase">
-            {product.brand || "Mecsu"}
+          <div className="flex min-w-0 flex-wrap items-baseline gap-x-3 gap-y-1">
+            <span className="shrink-0 text-[11px] font-bold tracking-wide text-slate-500 uppercase">
+              {productDisplayId}
+            </span>
+            <Link
+              href={productHref}
+              className="min-w-0 flex-1 text-[15px] leading-6 font-semibold text-[#0056A8] hover:underline md:text-base"
+            >
+              <span className="line-clamp-2">{product.name}</span>
+            </Link>
           </div>
-          <Link
-            href={productHref}
-            className="mt-1 line-clamp-2 text-[15px] leading-6 font-semibold text-[#0056A8] hover:underline md:text-base"
-          >
-            {product.name}
-          </Link>
           <p className="mt-1 text-sm text-slate-500">
             SKU: {product.sku || product.id}
           </p>
@@ -175,6 +187,18 @@ const ProductListItem = memo(function ProductListItem({ product }: { product: Pr
             </div>
             <span className="text-sm text-slate-600">(150+ đánh giá)</span>
           </div>
+          {isOutOfStock ? (
+            <p className="mt-1 text-sm font-semibold text-slate-900">
+              Hàng đang về
+            </p>
+          ) : (
+            <p className="mt-1 text-sm font-semibold text-slate-700">
+              Tồn kho:{" "}
+              <span className="text-green-700">
+                {product.stock.toLocaleString("vi-VN")}
+              </span>
+            </p>
+          )}
 
           {description ? (
             <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
@@ -195,9 +219,7 @@ const ProductListItem = memo(function ProductListItem({ product }: { product: Pr
 
           <div className="flex flex-col justify-center lg:text-right">
             <div className="text-lg font-bold text-slate-950 md:text-[20px]">
-              {product.price > 0
-                ? formatVND(product.price)
-                : "Liên hệ"}
+              {product.price > 0 ? formatVND(product.price) : "Liên hệ"}
             </div>
             <div className="mt-1 text-xs font-medium text-slate-600">
               Đã bao gồm thuế

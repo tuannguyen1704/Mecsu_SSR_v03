@@ -9,8 +9,20 @@ import {
   getCategorySubcategories,
   getIsCatalogApiEnabled,
 } from "@/features/categories/services/category-service";
+import {
+  createCategoryBrandMap,
+  mapCatalogCategoryBrandsResponse,
+  mapCategoryBrandsToFilterItems,
+} from "@/features/categories/services/catalog-category-brands-mapper";
+import { fetchCatalogCategoryBrands } from "@/features/categories/services/catalog-category-brands-api";
+import { getBrandFilters } from "@/features/categories/services/category-listing";
 import { toSlug } from "@/lib/routing";
 import { fetchCatalogCategoryProducts } from "./catalog-category-products-api";
+import { fetchCatalogProductFilters } from "./catalog-product-filters-api";
+import {
+  getFallbackProductFilterGroups,
+  mapCatalogProductFiltersResponse,
+} from "./catalog-product-filters-mapper";
 import {
   mapCatalogCategoryProductsResponse,
   type ProductListingResult,
@@ -135,6 +147,20 @@ function parseBooleanParam(value: string | undefined) {
   return undefined;
 }
 
+function parseSortByParam(value: string | undefined): CatalogCategoryProductsQuery["sortBy"] {
+  if (
+    value === "featured" ||
+    value === "price_asc" ||
+    value === "price_desc" ||
+    value === "name_asc" ||
+    value === "name_desc"
+  ) {
+    return value;
+  }
+
+  return undefined;
+}
+
 export function parseCatalogProductsQuery(
   searchParams?: ProductListingSearchParams,
 ): CatalogCategoryProductsQuery {
@@ -148,14 +174,40 @@ export function parseCatalogProductsQuery(
   const instock = parseBooleanParam(
     getFirstSearchParamValue(searchParams, "instock"),
   );
+  const instockVendor = parseBooleanParam(
+    getFirstSearchParamValue(searchParams, "instockVendor"),
+  );
+  const nextDayShipping = parseBooleanParam(
+    getFirstSearchParamValue(searchParams, "nextDayShipping"),
+  );
+  const discountForApp = parseBooleanParam(
+    getFirstSearchParamValue(searchParams, "discountForApp"),
+  );
+  const partWebSellable = parseBooleanParam(
+    getFirstSearchParamValue(searchParams, "partWebSellable"),
+  );
+  const partSellable = parseBooleanParam(
+    getFirstSearchParamValue(searchParams, "partSellable"),
+  );
   const keyword = getFirstSearchParamValue(searchParams, "keyword")?.trim();
+  const sortBy = parseSortByParam(getFirstSearchParamValue(searchParams, "sortBy"));
+  const partType = getFirstSearchParamValue(searchParams, "partType")?.trim();
+  const stockLevel = getFirstSearchParamValue(searchParams, "stockLevel")?.trim();
 
   return {
     ...(page ? { page } : {}),
     ...(pageSize ? { pageSize: Math.min(100, pageSize) } : {}),
     ...(keyword ? { keyword } : {}),
+    ...(sortBy ? { sortBy } : {}),
     ...(brandId ? { brandId } : {}),
     ...(typeof instock === "boolean" ? { instock } : {}),
+    ...(typeof instockVendor === "boolean" ? { instockVendor } : {}),
+    ...(typeof nextDayShipping === "boolean" ? { nextDayShipping } : {}),
+    ...(typeof discountForApp === "boolean" ? { discountForApp } : {}),
+    ...(partType ? { partType } : {}),
+    ...(stockLevel ? { stockLevel } : {}),
+    ...(typeof partWebSellable === "boolean" ? { partWebSellable } : {}),
+    ...(typeof partSellable === "boolean" ? { partSellable } : {}),
   };
 }
 
@@ -174,6 +226,8 @@ function createMockProductListingResult(
     totalPages: Math.max(1, Math.ceil(products.length / pageSize)),
     hasPreviousPage: page > 1,
     hasNextPage: page < Math.max(1, Math.ceil(products.length / pageSize)),
+    brandFilters: getBrandFilters(products),
+    filterGroups: getFallbackProductFilterGroups(),
   };
 }
 
@@ -196,14 +250,57 @@ export async function listProductsForCategoryPath(
       return createMockProductListingResult(mockProducts, query);
     }
 
-    const response = await fetchCatalogCategoryProducts(routeNode.apiId, query);
-    const result = mapCatalogCategoryProductsResponse(response);
+    const [productsResponse, brandsResponse, filtersResponse] = await Promise.all([
+      fetchCatalogCategoryProducts(routeNode.apiId, query),
+      fetchCatalogCategoryBrands(routeNode.apiId, query).catch((error) => {
+        if (shouldThrowCatalogProductsApiError()) {
+          throw error;
+        }
 
-    console.info("[catalog-api] Category products loaded from API", routeNode.apiId, {
-      total: result.total,
-      page: result.page,
-      pageSize: result.pageSize,
+        console.warn("[catalog-api] Category brands fallback to product filters", error);
+
+        return undefined;
+      }),
+      fetchCatalogProductFilters().catch((error) => {
+        if (shouldThrowCatalogProductsApiError()) {
+          throw error;
+        }
+
+        console.warn("[catalog-api] Product filters fallback to constants", error);
+
+        return undefined;
+      }),
+    ]);
+    const brands = brandsResponse
+      ? mapCatalogCategoryBrandsResponse(brandsResponse)
+      : [];
+    const brandMap = createCategoryBrandMap(brands);
+    const result = mapCatalogCategoryProductsResponse(productsResponse, {
+      brandMap,
     });
+    result.brandFilters =
+      brands.length > 0
+        ? mapCategoryBrandsToFilterItems(brands)
+        : getBrandFilters(result.products);
+    result.filterGroups = filtersResponse
+      ? mapCatalogProductFiltersResponse(filtersResponse)
+      : getFallbackProductFilterGroups();
+
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[catalog-products-query]", {
+        categoryId: routeNode.apiId,
+        page: query?.page ?? 1,
+        pageSize: query?.pageSize ?? 20,
+        brandId: query?.brandId,
+        sortBy: query?.sortBy,
+      });
+      console.info("[catalog-products-result]", {
+        total: result.total,
+        page: result.page,
+        firstProductPrices: result.products.slice(0, 8).map((product) => product.price),
+        brandFilters: result.brandFilters.length,
+      });
+    }
 
     return result;
   } catch (error) {

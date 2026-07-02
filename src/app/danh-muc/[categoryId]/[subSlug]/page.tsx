@@ -102,6 +102,20 @@ export default async function SubcategoryPage({
       products={productListing.products}
       categoryDetail={categoryDetail}
       productCount={productListing.total || categoryDetail?.productCount}
+      brandFilters={productListing.brandFilters}
+      filterGroups={productListing.filterGroups}
+      pagination={
+        productListing.usesServerPagination
+          ? {
+              total: productListing.total,
+              page: productListing.page,
+              pageSize: productListing.pageSize,
+              totalPages: productListing.totalPages,
+              hasPreviousPage: productListing.hasPreviousPage,
+              hasNextPage: productListing.hasNextPage,
+            }
+          : undefined
+      }
     />
   );
 }
