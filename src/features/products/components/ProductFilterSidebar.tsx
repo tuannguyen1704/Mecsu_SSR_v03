@@ -3,52 +3,33 @@
 import { memo, useMemo, useState } from "react";
 import { ChevronDown, Filter, Minus, Plus, Search, Star, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
+import type { ProductFilterGroup } from "../types/product-filter-group";
 
 interface FilterItem {
   id: string;
   label: string;
+  value?: string;
   count?: number;
+  disabled?: boolean;
 }
 
 interface ProductFilterSidebarProps {
   brandFilters: FilterItem[];
   selectedBrands: string[];
   onBrandToggle: (brand: string) => void;
-  selectedAvailability: string[];
-  onAvailabilityToggle: (value: string) => void;
+  filterGroups: ProductFilterGroup[];
+  selectedFilterValues: Record<string, string[]>;
+  onFilterToggle: (queryKey: string, value: string) => void;
   variant?: "desktop" | "mobile";
 }
-
-const MATERIAL_FILTERS: FilterItem[] = [
-  { id: "steel", label: "Thép", count: 1200 },
-  { id: "inox304", label: "Inox 304", count: 850 },
-  { id: "inox316", label: "Inox 316", count: 320 },
-  { id: "carbon-steel", label: "Thép Carbon", count: 450 },
-  { id: "aluminum", label: "Nhôm", count: 120 },
-  { id: "brass", label: "Đồng", count: 85 },
-];
-
-const ORIGIN_FILTERS: FilterItem[] = [
-  { id: "vn", label: "Việt Nam", count: 420 },
-  { id: "jp", label: "Nhật Bản", count: 280 },
-  { id: "kr", label: "Hàn Quốc", count: 160 },
-  { id: "cn", label: "Trung Quốc", count: 980 },
-  { id: "de", label: "Đức", count: 90 },
-  { id: "us", label: "Mỹ", count: 74 },
-];
-
-const AVAILABILITY_FILTERS: FilterItem[] = [
-  { id: "in_stock", label: "Sẵn hàng tại kho" },
-  { id: "express", label: "Giao hàng nhanh 2H" },
-  { id: "preorder", label: "Đặt hàng (7-14 ngày)" },
-];
 
 export const ProductFilterSidebar = memo(function ProductFilterSidebar({
   brandFilters,
   selectedBrands,
   onBrandToggle,
-  selectedAvailability,
-  onAvailabilityToggle,
+  filterGroups,
+  selectedFilterValues,
+  onFilterToggle,
   variant = "desktop",
 }: ProductFilterSidebarProps) {
   const isMobile = variant === "mobile";
@@ -63,7 +44,7 @@ export const ProductFilterSidebar = memo(function ProductFilterSidebar({
         className={
           isMobile
             ? "w-full min-w-0 bg-[#f5f5f5]"
-            : "flex h-[calc(100vh-8px)] flex-col overflow-hidden border-r border-slate-200 bg-[#f5f5f5] lg:sticky lg:top-2"
+            : "z-20 flex h-[calc(100dvh-4rem)] flex-col overflow-hidden border-r border-slate-200 bg-[#f5f5f5] lg:sticky lg:top-16 xl:top-20 xl:h-[calc(100dvh-5rem)]"
         }
       >
         <div className="flex shrink-0 items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
@@ -83,30 +64,21 @@ export const ProductFilterSidebar = memo(function ProductFilterSidebar({
           }
         >
           <div className="bg-white">
-            <FilterGroup
-              title="Sẵn có & Giao hàng"
-              items={AVAILABILITY_FILTERS}
-              selectedItems={selectedAvailability}
-              onToggle={onAvailabilityToggle}
-            />
+            {filterGroups.map((group) => (
+              <FilterGroup
+                key={group.id}
+                title={group.title}
+                items={group.options}
+                selectedItems={selectedFilterValues[group.queryKey] || []}
+                onToggle={(value) => onFilterToggle(group.queryKey, value)}
+                searchable={group.searchable}
+              />
+            ))}
             <FilterGroup
               title="Thương hiệu"
               items={brandFilters}
               selectedItems={selectedBrands}
               onToggle={onBrandToggle}
-            />
-            <FilterGroup
-              title="Vật liệu"
-              items={MATERIAL_FILTERS}
-              selectedItems={[]}
-              onToggle={() => undefined}
-            />
-            <FilterGroup
-              title="Xuất xứ"
-              items={ORIGIN_FILTERS}
-              selectedItems={[]}
-              onToggle={() => undefined}
-              searchable
             />
 
             <div className="border-b border-slate-200 px-5 py-6">
@@ -240,17 +212,25 @@ function FilterGroup({
                 }`}
               >
                 {displayItems.map((item) => (
-                  <label key={item.id} className="group flex cursor-pointer items-start py-0.5">
+                  <label
+                    key={item.id}
+                    className={`group flex items-start py-0.5 ${
+                      item.disabled
+                        ? "cursor-not-allowed opacity-50"
+                        : "cursor-pointer"
+                    }`}
+                  >
                     <input
                       type="checkbox"
-                      checked={selectedItems.includes(item.id)}
-                      onChange={() => onToggle(item.id)}
-                      className="mt-0.5 h-4 w-4 cursor-pointer appearance-none rounded-none border border-slate-300 transition-all checked:border-[#1a1a1a] checked:bg-[#1a1a1a]"
+                      checked={selectedItems.includes(item.value || item.id)}
+                      onChange={() => onToggle(item.value || item.id)}
+                      disabled={item.disabled}
+                      className="mt-0.5 h-4 w-4 cursor-pointer appearance-none rounded-none border border-slate-300 transition-all checked:border-[#1a1a1a] checked:bg-[#1a1a1a] disabled:cursor-not-allowed"
                     />
                     <div className="ml-3 flex min-w-0 flex-1 items-start justify-between gap-2">
                       <span
                         className={`min-w-0 break-words text-sm leading-tight transition-colors ${
-                          selectedItems.includes(item.id)
+                          selectedItems.includes(item.value || item.id)
                             ? "font-medium text-[#163F78]"
                             : "font-normal text-[#475569] group-hover:text-[#0F172A]"
                         }`}

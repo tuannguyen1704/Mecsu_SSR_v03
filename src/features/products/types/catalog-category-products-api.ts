@@ -7,6 +7,7 @@ export type CatalogCategoryProductDto = {
   listPrice?: number | null;
   price?: number | null;
   brandId?: number | null;
+  brandName?: string | null;
   origin?: string | null;
   stockQuantity?: number | null;
   status?: number | null;
@@ -32,6 +33,14 @@ export type CatalogCategoryProductsQuery = {
   page?: number;
   pageSize?: number;
   keyword?: string;
+  sortBy?: string;
   brandId?: number;
   instock?: boolean;
+  instockVendor?: boolean;
+  nextDayShipping?: boolean;
+  discountForApp?: boolean;
+  partType?: string;
+  stockLevel?: string;
+  partWebSellable?: boolean;
+  partSellable?: boolean;
 };

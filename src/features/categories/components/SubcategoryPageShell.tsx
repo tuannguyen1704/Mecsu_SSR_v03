@@ -1,7 +1,12 @@
 import Image from "next/image";
 import type { Product } from "@/features/products/types/product";
 import type { Category, CategorySubcategory } from "../types/category";
-import { CategoryListingClient } from "./CategoryListingClient";
+import {
+  CategoryListingClient,
+  type CategoryListingPagination,
+} from "./CategoryListingClient";
+import type { ProductFilterOption } from "../services/category-listing";
+import type { ProductFilterGroup } from "@/features/products/types/product-filter-group";
 import {
   stripHtml,
   type CategoryDetail,
@@ -17,6 +22,9 @@ interface SubcategoryPageShellProps {
   parentSubcategory?: CategorySubcategory;
   categoryDetail?: CategoryDetail;
   productCount?: number;
+  pagination?: CategoryListingPagination;
+  brandFilters?: ProductFilterOption[];
+  filterGroups?: ProductFilterGroup[];
 }
 
 export function SubcategoryPageShell({
@@ -26,6 +34,9 @@ export function SubcategoryPageShell({
   parentSubcategory,
   categoryDetail,
   productCount,
+  pagination,
+  brandFilters,
+  filterGroups,
 }: SubcategoryPageShellProps) {
   const parentName = parentSubcategory?.name ?? category.name;
   const detailDescription = stripHtml(
@@ -78,6 +89,9 @@ export function SubcategoryPageShell({
       <CategoryListingClient
         title={subcategory.name}
         products={products}
+        pagination={pagination}
+        brandFilters={brandFilters}
+        filterGroups={filterGroups}
         productCountLabel={
           typeof productCount === "number"
             ? `${productCount.toLocaleString("vi-VN")} sản phẩm`
