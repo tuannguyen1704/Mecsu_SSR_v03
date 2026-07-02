@@ -23,6 +23,7 @@ import {
 } from "@/features/promotions/events";
 import HeaderAccountMenu from "./HeaderAccountMenu";
 import HeaderCartButton from "./HeaderCartButton";
+import HeaderCategoryMenu from "./HeaderCategoryMenu";
 import HeaderSearch from "./HeaderSearch";
 import MobileHeader from "./MobileHeader";
 
@@ -30,10 +31,6 @@ const AuthModal = dynamic(
   () => import("@/features/auth/components/AuthModal"),
   { ssr: false },
 );
-
-const HeaderCategoryMenu = dynamic(() => import("./HeaderCategoryMenu"), {
-  ssr: false,
-});
 
 interface HeaderClientProps {
   categories: HeaderCategory[];
